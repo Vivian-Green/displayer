@@ -1,6 +1,6 @@
 # Displayer
 
-**Displayer** is a plugin for managing Display entities in your Minecraft server.
+**Displayer** is a spigot plugin for managing Display entities in your Minecraft server.
 
 ## Features
 
