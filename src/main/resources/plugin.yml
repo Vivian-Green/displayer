@@ -54,3 +54,20 @@ commands:
       changesize:
         description: Change size for the selected display
         usage: /advdisplay changesize <sizeOffset>
+      rename:
+        description: Set the name for a given display
+        usage: /advdisplay rename <name>
+      details:
+        description: gives you the details of your selected display
+        usage: /advdisplay details
+
+  displaygroup:
+    description: Commands for handling grouped displays
+    usage: /displaygroup parent <parentName> | unparent
+    subcommands:
+      parent:
+        description: sets the parent of the selected display
+        usage: /displaygroup parent <parentName>
+      unparent:
+        description: unsets the parent of the selected display
+        usage: /displaygroup unparent

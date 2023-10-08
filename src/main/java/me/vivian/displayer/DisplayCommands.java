@@ -10,8 +10,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.util.Transformation;
+import org.joml.Quaternionf;
 import org.joml.Vector3i;
 
 import java.util.*;
@@ -21,16 +25,20 @@ import java.util.*;
  */
 public class DisplayCommands implements CommandExecutor {
     private PluginDescriptionFile pluginDesc;
+    private Plugin plugin;
 
     /**
      * Constructor
      *
-     * @param pluginDescription The plugin's description file containing subcommand information.
+     * @param thisPlugin The plugin
      */
-    public DisplayCommands(PluginDescriptionFile pluginDescription) {
-        pluginDesc = pluginDescription;
+    public DisplayCommands(Plugin thisPlugin) {
+        plugin = thisPlugin;
+        pluginDesc = plugin.getDescription();
+        nbtm = new NBTMagic(plugin);
     }
     ItemManipulation im = new ItemManipulation();
+    NBTMagic nbtm;
 
     private final Map<Player, List<Display>> nearbyDisplays = new HashMap<>();
     private final Map<Player, Display> selectedDisplays = new HashMap<>();
@@ -74,7 +82,7 @@ public class DisplayCommands implements CommandExecutor {
             }
         } else if (label.equalsIgnoreCase("advdisplay")) {
             if (args.length < 1) {
-                player.sendMessage("Usage: /advdisplay select <index> | setrotation <yaw> <pitch> | changerotation <yawOffset> <pitchOffset> | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset>");
+                player.sendMessage("Usage: /advdisplay select <index> | setrotation <yaw> <pitch> | changerotation <yawOffset> <pitchOffset> | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset> | rename <name>");
                 return false;
             }
 
@@ -96,13 +104,219 @@ public class DisplayCommands implements CommandExecutor {
                 case "changesize":
                     handleDisplaySizeCommand(player, args);
                     break;
+                case "rename":
+                    handleDisplayRenameCommand(player, args);
+                    break;
+                case "details":
+                    handleDisplayDetailsCommand(player);
+                    break;
                 default:
                     player.sendMessage("Invalid subcommand for /advdisplay. Try /advdisplay help");
             }
-        }
+        } else if (label.equalsIgnoreCase("displaygroup")) {
+            if (args.length < 1) {
+                player.sendMessage("Usage: /displaygroup setparent <parentname>");
+                return false;
+            }
 
+            String subCommand = args[0].toLowerCase();
+
+            switch (subCommand) {
+                case "parent":
+                    handleDisplaySetParentCommand(player, args);
+                    break;
+                case "unparent":
+                    handleDisplayUnparentCommand(player);
+                    break;
+                default:
+                    player.sendMessage("Invalid subcommand for /displaygroup. Try /displaygroup help");
+            }
+        }
         return true;
     }
+
+    /**
+     * Sends detailed info about the selected display to the player.
+     *
+     * @param player The player who executed the command.
+     */
+    private void handleDisplayDetailsCommand(Player player) {
+        // Get the selected display for the player
+        Display selectedDisplay = selectedDisplays.get(player);
+
+        if (selectedDisplay == null) {
+            player.sendMessage("You haven't selected a display.");
+            return;
+        }
+
+        // Get custom NBT data
+        String displayName = nbtm.getStringNBT(selectedDisplay, "VivDisplayName");
+        String parentUUID = nbtm.getStringNBT(selectedDisplay, "VivDisplayParentUUID");
+        boolean isChild = nbtm.getBoolNBT(selectedDisplay, "VivDisplayIsChild");
+        boolean isParent = nbtm.getBoolNBT(selectedDisplay, "VivDisplayIsParent");
+
+
+        // Get display information
+        ItemStack displayItem = getItemStackFromDisplay(selectedDisplay);
+        Material displayMaterial = displayItem.getType();
+        Location displayLocation = locationRoundedTo(selectedDisplay.getLocation(), 2);
+
+        double currentYaw = roundTo(displayLocation.getYaw(), 2);
+        double currentPitch = roundTo(displayLocation.getPitch(), 2);
+        double currentRoll = roundTo(getTransRoll(selectedDisplay.getTransformation()), 2);
+        double currentSize = roundTo(selectedDisplay.getTransformation().getScale().x, 2);
+
+        // Calculate the distance from the player to the display
+        double distance = roundTo(player.getLocation().distance(displayLocation), 2);
+
+        // Send the details to the player
+        player.sendMessage("Display Name: " + displayName);
+        player.sendMessage("Display Material: " + displayMaterial);
+        player.sendMessage("Display Position: X=" + displayLocation.getX() + " Y=" + displayLocation.getY() + " Z=" + displayLocation.getZ());
+        player.sendMessage("Display Rotation: Yaw=" + currentYaw + " Pitch=" + currentPitch + " Roll=" + currentRoll);
+        player.sendMessage("Display Size: " + currentSize);
+        player.sendMessage("Distance to Display: " + distance);
+
+        // Send NBT data related to parent and child
+        if(isChild){
+            player.sendMessage("Parent UUID: " + parentUUID);
+        }
+        player.sendMessage("Is Parent: " + isParent);
+    }
+
+
+
+    private void handleDisplaySetParentCommand(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage("Usage: /displaygroup setparent <parentname>");
+            return;
+        }
+
+        String parentName = args[1]; // Get the parent display name to set
+
+        // Get the nearby displays within a radius of 5 blocks
+        List<Display> nearbyDisplays = getNearbyDisplays(player, 5);
+
+        // Find the first display with the specified "VivDisplayName" NBT tag equal to parentName
+        Display parentDisplay = null;
+        for (Display display : nearbyDisplays) {
+            String displayName = nbtm.getStringNBT(display, "VivDisplayName");
+            if (displayName != null && displayName.equals(parentName)) {
+                parentDisplay = display;
+                break; // Found the parent display, exit the loop
+            }
+        }
+
+        if (parentDisplay == null) {
+            player.sendMessage("No nearby display with the name '" + parentName + "' found.");
+            return;
+        }
+
+        // Get the UUID of the parent display
+        UUID parentUUID = parentDisplay.getUniqueId();
+
+        // Get the selected display for the player
+        Display selectedDisplay = selectedDisplays.get(player);
+
+        if (selectedDisplay == null) {
+            player.sendMessage("You haven't selected a display to set as a child.");
+            return;
+        }
+
+        // Set the "VivDisplayParentUUID" tag of the selected display to the parent's UUID
+        nbtm.setNBT(selectedDisplay, "VivDisplayParentUUID", parentUUID.toString());
+
+        // Set the "VivDisplayIsParent" tag of the parent display to true
+        nbtm.setNBT(parentDisplay, "VivDisplayIsParent", true);
+        nbtm.setNBT(selectedDisplay, "VivDisplayIsChild", true);
+
+        player.sendMessage("The selected display is now a child of '" + parentName + "'.");
+    }
+
+    private void handleDisplayUnparentCommand(Player player) {
+        // Get the selected display for the player
+        Display selectedDisplay = selectedDisplays.get(player);
+
+        if (selectedDisplay == null) {
+            player.sendMessage("You haven't selected a display to unparent.");
+            return;
+        }
+
+        // Get the UUID of the parent display from the selected display's NBT
+        String parentUUIDStr = nbtm.getStringNBT(selectedDisplay, "VivDisplayParentUUID");
+
+        if (parentUUIDStr == null) {
+            player.sendMessage("The selected display is not a child display.");
+            return;
+        }
+
+        UUID parentUUID;
+        try {
+            parentUUID = UUID.fromString(parentUUIDStr);
+        } catch (IllegalArgumentException e) {
+            player.sendMessage("Invalid parent UUID in the selected display's NBT.");
+            return;
+        }
+
+        // Get the parent display based on the parent UUID
+        Display parentDisplay = getDisplayByUUID(player, parentUUID);
+
+        // Unset the parent NBT tags
+        nbtm.setNBT(selectedDisplay, "VivDisplayParentUUID", "");
+        nbtm.setNBT(selectedDisplay, "VivDisplayIsChild", false);
+
+        // todo: list of children parented to a display, to set a display's IsParent properly
+        // todo: ability to delete nbt
+
+        if (parentDisplay == null) {
+            player.sendMessage("The parent display no longer exists.");
+            return;
+        }
+
+        player.sendMessage("The selected display is now unparented.");
+    }
+
+    // Helper method to find a display by UUID
+    private Display getDisplayByUUID(Player player, UUID uuid) {
+        // todo: SURELY you can just getEntityByUUID??
+        for (Display display : getAllDisplays(player)) {
+            if (display.getUniqueId().equals(uuid)) {
+                return display;
+            }
+        }
+        return null;
+    }
+
+
+
+    /**
+     * Handles the renaming of a selected display by adding a custom NBT tag with the name "name."
+     * If a valid display is selected and the renaming is successful, it updates the display's name.
+     *
+     * @param player The player who issued the command.
+     * @param args   The command arguments, where args[1] is the new name.
+     */
+    private void handleDisplayRenameCommand(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage("Usage: /advdisplay rename <name>");
+            return;
+        }
+
+        String name = args[1]; // Get the name to set
+
+        // Get the selected display for the player
+        Display selectedDisplay = selectedDisplays.get(player);
+
+        if (selectedDisplay == null) {
+            player.sendMessage("You haven't selected a display to rename.");
+            return;
+        }
+
+        nbtm.setNBT(selectedDisplay, "VivDisplayName", name);
+        player.sendMessage("this display is now called " + name);
+    }
+
+
 
     /**
      * writes an awful, technical, /help message
@@ -544,33 +758,49 @@ public class DisplayCommands implements CommandExecutor {
      * gets nearby Displays for a player in a given radius.
      *
      * @param player The player to search near.
+     * @return A list of nearby Displays.
+     */
+    private List<Display> getAllDisplays(Player player) {
+        // todo: STORE THESE SOMEWHERE???
+        List<Display> allDisplays = new ArrayList<>();
+
+        for (Entity entity : player.getWorld().getEntities()) {
+            if(entity instanceof Display){
+                allDisplays.add((Display) entity);
+            }
+        }
+
+        return allDisplays;
+    }
+
+    /**
+     * gets nearby Displays for a player in a given radius.
+     *
+     * @param player The player to search near.
      * @param radius The search radius for nearby Displays.
      * @return A list of nearby Displays.
      */
     private List<Display> getNearbyDisplays(Player player, int radius) {
-        List<Display> nearbyEntities = new ArrayList<>();
+        List<Display> nearbyDisplays = new ArrayList<>();
 
         Vector3i playerLocation = new Vector3i(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
 
         int maxTaxicabDistance = (int) Math.ceil(Math.sqrt(3) * radius); //maximum taxicab distance 
 
-        for (Entity entity : player.getWorld().getEntities()) {
-            if(entity instanceof Display){
-                Location entityLocation = entity.getLocation();
+        for (Display display : getAllDisplays(player)) {
+            Location displayLocation = display.getLocation();
 
-                int xDistance = Math.abs(playerLocation.x - entityLocation.getBlockX());
-                int yDistance = Math.abs(playerLocation.y - entityLocation.getBlockY());
-                int zDistance = Math.abs(playerLocation.z - entityLocation.getBlockZ());
+            int xDistance = Math.abs(playerLocation.x - displayLocation.getBlockX());
+            int yDistance = Math.abs(playerLocation.y - displayLocation.getBlockY());
+            int zDistance = Math.abs(playerLocation.z - displayLocation.getBlockZ());
 
-                int totalDistance = xDistance + yDistance + zDistance;
+            int totalDistance = xDistance + yDistance + zDistance;
 
-                if (totalDistance <= maxTaxicabDistance) {
-                    nearbyEntities.add((Display) entity);
-                }
+            if (totalDistance <= maxTaxicabDistance) {
+                nearbyDisplays.add(display);
             }
         }
-
-        return nearbyEntities;
+        return nearbyDisplays;
     }
 
     /**
@@ -694,6 +924,20 @@ public class DisplayCommands implements CommandExecutor {
         }
     }
 
+    /**
+     * gets the roll in degrees from a given (transformation)'s right rotation component.
+     *
+     * @param transformation The transformation containing rotation information.
+     * @return The roll angle in degrees.
+     */
+    public static float getTransRoll(Transformation transformation) {
+        // Get the right rotation component
+        Quaternionf rollRotation = transformation.getRightRotation();
+
+        // Calculate the roll in degrees from the quaternion
+        return (float) Math.toDegrees(2.0 * Math.atan2(rollRotation.x, rollRotation.w));
+    }
+
 
     /**
      * Handles the positioning of a selected Display for a player.
@@ -808,6 +1052,21 @@ public class DisplayCommands implements CommandExecutor {
     }
 
     /**
+     * rounds a (location)'s position to (places)
+     *
+     * @param location The original location.
+     * @param places   The number of decimal places to round to.
+     * @return A new location with rounded coordinates.
+     */
+    private Location locationRoundedTo(Location location, int places) {
+        double x = roundTo((float) location.getX(), places);
+        double y = roundTo((float) location.getY(), places);
+        double z = roundTo((float) location.getZ(), places);
+
+        return new Location(location.getWorld(), x, y, z, location.getYaw(), location.getPitch());
+    }
+
+    /**
      * sends (player) a hyperlink to select a (display) with a given (index)
      *
      * @param player  The player who will receive the hyperlink.
@@ -824,6 +1083,11 @@ public class DisplayCommands implements CommandExecutor {
 
         // get distance rounded to 2 places
         double distance = roundTo(location.distance(playerLocation), 2);
+
+        String name = nbtm.getStringNBT(display, "VivDisplayName");
+        if(name == null){
+            name = "";
+        }
 
         Material displayMaterial;
         String displayTypeStr;
@@ -845,7 +1109,7 @@ public class DisplayCommands implements CommandExecutor {
         }
 
         // create message to select this display, if it's not borked
-        TextComponent message = new TextComponent(ChatColor.BLUE + "Click to select " + displayTypeStr + " holding " + displayMaterial.toString() + ", " + distance + " blocks away");
+        TextComponent message = new TextComponent(ChatColor.BLUE + "Click to select " + displayTypeStr + " '" + name + "' holding " + displayMaterial.toString() + ", " + distance + " blocks away");
         message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/advdisplay select " + index));
         // send it
         player.spigot().sendMessage(message);

@@ -30,7 +30,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
     public void registerCommand(CommandExecutor commandExecutor, SubCommandExecutor subCommandExecutor, String commandName){
         getCommand(commandName).setExecutor(commandExecutor);
-        getCommand("display").setTabCompleter(subCommandExecutor);
+        getCommand(commandName).setTabCompleter(subCommandExecutor);
     }
 
     @Override
@@ -39,11 +39,12 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // Plugin startup logic
         System.out.println("THIS IS VERY WIP AND SHOULD NOT BE ON A PUBLIC SERVER");
 
-        CommandExecutor mainCommandExecutor = new DisplayCommands(getDescription());
+        CommandExecutor mainCommandExecutor = new DisplayCommands(this);
         SubCommandExecutor subCommandExecutor = new SubCommandExecutor(getDescription());
 
         registerCommand(mainCommandExecutor, subCommandExecutor, "display");
         registerCommand(mainCommandExecutor, subCommandExecutor, "advdisplay");
+        registerCommand(mainCommandExecutor, subCommandExecutor, "displaygroup");
 
         // Register event listeners
         getServer().getPluginManager().registerEvents(this, this);

@@ -14,19 +14,7 @@ public class Unused {
     public Unused() {}
 
 
-    /**
-     * gets the roll in degrees from a given (transformation)'s right rotation component.
-     *
-     * @param transformation The transformation containing rotation information.
-     * @return The roll angle in degrees.
-     */
-    public static float getTransRoll(Transformation transformation) {
-        // Get the right rotation component
-        Quaternionf rollRotation = transformation.getRightRotation();
 
-        // Calculate the roll in degrees from the quaternion
-        return (float) Math.toDegrees(2.0 * Math.atan2(rollRotation.x, rollRotation.w));
-    }
 
     /**
      * Determines whether two (locations) are within a given (radius) of each other.
@@ -50,20 +38,5 @@ public class Unused {
     private float roundTo(float num, int places){
         float mult = (float) Math.pow(10, places);
         return Math.round(num * mult)/mult;
-    }
-
-    /**
-     * rounds a (location)'s position to (places)
-     *
-     * @param location The original location.
-     * @param places   The number of decimal places to round to.
-     * @return A new location with rounded coordinates.
-     */
-    private Location locationRoundedTo(Location location, int places) {
-        double x = roundTo((float) location.getX(), places);
-        double y = roundTo((float) location.getY(), places);
-        double z = roundTo((float) location.getZ(), places);
-
-        return new Location(location.getWorld(), x, y, z, location.getYaw(), location.getPitch());
     }
 }
