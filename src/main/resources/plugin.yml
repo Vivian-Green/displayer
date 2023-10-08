@@ -1,0 +1,48 @@
+name: displayer
+version: '${project.version}'
+main: me.vivian.displayer.EventListeners
+api-version: '1.20'
+
+commands:
+  display:
+    description: Main command for managing displays
+    usage: /display create | destroy [[nearby] [maxCount] [radius]] | select <index> | setrotation <yaw> <pitch> | changerotation <yawOffset> <pitchOffset> | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset> | gui>
+    aliases:
+      - displayer
+    subcommands:
+      create:
+        description: Create a new display
+        usage: /display create <item | block> [atSelected]
+      nearby:
+        description: List nearby displays
+        usage: /display destroy [nearby] [maxCount] [radius]
+      select:
+        description: Select a display by index
+        usage: /display select <index>
+      closest:
+        description: Select the closest display
+        usage: /display closest
+      setrotation:
+        description: Set rotation for the selected display
+        usage: /display setrotation <yaw> <pitch> [roll]
+      changerotation:
+        description: Change rotation for the selected display
+        usage: /display changerotation <yawOffset> <pitchOffset> [rollOffset]
+      setposition:
+        description: Set position for the selected display
+        usage: /display setposition <x> <y> <z>
+      changeposition:
+        description: Change position for the selected display
+        usage: /display changeposition <xOffset> <yOffset> <zOffset>
+      setsize:
+        description: Set size for the selected display
+        usage: /display setsize <size>
+      changesize:
+        description: Change size for the selected display
+        usage: /display changesize <sizeOffset>
+      gui:
+        description: Open a graphical user interface for display management
+        usage: /display gui
+      help:
+        description: Display plugin help
+        usage: /display help
