@@ -15,7 +15,10 @@ commands:
         usage: /display create <item | block> [atSelected]
       nearby:
         description: List nearby displays
-        usage: /display destroy [nearby] [maxCount] [radius]
+        usage: /display nearby [radius]
+      destroy:
+        description: destroy display(s)
+        usage: /display destroy [<nearby> [maxCount] [radius]]
       select:
         description: Select a display by index
         usage: /display select <index>
