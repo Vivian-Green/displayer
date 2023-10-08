@@ -14,13 +14,13 @@
 
 - **/display gui**: Open a graphical user interface for display management
 - **/display help**: Display plugin help
-<br>
+<\br><\br>
 - **/display create \<item | block\> [atSelected]**: Create a new display of the specified type, optionally at a previously selected display
 - **/display destroy [nearby] [maxCount] [radius]**: Destroy display(s)
-<br>
+<\br><\br>
 - **/display closest**: Select the closest display
 - **/display nearby [radius]**: List nearby displays
-<br>
+<\br><\br>
 - **/display setrotation \<yaw\> \<pitch\> [roll]**: Set the rotation for the selected display
 - **/display changerotation \<yawOffset\> \<pitchOffset\> [rollOffset]**: Change the rotation for the selected display
 - **/display setposition \<x\> \<y\> \<z\>**: Set the position for the selected display
