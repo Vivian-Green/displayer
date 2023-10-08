@@ -28,20 +28,22 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
     ItemManipulation im = new ItemManipulation();
 
+    public void registerCommand(CommandExecutor commandExecutor, SubCommandExecutor subCommandExecutor, String commandName){
+        getCommand(commandName).setExecutor(commandExecutor);
+        getCommand("display").setTabCompleter(subCommandExecutor);
+    }
+
     @Override
     public void onEnable() {
         // todo: un-gpt comments lmao
         // Plugin startup logic
-        System.out.println("Plugin is now active.");
+        System.out.println("THIS IS VERY WIP AND SHOULD NOT BE ON A PUBLIC SERVER");
 
-        // Register command handlers
         CommandExecutor mainCommandExecutor = new DisplayCommands(getDescription());
-        getCommand("display").setExecutor(mainCommandExecutor);
-        getCommand("displayer").setExecutor(mainCommandExecutor);
+        SubCommandExecutor subCommandExecutor = new SubCommandExecutor(getDescription());
 
-        // Register tab completions
-        TabCompleter subCommandExecutor = new SubCommandExecutor(getDescription());
-        getCommand("display").setTabCompleter(subCommandExecutor);
+        registerCommand(mainCommandExecutor, subCommandExecutor, "display");
+        registerCommand(mainCommandExecutor, subCommandExecutor, "advdisplay");
 
         // Register event listeners
         getServer().getPluginManager().registerEvents(this, this);
@@ -54,8 +56,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        // todo: un-gpt comments lmao
-        // Check if inventory is not display GUI
+        // Check if inventory is not the display GUI
         if (!event.getView().getTitle().equals("display GUI")) {
             return;
         }
@@ -83,63 +84,62 @@ public final class EventListeners extends JavaPlugin implements Listener {
         Vector2i selectedSlot = new Vector2i(column, row);
 
         // Determine the multiplier based on shift-click & right click
-        // regular click: 1
-        // shift click: 10
-        // right click OR shift right click: 0.1
+        // Regular click: 1
+        // Shift click: 10
+        // Right click OR shift right click: 0.1
         double multiplier = event.isShiftClick() ? multiplierFastValue : 1.0;
-        multiplier = multiplier/(event.isRightClick() ? (multiplierFastValue*multiplier) : 1.0);
+        multiplier = multiplier / (event.isRightClick() ? (multiplierFastValue * multiplier) : 1.0);
 
-        // todo: this can surely be done in a more readable way, right?
-        // Generate the command string with the multiplier
+        // Generate the command string with the multiplier for the /advdisplay command
         String command;
         switch (selectedSlot.x + "," + selectedSlot.y) {
             case "1,1":
-                command = "display changeposition " + (positionScale * multiplier) + " 0 0";
+                command = "advdisplay changeposition " + (positionScale * multiplier) + " 0 0";
                 break;
             case "1,2":
-                command = "display changeposition " + (-positionScale * multiplier) + " 0 0";
+                command = "advdisplay changeposition " + (-positionScale * multiplier) + " 0 0";
                 break;
             case "2,1":
-                command = "display changeposition 0 " + (positionScale * multiplier) + " 0";
+                command = "advdisplay changeposition 0 " + (positionScale * multiplier) + " 0";
                 break;
             case "2,2":
-                command = "display changeposition 0 " + (-positionScale * multiplier) + " 0";
+                command = "advdisplay changeposition 0 " + (-positionScale * multiplier) + " 0";
                 break;
             case "3,1":
-                command = "display changeposition 0 0 " + (positionScale * multiplier);
+                command = "advdisplay changeposition 0 0 " + (positionScale * multiplier);
                 break;
             case "3,2":
-                command = "display changeposition 0 0 " + (-positionScale * multiplier);
+                command = "advdisplay changeposition 0 0 " + (-positionScale * multiplier);
                 break;
             case "4,1":
-                command = "display changerotation " + (rotationScale * multiplier) + " 0 0";
+                command = "advdisplay changerotation " + (rotationScale * multiplier) + " 0 0";
                 break;
             case "4,2":
-                command = "display changerotation " + (-rotationScale * multiplier) + " 0 0";
+                command = "advdisplay changerotation " + (-rotationScale * multiplier) + " 0 0";
                 break;
             case "5,1":
-                command = "display changerotation 0 " + (rotationScale * multiplier) + " 0";
+                command = "advdisplay changerotation 0 " + (rotationScale * multiplier) + " 0";
                 break;
             case "5,2":
-                command = "display changerotation 0 " + (-rotationScale * multiplier) + " 0";
+                command = "advdisplay changerotation 0 " + (-rotationScale * multiplier) + " 0";
                 break;
             case "6,1":
-                command = "display changerotation 0 0 " + (rotationScale * multiplier);
+                command = "advdisplay changerotation 0 0 " + (rotationScale * multiplier);
                 break;
             case "6,2":
-                command = "display changerotation 0 0 " + (-rotationScale * multiplier);
+                command = "advdisplay changerotation 0 0 " + (-rotationScale * multiplier);
                 break;
             case "7,1":
-                command = "display changesize " + (sizeScale * multiplier);
+                command = "advdisplay changesize " + (sizeScale * multiplier);
                 break;
             case "7,2":
-                command = "display changesize " + (-sizeScale * multiplier);
+                command = "advdisplay changesize " + (-sizeScale * multiplier);
                 break;
             case "8,1":
-                command = "display changebrightness " + (brightnessScale * multiplier);
+                command = "advdisplay changebrightness " + (brightnessScale * multiplier);
                 break;
             case "8,2":
-                command = "display changebrightness " + (-brightnessScale * multiplier);
+                command = "advdisplay changebrightness " + (-brightnessScale * multiplier);
                 break;
             default:
                 return; // No action for other slots
@@ -148,5 +148,6 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // Execute the command
         player.performCommand(command);
     }
+
 }
 

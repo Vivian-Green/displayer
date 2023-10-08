@@ -6,7 +6,7 @@ api-version: '1.20'
 commands:
   display:
     description: Main command for managing displays
-    usage: /display create | destroy [[nearby] [maxCount] [radius]] | select <index> | setrotation <yaw> <pitch> | changerotation <yawOffset> <pitchOffset> | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset> | gui>
+    usage: /display create | closest [radius] | nearby [radius] | destroy [<nearby> [maxCount] [radius]] | gui | help
     aliases:
       - displayer
     subcommands:
@@ -15,37 +15,42 @@ commands:
         usage: /display create <item | block> [atSelected]
       nearby:
         description: List nearby displays
-        usage: /display nearby [radius]
-      destroy:
-        description: destroy display(s)
-        usage: /display destroy [<nearby> [maxCount] [radius]]
-      select:
-        description: Select a display by index
-        usage: /display select <index>
+        usage: /display nearby [radius = 5]
       closest:
-        description: Select the closest display
-        usage: /display closest
-      setrotation:
-        description: Set rotation for the selected display
-        usage: /display setrotation <yaw> <pitch> [roll]
-      changerotation:
-        description: Change rotation for the selected display
-        usage: /display changerotation <yawOffset> <pitchOffset> [rollOffset]
-      setposition:
-        description: Set position for the selected display
-        usage: /display setposition <x> <y> <z>
-      changeposition:
-        description: Change position for the selected display
-        usage: /display changeposition <xOffset> <yOffset> <zOffset>
-      setsize:
-        description: Set size for the selected display
-        usage: /display setsize <size>
-      changesize:
-        description: Change size for the selected display
-        usage: /display changesize <sizeOffset>
+        description: select the closest display
+        usage: /display closest [radius = 5]
+      destroy:
+        description: Destroy display(s)
+        usage: /display destroy [<nearby> [maxCount = 1] [radius = 5]]
       gui:
         description: Open a graphical user interface for display management
         usage: /display gui
       help:
         description: Display plugin help
         usage: /display help
+
+  advdisplay:
+    description: Advanced display manipulation commands
+    usage: /advdisplay select <index> | setrotation <yaw> <pitch> [roll] | changerotation <yawOffset> <pitchOffset> [rollOffset] | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset>
+    subcommands:
+      select:
+        description: Select a display by index
+        usage: /advdisplay select <index>
+      setrotation:
+        description: Set rotation for the selected display
+        usage: /advdisplay setrotation <yaw> <pitch> [roll]
+      changerotation:
+        description: Change rotation for the selected display
+        usage: /advdisplay changerotation <yawOffset> <pitchOffset> [rollOffset]
+      setposition:
+        description: Set position for the selected display
+        usage: /advdisplay setposition <x> <y> <z>
+      changeposition:
+        description: Change position for the selected display
+        usage: /advdisplay changeposition <xOffset> <yOffset> <zOffset>
+      setsize:
+        description: Set size for the selected display
+        usage: /advdisplay setsize <size>
+      changesize:
+        description: Change size for the selected display
+        usage: /advdisplay changesize <sizeOffset>

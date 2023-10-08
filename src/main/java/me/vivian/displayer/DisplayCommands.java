@@ -44,7 +44,7 @@ public class DisplayCommands implements CommandExecutor {
 
         if (label.equalsIgnoreCase("display") || label.equalsIgnoreCase("displayer")) {
             if (args.length < 1) {
-                player.sendMessage("Usage: /display create | nearby [radius] | select [index] | setrotation <yaw> <pitch>");
+                player.sendMessage("Usage: /display create | nearby [radius] | destroy [nearby] [maxCount] [radius] | gui | help");
                 return false;
             }
 
@@ -54,12 +54,33 @@ public class DisplayCommands implements CommandExecutor {
                 case "create":
                     handleDisplayCreateCommand(player, args);
                     break;
-                case "nearby":
-                    handleDisplayNearbyCommand(player, args);
-                    break;
                 case "closest":
                     handleDisplayClosestCommand(player);
                     break;
+                case "nearby":
+                    handleDisplayNearbyCommand(player, args);
+                    break;
+                case "gui":
+                    handleDisplayGUICommand(player);
+                    break;
+                case "destroy":
+                    handleDisplayDestroyCommand(player, args);
+                    break;
+                case "help":
+                    handleDisplayHelpCommand(player);
+                    break;
+                default:
+                    player.sendMessage("Invalid subcommand. Try /display help");
+            }
+        } else if (label.equalsIgnoreCase("advdisplay")) {
+            if (args.length < 1) {
+                player.sendMessage("Usage: /advdisplay select <index> | setrotation <yaw> <pitch> | changerotation <yawOffset> <pitchOffset> | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset>");
+                return false;
+            }
+
+            String subCommand = args[0].toLowerCase();
+
+            switch (subCommand) {
                 case "select":
                     handleDisplaySelectCommand(player, args);
                     break;
@@ -75,44 +96,22 @@ public class DisplayCommands implements CommandExecutor {
                 case "changesize":
                     handleDisplaySizeCommand(player, args);
                     break;
-                case "gui":
-                    handleDisplayGUICommand(player);
-                    break;
-                case "destroy":
-                    handleDisplayDestroyCommand(player, args);
-                    break;
-                case "help":
-                    handleDisplayHelpCommand(player);
-                    break;
                 default:
-                    player.sendMessage("Invalid subcommand. Try /display help");//Usage: /display create <item | block> [atSelected] | destroy [nearby] [maxCount] [radius] | select <index> | setrotation <yaw> <pitch> | changerotation <yawOffset> <pitchOffset> | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset> | gui");
+                    player.sendMessage("Invalid subcommand for /advdisplay. Try /advdisplay help");
             }
         }
+
         return true;
     }
 
     /**
-     * handles /display help
+     * writes an awful, technical, /help message
      *
      * @param player the player to send the help messages to
      */
-    /*private void handleDisplayHelpCommand(Player player) {
-
-
-        player.sendMessage("Display Plugin Help:");
-        player.sendMessage("/display create <item | block> [atSelected] - Create a new display.");
-        player.sendMessage("/display destroy [nearby] [maxCount] [radius] - Destroy nearby displays.");
-        player.sendMessage("/display select <index> - Select a display by index.");
-        player.sendMessage("/display setrotation <yaw> <pitch> - Set rotation for the selected display.");
-        player.sendMessage("/display changerotation <yawOffset> <pitchOffset> - Change rotation for the selected display.");
-        player.sendMessage("/display setposition <x> <y> <z> - Set position for the selected display.");
-        player.sendMessage("/display changeposition <xOffset> <yOffset> <zOffset> - Change position for the selected display.");
-        player.sendMessage("/display setsize <size> - Set size for the selected display.");
-        player.sendMessage("/display changesize <sizeOffset> - Change size for the selected display.");
-        player.sendMessage("/display gui - Open a graphical user interface for display management.");
-    }*/
-
     private void handleDisplayHelpCommand(Player player) {
+        // todo: OH GOD WHY
+        //  WHY?????
         player.sendMessage("Displayer Help:");
 
         Map<String, Map<String, Object>> commands = pluginDesc.getCommands();
@@ -277,7 +276,7 @@ public class DisplayCommands implements CommandExecutor {
             }
         } else {
             System.out.println("destroyDisplay(): tried to destroy a display that was null");
-            player.sendMessage("You must first select a Display using /display select.");
+            player.sendMessage("You must first select a Display");
         }
     }
 
@@ -314,7 +313,7 @@ public class DisplayCommands implements CommandExecutor {
     private Display getSelectedDisplay(Player player) {
         Display selectedDisplay = selectedDisplays.get(player);
         if (selectedDisplay == null) {
-            player.sendMessage("You must first select a Display using /display select.");
+            player.sendMessage("You must first select a Display");
         }
         return selectedDisplay;
     }
@@ -639,7 +638,7 @@ public class DisplayCommands implements CommandExecutor {
                 player.sendMessage("Invalid selection.");
             }
         } else {
-            player.sendMessage("Usage: /display select [index]");
+            player.sendMessage("Usage: /advdisplay select [index]");
         }
     }
 
@@ -686,9 +685,9 @@ public class DisplayCommands implements CommandExecutor {
                 newTransformation.getLeftRotation().rotateYXZ(rollOffset, pitchOffset, yawOffset);
 
                 selectedDisplay.setTransformation(newTransformation);
-                player.sendMessage(isChange ? "Rotation changed for selected Display." : "Rotation set for selected Display.");
+                //player.sendMessage(isChange ? "Rotation changed for selected Display." : "Rotation set for selected Display.");
             } else {
-                player.sendMessage("You must first select a Display using /display select");
+                player.sendMessage("You must first select a Display");
             }
         } else {
             player.sendMessage("Usage: /display " + (isChange ? "changeposition" : "setposition") + " <pitchOffset> <yawOffset> [rollOffset]");
@@ -736,9 +735,9 @@ public class DisplayCommands implements CommandExecutor {
                 // Apply the previous rotation
                 selectedDisplay.setRotation(currentYaw, currentPitch);
 
-                player.sendMessage(isChange ? "Position changed for selected Display." : "Position set for selected Display.");
+                //player.sendMessage(isChange ? "Position changed for selected Display." : "Position set for selected Display.");
             } else {
-                player.sendMessage("You must first select a Display using /display select.");
+                player.sendMessage("You must first select a Display");
             }
         } else {
             player.sendMessage(isChange ? "Usage: /display changeposition <xOffset> <yOffset> <zOffset>"
@@ -847,7 +846,7 @@ public class DisplayCommands implements CommandExecutor {
 
         // create message to select this display, if it's not borked
         TextComponent message = new TextComponent(ChatColor.BLUE + "Click to select " + displayTypeStr + " holding " + displayMaterial.toString() + ", " + distance + " blocks away");
-        message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/display select " + index));
+        message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/advdisplay select " + index));
         // send it
         player.spigot().sendMessage(message);
     }
