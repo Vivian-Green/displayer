@@ -1,7 +1,6 @@
 package me.vivian.displayer;
 
 import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,6 +8,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.joml.Vector2i;
+
+import java.util.HashMap;
 
 /**
  * Handles startup and events relevant to displays/display GUIs.
@@ -57,7 +58,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        // Check if inventory is not the display GUI
+        // ensure this is the display gui
         if (!event.getView().getTitle().equals("display GUI")) {
             return;
         }
@@ -67,15 +68,8 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
         int slot = event.getRawSlot(); // Get the raw slot number
 
-        // Check if the clicked slot is not valid
+        // ensure the clicked slot is within the inventory gui (not player inv)
         if (slot < 0 || slot >= event.getInventory().getSize()) {
-            return;
-        }
-
-        ItemStack clickedItem = event.getInventory().getItem(slot);
-
-        // Check if the clicked slot is empty (does not contain an item)
-        if (clickedItem == null || clickedItem.getType().isAir()) {
             return;
         }
 
@@ -91,64 +85,33 @@ public final class EventListeners extends JavaPlugin implements Listener {
         double multiplier = event.isShiftClick() ? multiplierFastValue : 1.0;
         multiplier = multiplier / (event.isRightClick() ? (multiplierFastValue * multiplier) : 1.0);
 
-        // Generate the command string with the multiplier for the /advdisplay command
-        String command;
-        switch (selectedSlot.x + "," + selectedSlot.y) {
-            case "1,1":
-                command = "advdisplay changeposition " + (positionScale * multiplier) + " 0 0";
-                break;
-            case "1,2":
-                command = "advdisplay changeposition " + (-positionScale * multiplier) + " 0 0";
-                break;
-            case "2,1":
-                command = "advdisplay changeposition 0 " + (positionScale * multiplier) + " 0";
-                break;
-            case "2,2":
-                command = "advdisplay changeposition 0 " + (-positionScale * multiplier) + " 0";
-                break;
-            case "3,1":
-                command = "advdisplay changeposition 0 0 " + (positionScale * multiplier);
-                break;
-            case "3,2":
-                command = "advdisplay changeposition 0 0 " + (-positionScale * multiplier);
-                break;
-            case "4,1":
-                command = "advdisplay changerotation " + (rotationScale * multiplier) + " 0 0";
-                break;
-            case "4,2":
-                command = "advdisplay changerotation " + (-rotationScale * multiplier) + " 0 0";
-                break;
-            case "5,1":
-                command = "advdisplay changerotation 0 " + (rotationScale * multiplier) + " 0";
-                break;
-            case "5,2":
-                command = "advdisplay changerotation 0 " + (-rotationScale * multiplier) + " 0";
-                break;
-            case "6,1":
-                command = "advdisplay changerotation 0 0 " + (rotationScale * multiplier);
-                break;
-            case "6,2":
-                command = "advdisplay changerotation 0 0 " + (-rotationScale * multiplier);
-                break;
-            case "7,1":
-                command = "advdisplay changesize " + (sizeScale * multiplier);
-                break;
-            case "7,2":
-                command = "advdisplay changesize " + (-sizeScale * multiplier);
-                break;
-            case "8,1":
-                command = "advdisplay changebrightness " + (brightnessScale * multiplier);
-                break;
-            case "8,2":
-                command = "advdisplay changebrightness " + (-brightnessScale * multiplier);
-                break;
-            default:
-                return; // No action for other slots
-        }
+        HashMap<String, String> commandMap = getCommandMap(multiplier, positionScale, rotationScale, sizeScale, brightnessScale);
+
+        String command = commandMap.getOrDefault(selectedSlot.x + "," + selectedSlot.y, null);
+        if (command == null) {return;}
 
         // Execute the command
         player.performCommand(command);
     }
 
+    private static HashMap<String, String> getCommandMap(double multiplier, double positionScale, double rotationScale, double sizeScale, double brightnessScale) {
+        // it was this or a switch statement
+        HashMap<String, String> commandMap = new HashMap<>();
+        commandMap.put("1,1", "advdisplay changeposition " + (positionScale * multiplier) + " 0 0");
+        commandMap.put("1,2", "advdisplay changeposition " + (-positionScale * multiplier) + " 0 0");
+        commandMap.put("2,1", "advdisplay changeposition 0 " + (positionScale * multiplier) + " 0");
+        commandMap.put("2,2", "advdisplay changeposition 0 " + (-positionScale * multiplier) + " 0");
+        commandMap.put("3,1", "advdisplay changeposition 0 0 " + (positionScale * multiplier));
+        commandMap.put("3,2", "advdisplay changeposition 0 0 " + (-positionScale * multiplier));
+        commandMap.put("4,1", "advdisplay changerotation " + (rotationScale * multiplier) + " 0 0");
+        commandMap.put("4,2", "advdisplay changerotation " + (-rotationScale * multiplier) + " 0 0");
+        commandMap.put("5,1", "advdisplay changerotation 0 " + (rotationScale * multiplier) + " 0");
+        commandMap.put("5,2", "advdisplay changerotation 0 " + (-rotationScale * multiplier) + " 0");
+        commandMap.put("6,1", "advdisplay changerotation 0 0 " + (rotationScale * multiplier));
+        commandMap.put("6,2", "advdisplay changerotation 0 0 " + (-rotationScale * multiplier));
+        commandMap.put("7,1", "advdisplay changesize " + (sizeScale * multiplier));
+        commandMap.put("7,2", "advdisplay changesize " + (-sizeScale * multiplier));
+        return commandMap;
+    }
 }
 

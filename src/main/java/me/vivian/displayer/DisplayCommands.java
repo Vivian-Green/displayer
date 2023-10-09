@@ -10,8 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.util.Transformation;
@@ -40,8 +38,8 @@ public class DisplayCommands implements CommandExecutor {
     ItemManipulation im = new ItemManipulation();
     NBTMagic nbtm;
 
-    private final Map<Player, List<Display>> nearbyDisplays = new HashMap<>();
-    private final Map<Player, Display> selectedDisplays = new HashMap<>();
+    private final Map<String, VivDisplay> vivDisplays = new HashMap<>();
+    private final Map<Player, VivDisplay> selectedVivDisplays = new HashMap<>();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -136,56 +134,47 @@ public class DisplayCommands implements CommandExecutor {
     }
 
     /**
-     * Sends detailed info about the selected display to the player.
+     * Sends detailed info about the selected display to the player. Mostly for debug purposes.
      *
      * @param player The player who executed the command.
      */
     private void handleDisplayDetailsCommand(Player player) {
-        // Get the selected display for the player
-        Display selectedDisplay = selectedDisplays.get(player);
+        // Get the selected VivDisplay for the player
+        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
 
-        if (selectedDisplay == null) {
+        if (selectedVivDisplay == null) {
             player.sendMessage("You haven't selected a display.");
             return;
         }
 
-        // Get custom NBT data
-        String displayName = nbtm.getStringNBT(selectedDisplay, "VivDisplayName");
-        String parentUUID = nbtm.getStringNBT(selectedDisplay, "VivDisplayParentUUID");
-        boolean isChild = nbtm.getBoolNBT(selectedDisplay, "VivDisplayIsChild");
-        boolean isParent = nbtm.getBoolNBT(selectedDisplay, "VivDisplayIsParent");
-
-
-        // Get display information
-        ItemStack displayItem = getItemStackFromDisplay(selectedDisplay);
-        Material displayMaterial = displayItem.getType();
-        Location displayLocation = locationRoundedTo(selectedDisplay.getLocation(), 2);
-
+        // Get display information directly from the selected VivDisplay
+        Location displayLocation = locationRoundedTo(selectedVivDisplay.display.getLocation(), 2);
         double currentYaw = roundTo(displayLocation.getYaw(), 2);
         double currentPitch = roundTo(displayLocation.getPitch(), 2);
-        double currentRoll = roundTo(getTransRoll(selectedDisplay.getTransformation()), 2);
-        double currentSize = roundTo(selectedDisplay.getTransformation().getScale().x, 2);
-
-        // Calculate the distance from the player to the display
-        double distance = roundTo(player.getLocation().distance(displayLocation), 2);
+        double currentRoll = roundTo(getTransRoll(selectedVivDisplay.display.getTransformation()), 2);
 
         // Send the details to the player
-        player.sendMessage("Display Name: " + displayName);
-        player.sendMessage("Display Material: " + displayMaterial);
+        player.sendMessage("Display Name: " + selectedVivDisplay.displayName);
+        player.sendMessage("Display Material: " + selectedVivDisplay.getItemStack().getType());
         player.sendMessage("Display Position: X=" + displayLocation.getX() + " Y=" + displayLocation.getY() + " Z=" + displayLocation.getZ());
         player.sendMessage("Display Rotation: Yaw=" + currentYaw + " Pitch=" + currentPitch + " Roll=" + currentRoll);
-        player.sendMessage("Display Size: " + currentSize);
-        player.sendMessage("Distance to Display: " + distance);
+        player.sendMessage("Display Size: " + roundTo(selectedVivDisplay.display.getTransformation().getScale().x, 2));
+        player.sendMessage("Distance to Display: " + roundTo(player.getLocation().distance(displayLocation), 2));
 
         // Send NBT data related to parent and child
-        if(isChild){
-            player.sendMessage("Parent UUID: " + parentUUID);
+        if (selectedVivDisplay.isChild) {
+            player.sendMessage("Parent UUID: " + selectedVivDisplay.parentUUID);
         }
-        player.sendMessage("Is Parent: " + isParent);
+        player.sendMessage("Is Parent: " + selectedVivDisplay.isParent);
     }
 
-
-
+    /**
+     * Sets the parent of the (player)'s selected VivDisplay.
+     *
+     * @param player The player performing the command.
+     * @param args   Command arguments:
+     *              - For setting the parent: /displaygroup setparent <parentname>
+     */
     private void handleDisplaySetParentCommand(Player player, String[] args) {
         if (args.length < 2) {
             player.sendMessage("Usage: /displaygroup setparent <parentname>");
@@ -194,129 +183,55 @@ public class DisplayCommands implements CommandExecutor {
 
         String parentName = args[1]; // Get the parent display name to set
 
-        // Get the nearby displays within a radius of 5 blocks
-        List<Display> nearbyDisplays = getNearbyDisplays(player, 5);
+        // Get the selected VivDisplay for the player
+        VivDisplay selectedVivDisplay = getSelectedVivDisplay(player);
 
-        // Find the first display with the specified "VivDisplayName" NBT tag equal to parentName
-        Display parentDisplay = null;
-        for (Display display : nearbyDisplays) {
-            String displayName = nbtm.getStringNBT(display, "VivDisplayName");
-            if (displayName != null && displayName.equals(parentName)) {
-                parentDisplay = display;
-                break; // Found the parent display, exit the loop
-            }
-        }
-
+        // Find the parent display by name
+        Display parentDisplay = getVivDisplayByName(player, parentName);
         if (parentDisplay == null) {
             player.sendMessage("No nearby display with the name '" + parentName + "' found.");
             return;
         }
 
-        // Get the UUID of the parent display
-        UUID parentUUID = parentDisplay.getUniqueId();
-
-        // Get the selected display for the player
-        Display selectedDisplay = selectedDisplays.get(player);
-
-        if (selectedDisplay == null) {
-            player.sendMessage("You haven't selected a display to set as a child.");
-            return;
-        }
-
-        // Set the "VivDisplayParentUUID" tag of the selected display to the parent's UUID
-        nbtm.setNBT(selectedDisplay, "VivDisplayParentUUID", parentUUID.toString());
-
-        // Set the "VivDisplayIsParent" tag of the parent display to true
-        nbtm.setNBT(parentDisplay, "VivDisplayIsParent", true);
-        nbtm.setNBT(selectedDisplay, "VivDisplayIsChild", true);
-
-        player.sendMessage("The selected display is now a child of '" + parentName + "'.");
+        sendPlayerMessageIfExists(player, selectedVivDisplay.setParent(parentDisplay));
     }
 
+    /**
+     * Unsets the parent of the (player)'s selected VivDisplay.
+     *
+     * @param player The player performing the command.
+     */
     private void handleDisplayUnparentCommand(Player player) {
-        // Get the selected display for the player
-        Display selectedDisplay = selectedDisplays.get(player);
+        // Get the selected VivDisplay for the player
+        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
 
-        if (selectedDisplay == null) {
+        if (selectedVivDisplay == null) {
             player.sendMessage("You haven't selected a display to unparent.");
             return;
         }
 
-        // Get the UUID of the parent display from the selected display's NBT
-        String parentUUIDStr = nbtm.getStringNBT(selectedDisplay, "VivDisplayParentUUID");
-
-        if (parentUUIDStr == null) {
-            player.sendMessage("The selected display is not a child display.");
-            return;
-        }
-
-        UUID parentUUID;
-        try {
-            parentUUID = UUID.fromString(parentUUIDStr);
-        } catch (IllegalArgumentException e) {
-            player.sendMessage("Invalid parent UUID in the selected display's NBT.");
-            return;
-        }
-
-        // Get the parent display based on the parent UUID
-        Display parentDisplay = getDisplayByUUID(player, parentUUID);
-
-        // Unset the parent NBT tags
-        nbtm.setNBT(selectedDisplay, "VivDisplayParentUUID", "");
-        nbtm.setNBT(selectedDisplay, "VivDisplayIsChild", false);
-
-        // todo: list of children parented to a display, to set a display's IsParent properly
-        // todo: ability to delete nbt
-
-        if (parentDisplay == null) {
-            player.sendMessage("The parent display no longer exists.");
-            return;
-        }
-
-        player.sendMessage("The selected display is now unparented.");
+        sendPlayerMessageIfExists(player, selectedVivDisplay.unsetParent());
     }
-
-    // Helper method to find a display by UUID
-    private Display getDisplayByUUID(Player player, UUID uuid) {
-        // todo: SURELY you can just getEntityByUUID??
-        for (Display display : getAllDisplays(player)) {
-            if (display.getUniqueId().equals(uuid)) {
-                return display;
-            }
-        }
-        return null;
-    }
-
-
 
     /**
      * Handles the renaming of a selected display by adding a custom NBT tag with the name "name."
      * If a valid display is selected and the renaming is successful, it updates the display's name.
      *
      * @param player The player who issued the command.
-     * @param args   The command arguments, where args[1] is the new name.
+     * @param args   Command arguments:
+     *              - /advdisplay rename <name>
      */
     private void handleDisplayRenameCommand(Player player, String[] args) {
         if (args.length < 2) {
             player.sendMessage("Usage: /advdisplay rename <name>");
             return;
         }
+        // Get the selected VivDisplay for the player
+        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
 
         String name = args[1]; // Get the name to set
-
-        // Get the selected display for the player
-        Display selectedDisplay = selectedDisplays.get(player);
-
-        if (selectedDisplay == null) {
-            player.sendMessage("You haven't selected a display to rename.");
-            return;
-        }
-
-        nbtm.setNBT(selectedDisplay, "VivDisplayName", name);
-        player.sendMessage("this display is now called " + name);
+        sendPlayerMessageIfExists(player, selectedVivDisplay.rename(name));
     }
-
-
 
     /**
      * writes an awful, technical, /help message
@@ -324,8 +239,6 @@ public class DisplayCommands implements CommandExecutor {
      * @param player the player to send the help messages to
      */
     private void handleDisplayHelpCommand(Player player) {
-        // todo: OH GOD WHY
-        //  WHY?????
         player.sendMessage("Displayer Help:");
 
         Map<String, Map<String, Object>> commands = pluginDesc.getCommands();
@@ -343,32 +256,30 @@ public class DisplayCommands implements CommandExecutor {
                 player.sendMessage("§6/" + command);
             }
 
-            // Check if the command has subcommands
-            if (commandInfo.containsKey("subcommands")) {
-                Map<String, Map<String, Object>> subcommands = (Map<String, Map<String, Object>>) commandInfo.get("subcommands");
-                for (Map.Entry<String, Map<String, Object>> subcommandEntry : subcommands.entrySet()) {
-                    String subcommand = subcommandEntry.getKey();
-                    Map<String, Object> subcommandInfo = subcommandEntry.getValue();
+            if (!commandInfo.containsKey("subcommands")) {
+                continue; // don't check subcommands if they aren't real
+            }
 
-                    // Check if the subcommand has a description in the plugin.yml
-                    if (subcommandInfo.containsKey("description")) {
-                        String subcommandDescription = (String) subcommandInfo.get("description");
-                        player.sendMessage("§6/" + command + " §b" + subcommand + "§r - §7" + subcommandDescription);
-                    } else {
-                        // If no description is found, just list the subcommand
-                        player.sendMessage("§6/" + command + " §b" + subcommand);
-                    }
+            Map<String, Map<String, Object>> subcommands = (Map<String, Map<String, Object>>) commandInfo.get("subcommands");
+            for (Map.Entry<String, Map<String, Object>> subcommandEntry : subcommands.entrySet()) {
+                String subcommand = subcommandEntry.getKey();
+                Map<String, Object> subcommandInfo = subcommandEntry.getValue();
+
+                // Check if the subcommand has a description in the plugin.yml
+                if (subcommandInfo.containsKey("description")) {
+                    String subcommandDescription = (String) subcommandInfo.get("description");
+                    player.sendMessage("§6/" + command + " §b" + subcommand + "§r - §7" + subcommandDescription);
+                } else {
+                    // If no description is found, just list the subcommand
+                    player.sendMessage("§6/" + command + " §b" + subcommand);
                 }
             }
         }
     }
 
-
-
-
     /**
-     * Parses a double from the specified index of a string array (args) and ensures
-     * it is greater than or equal to a specified minimum value.
+     * Parses a double from the specified (index) of (args) and ensures
+     * it is >= a given (minValue), defaulting to (defaultValue)
      *
      * @param args          The string array containing the arguments to parse.
      * @param index         The index at which to parse the number.
@@ -409,136 +320,53 @@ public class DisplayCommands implements CommandExecutor {
     private void handleDisplayDestroyCommand(Player player, String[] args) {
         if (args.length < 2) {
             // Destroy the selected display
-            Display selectedDisplay = selectedDisplays.get(player);
-            destroyDisplay(player, selectedDisplay);
+            VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
+            if (selectedVivDisplay == null) {
+                player.sendMessage("You must first select a Display to destroy.");
+            } else {
+                selectedVivDisplay.destroy(player, vivDisplays, selectedVivDisplays);
+            }
             return;
         }
 
-        if (args[1].equalsIgnoreCase("nearby")) {
-            int maxCount = (int) parseNumberFromArgs(args, 2, 0.0, 1, player, "Invalid max count"); // Default max count
-            double radius = parseNumberFromArgs(args, 3, 0.0,  5.0, player, "Invalid radius"); // Default radius
+        if (!args[1].equalsIgnoreCase("nearby")) {
+            player.sendMessage("Usage: /display destroy [nearby [max count] [radius]]");
+            return;
+        }
 
-            if (maxCount < 0 || radius < 0.0) {
-                return; // Invalid max count or radius, error message already sent in parsing functions
-            }
+        int maxCount = (int) parseNumberFromArgs(args, 2, 0, 1, player, "Invalid max count"); // default max count to 1
+        double radius = parseNumberFromArgs(args, 3, 0.0, 5.0, player, "Invalid radius"); // default radius to 5
 
-            List<Display> nearbyDisplays = getNearbyDisplays(player, (int) radius);
+        if (maxCount <= 0 || radius <= 0.0) {
+            return; // Invalid max count or radius, error message already sent in parsing functions
+        }
 
-            if (nearbyDisplays.isEmpty()) {
-                player.sendMessage("No nearby Displays found within " + radius + " blocks.");
+        List<VivDisplay> nearbyVivDisplays = getNearbyVivDisplays(player, (int) radius);
+
+        if (nearbyVivDisplays.isEmpty()) {
+            player.sendMessage("No nearby Displays found within " + radius + " blocks.");
+            return;
+        }
+
+        // Destroy nearby displays up to the specified max count
+        int destroyedCount = 0;
+        for (VivDisplay vivDisplay : nearbyVivDisplays) {
+            vivDisplay.destroy(player, vivDisplays, selectedVivDisplays);
+            destroyedCount++;
+
+            if (destroyedCount >= maxCount) {
                 return;
             }
-
-            // Sort nearby displays by distance from the player
-            nearbyDisplays.sort(Comparator.comparingDouble(entity -> player.getLocation().distance(entity.getLocation())));
-
-            // Destroy nearby displays up to the specified max count
-            int destroyedCount = 0;
-            for (Display display : nearbyDisplays) {
-                destroyDisplay(player, display);
-                destroyedCount++;
-
-                if (destroyedCount >= maxCount) {
-                    break;
-                }
-            }
-        } else {
-            player.sendMessage("Usage: /display destroy [nearby [max count] [radius]]");
         }
     }
 
     /**
-     * Destroys and removes a specified (display) for the given (player).
-     *
-     * @param player  The player initiating the destruction.
-     * @param display The display to be destroyed.
-     *
-     * This method removes the display from the world and the player's selection.
-     * In the event of any exception during the process, it logs the error but still ensures display removal.
-     */
-    private void destroyDisplay(Player player, Display display) {
-        // todo: this can be written safer right??
-        //  like there's nothing obviously & blatantly wrong, but my bad code senses are tingling
-        if (display != null) {
-            try {
-                player.getWorld().dropItemNaturally(display.getLocation(), getItemStackFromDisplay(display));
-            } catch (Exception e) {
-                System.out.println("destroyDisplay(): Failed to spawn item on display destroy. Is this an unsupported display type?");
-                System.out.println("destroyDisplay(): Destroying anyway after this stack trace:");
-                e.printStackTrace();
-            } finally {
-                /*
-                Always remove the selected display from the world, even after erring on item spawning.
-                DO NOT MAKE A FUCKING DUPE.
-
-                It is better to maybe destroy an item and mildly inconvenience a player & staff,
-                than it is to leave in a potential dupe that could go unreported.
-                ...try to avoid either of these things, obviously
-                 */
-
-                if (selectedDisplays.containsKey(player) && selectedDisplays.get(player) == display) {
-                    selectedDisplays.remove(player);
-                } else {
-                    System.out.println("destroyDisplay(): Destroying unselected display... is this intentional?");
-                }
-                display.remove();
-
-                // Remove it from the selectedDisplays map
-                selectedDisplays.remove(player);
-
-                player.sendMessage("Display destroyed.");
-            }
-        } else {
-            System.out.println("destroyDisplay(): tried to destroy a display that was null");
-            player.sendMessage("You must first select a Display");
-        }
-    }
-
-    /**
-     * Retrieves an ItemStack from a (display).
-     *
-     * @param display The Display to get the ItemStack from.
-     * @return The ItemStack representing the Display, or null if unsupported.
-     */
-    private static ItemStack getItemStackFromDisplay(Display display) {
-        // todo: consider switch statement when adding TextDisplay
-        if (display instanceof ItemDisplay) {
-            // If ItemDisplay, return its ItemStack directly
-            ItemDisplay itemDisplay = (ItemDisplay) display;
-            return itemDisplay.getItemStack();
-        } else if (display instanceof BlockDisplay) {
-            // If BlockDisplay, create an ItemStack based on the block material
-            BlockDisplay blockDisplay = (BlockDisplay) display;
-            Material material = blockDisplay.getBlock().getMaterial();
-            return new ItemStack(material, 1);
-        } else {
-            System.out.println("getItemStackFromDisplay(): Unsupported display type");
-            return null;
-        }
-    }
-
-
-    /**
-     * gets a (player)'s selected Display.
-     *
-     * @param player The player who has a selected Display.
-     * @return The selected Display or null if none selected.
-     */
-    private Display getSelectedDisplay(Player player) {
-        Display selectedDisplay = selectedDisplays.get(player);
-        if (selectedDisplay == null) {
-            player.sendMessage("You must first select a Display");
-        }
-        return selectedDisplay;
-    }
-
-    /**
-     * modifies a (player)'s selected Display. Allows changing (+=) or setting (=) the size with optional offsets.
+     * changes (+=) or sets (=) the (player)'s selected VivDisplay's size.
      *
      * @param player The player performing the command.
      * @param args   Command arguments:
-     *              - For changing the size: /display changesize <size offset: number>
-     *              - For setting the size: /display setsize <size: number>
+     *              - For changing the size: /display changesize <size offset: x y z>
+     *              - For setting the size: /display setsize <size: x y x>
      */
     private void handleDisplaySizeCommand(Player player, String[] args) {
         boolean isChange = args.length > 0 && "changesize".equalsIgnoreCase(args[0]);
@@ -547,50 +375,48 @@ public class DisplayCommands implements CommandExecutor {
                 "Invalid size offset value. Usage: /display changesize <size offset: number>" :
                 "Invalid size value. Usage: /display setsize <size: number>";
 
-        double sizeChange = parseNumberFromArgs(args, 1, Double.NEGATIVE_INFINITY, -1.0, player, errorMessage);
+        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
 
-
-        if (!isChange && sizeChange < 0.0) {
+        if (selectedVivDisplay == null) {
+            player.sendMessage("You must first select a Display");
             return;
         }
 
-        Display selectedDisplay = getSelectedDisplay(player);
-        if (selectedDisplay == null) {
+        Transformation transformation = selectedVivDisplay.display.getTransformation();
+        double currentSize = transformation.getScale().x;
+        double minSize = isChange ? -currentSize : 0.0;
+        double sizeArg = parseNumberFromArgs(args, 1, minSize, minSize+1, player, errorMessage);
+
+        if (sizeArg < minSize) {
+            player.sendMessage("Invalid value for size");
             return;
         }
 
-        Transformation transformation = selectedDisplay.getTransformation();
-        double newScale = isChange ? (transformation.getScale().x + sizeChange) : sizeChange;
+        double newScale = isChange ? (currentSize + sizeArg) : sizeArg;
 
         if (newScale > 0.0) {
             transformation.getScale().set(newScale);
-            selectedDisplay.setTransformation(transformation);
+            selectedVivDisplay.display.setTransformation(transformation);
         } else {
-            player.sendMessage("Invalid scale value. Scale must be greater than 0.0.");
+            player.sendMessage("Invalid size value. Size must be > 0");
         }
     }
 
+
+
     /**
-     * Creates and spawns a Display entity in the specified (world) at a given (location).
+     * Reduces the count of the (player)'s held item by 1. If the new count <= 0, the remove it.
      *
-     * @param world        The world in which the Display is created.
-     * @param location     The location at which the Display is spawned.
-     * @param entityType   The EntityType of the Display (e.g., BLOCK_DISPLAY or ITEM_DISPLAY).
-     * @param displayData  The data associated with the Display (BlockData for BLOCK_DISPLAY or ItemStack for ITEM_DISPLAY).
-     * @return The newly created Display entity.
+     * @param player The player whose held item is being modified.
      */
-    private Display createDisplay(World world, Location location, EntityType entityType, Object displayData) {
-        Display display = (Display) world.spawnEntity(location, entityType);
-
-        if (display instanceof BlockDisplay && displayData instanceof BlockData) {
-            ((BlockDisplay) display).setBlock((BlockData) displayData);
-        } else if (display instanceof ItemDisplay && displayData instanceof ItemStack) {
-            ((ItemDisplay) display).setItemStack((ItemStack) displayData);
+    private void takeFromHeldItem(Player player) {
+        ItemStack heldItem = player.getInventory().getItemInMainHand();
+        heldItem.setAmount(heldItem.getAmount() - 1);
+        if (heldItem.getAmount() <= 0) {
+            player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
         } else {
-            System.out.println("createDisplay: Unhandled display type or display data mismatch.");
+            player.getInventory().setItemInMainHand(heldItem);
         }
-
-        return display;
     }
 
     /**
@@ -609,194 +435,105 @@ public class DisplayCommands implements CommandExecutor {
     }
 
     /**
-     * Creates and sets a (display) for a (player), at their eye location unless overridden by (atSelected)
+     * creates a VivDisplay for a (player), optionally, at the currently selected display
      *
-     * @param player     The player for whom the Display is being created and set.
-     * @param display    The Display to be created and set.
-     * @param atSelected Set to true if the Display should match the transformation of a selected Display, if any.
-     */
-    private void createAndSetDisplay(Player player, Display display, boolean atSelected) {
-        selectedDisplays.put(player, display);
-
-        if (!atSelected) {
-            Location eyeLocation = player.getEyeLocation();
-            display.setRotation(eyeLocation.getYaw(), eyeLocation.getPitch());
-        }
-
-        Display selectedDisplay = getSelectedDisplay(player);
-
-        if (atSelected && selectedDisplay != null) {
-            display.setTransformation(selectedDisplay.getTransformation());
-        } else if (atSelected) {
-            player.sendMessage("You need to select a display first.");
-            display.remove(); // Remove the newly created display since no selection is made
-        }
-    }
-
-    /**
-     * Reduces the count of the (player)'s held item by 1. If the new count <= 0, the remove it.
-     *
-     * @param player The player whose held item is being modified.
-     */
-    private void takeFromHeldItem(Player player) {
-        ItemStack heldItem = player.getInventory().getItemInMainHand();
-        heldItem.setAmount(heldItem.getAmount() - 1);
-        if (heldItem.getAmount() <= 0) {
-            player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-        } else {
-            player.getInventory().setItemInMainHand(heldItem);
-        }
-    }
-
-    /**
-     * Handles the creation of a Display for a (player)
-     *
-     * @param player The player initiating the command.
+     * @param player The player creating the VivDisplay.
      * @param args   Command arguments:
-     *              - [displayType]: The type of Display to create (e.g., "block" or "item").
-     *              - [atSelected]: (Optional) Use "atselected" to create the Display at the selected location.
+     *               - /display create [block (defaults to item)] [atSelected]
      */
     private void handleDisplayCreateCommand(Player player, String[] args) {
-        String displayType = "item";
+        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
+        String displayTypeStr = "item";
         if (args.length >= 2 && Objects.equals(args[1], "block")) {
-            displayType = "block";
+            displayTypeStr = "block";
         }
-
-        // Check for the "atSelected" arg
-        Display selectedDisplay = selectedDisplays.get(player);
         boolean atSelected = (args.length >= 3 && args[2].equalsIgnoreCase("atselected"));
 
-        if (atSelected && !selectedDisplays.containsKey(player)) {
+        if (atSelected && selectedVivDisplay == null) {
             player.sendMessage("You need to select a display first!");
             return;
         }
-
         if (!isHeldItemValid(player)) {
+            player.sendMessage("You need to hold an item first!");
             return;
         }
 
+        ItemStack heldItemStack = player.getInventory().getItemInMainHand();
         Location eyeLocation = player.getEyeLocation();
         World world = player.getWorld();
-        Display display;
+        VivDisplay vivDisplay;
 
-        if (displayType.equals("block")) {
-            Material heldItemType = player.getInventory().getItemInMainHand().getType();
-
-            if (!heldItemType.isBlock()) {
+        if (displayTypeStr.equals("block")) {
+            if (!heldItemStack.getType().isBlock()) {
                 player.sendMessage("Invalid block!");
                 return;
             }
-
-            BlockData blockData = heldItemType.createBlockData();
-            display = createDisplay(world, atSelected ? selectedDisplay.getLocation() : eyeLocation, EntityType.BLOCK_DISPLAY, blockData);
-
-            takeFromHeldItem(player);
+            BlockData blockData = heldItemStack.getType().createBlockData();
+            vivDisplay = new VivDisplay(plugin, world, atSelected ? selectedVivDisplay.display.getLocation() : eyeLocation, EntityType.BLOCK_DISPLAY, blockData);
         } else {
-            ItemStack itemStack = player.getInventory().getItemInMainHand();
-            ItemDisplay itemDisplay = (ItemDisplay) createDisplay(world, atSelected ? selectedDisplay.getLocation() : eyeLocation, EntityType.ITEM_DISPLAY, itemStack);
-
-            // Set the item count to 1 in the created ItemDisplay
-            itemDisplay.setItemStack(itemStack);
-            itemDisplay.getItemStack().setAmount(1);
-
-            // Remove only 1 item from the player's inventory
-            itemStack.setAmount(itemStack.getAmount() - 1);
-            if (itemStack.getAmount() <= 0) {
-                player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-            } else {
-                player.getInventory().setItemInMainHand(itemStack);
-            }
-            display = itemDisplay;
+            vivDisplay = new VivDisplay(plugin, world, atSelected ? selectedVivDisplay.display.getLocation() : eyeLocation, EntityType.ITEM_DISPLAY, heldItemStack);
         }
 
-        createAndSetDisplay(player, display, atSelected);
+        takeFromHeldItem(player);
+
+        if (atSelected) {
+            vivDisplay.display.setTransformation(selectedVivDisplay.display.getTransformation());
+        } else {
+            vivDisplay.display.setRotation(eyeLocation.getYaw(), eyeLocation.getPitch());
+        }
+
+        vivDisplays.put(vivDisplay.display.getUniqueId().toString(), vivDisplay);
+        selectedVivDisplays.put(player, vivDisplay);
     }
 
-
     /**
-     * gets & lists nearby Displays for a (player) within a specified radius.
+     * finds nearby VivDisplay objects within a given radius,
+     * sends messages to the (player) with hyperlinks to each
      *
-     * @param player The player using the command.
-     * @param args   Command arguments: [radius]
+     * @param player The player who issued the command.
+     * @param args   Command arguments:
+     *               - args[1]: (Optional) The radius within which to search for VivDisplays. Defaults to 5 if not provided.
      */
     private void handleDisplayNearbyCommand(Player player, String[] args) {
-        int radius = 5;
+        double radius = parseNumberFromArgs(args, 1, 1, 5, player, "Invalid radius specified.");
 
-        if (args.length >= 2) {
-            try {
-                radius = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
-                player.sendMessage("Invalid radius specified.");
-                return;
-            }
+        List<VivDisplay> nearbyVivDisplays = getNearbyVivDisplays(player, (int)radius);
+
+        if (nearbyVivDisplays.isEmpty()) {
+            player.sendMessage("No nearby Displays found within " + (int)radius + " blocks.");
+            return;
         }
 
-        List<Display> nearbyEntities = getNearbyDisplays(player, radius);
-
-        if (nearbyEntities.isEmpty()) {
-            player.sendMessage("No nearby Displays found within " + radius + " blocks.");
-        } else {
-            nearbyEntities.sort(Comparator.comparingDouble(entity -> player.getLocation().distance(entity.getLocation())));
-
-            nearbyDisplays.put(player, nearbyEntities);
-
-            player.sendMessage("Nearby Displays:");
-            int index = 1;
-            int maxDisplaysToShow = 10;
-            for (Display entity : nearbyEntities) {
-                createHyperlink(player, entity, index);
-
-                index++;
-                if (index > maxDisplaysToShow) {
-                    break;
-                }
-            }
+        player.sendMessage("Nearby Displays:");
+        int maxDisplaysToShow = 10;
+        for (int index = 0; index < maxDisplaysToShow && index < nearbyVivDisplays.size(); index++) {
+            createHyperlink(player, nearbyVivDisplays.get(index), index + 1);
         }
     }
 
     /**
-     * gets nearby Displays for a player in a given radius.
-     *
-     * @param player The player to search near.
-     * @return A list of nearby Displays.
-     */
-    private List<Display> getAllDisplays(Player player) {
-        // todo: STORE THESE SOMEWHERE???
-        List<Display> allDisplays = new ArrayList<>();
-
-        for (Entity entity : player.getWorld().getEntities()) {
-            if(entity instanceof Display){
-                allDisplays.add((Display) entity);
-            }
-        }
-
-        return allDisplays;
-    }
-
-    /**
-     * gets nearby Displays for a player in a given radius.
+     * Gets Displays within in a given radius of a player
      *
      * @param player The player to search near.
      * @param radius The search radius for nearby Displays.
      * @return A list of nearby Displays.
      */
-    private List<Display> getNearbyDisplays(Player player, int radius) {
+    private List<Display> getNearbyDisplays(Player player, double radius) {
+        double maxTaxicabDistance = Math.sqrt(3) * radius; // maximum taxicab distance
+        Location playerLocation = player.getLocation();
+
+        List<Display> allDisplays = (List<Display>) player.getWorld().getEntitiesByClass(Display.class);
         List<Display> nearbyDisplays = new ArrayList<>();
-
-        Vector3i playerLocation = new Vector3i(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-
-        int maxTaxicabDistance = (int) Math.ceil(Math.sqrt(3) * radius); //maximum taxicab distance 
-
-        for (Display display : getAllDisplays(player)) {
+        for (Display display : allDisplays) {
             Location displayLocation = display.getLocation();
 
-            int xDistance = Math.abs(playerLocation.x - displayLocation.getBlockX());
-            int yDistance = Math.abs(playerLocation.y - displayLocation.getBlockY());
-            int zDistance = Math.abs(playerLocation.z - displayLocation.getBlockZ());
+            double xDistance = Math.abs(playerLocation.getX() - displayLocation.getX());
+            double yDistance = Math.abs(playerLocation.getY() - displayLocation.getY());
+            double zDistance = Math.abs(playerLocation.getZ() - displayLocation.getZ());
 
-            int totalDistance = xDistance + yDistance + zDistance;
+            double totalDistance = xDistance + yDistance + zDistance;
 
-            if (totalDistance <= maxTaxicabDistance) {
+            if (totalDistance <= maxTaxicabDistance && playerLocation.distance(displayLocation) <= radius) { // do pythagorean after passing taxicab
                 nearbyDisplays.add(display);
             }
         }
@@ -804,76 +541,84 @@ public class DisplayCommands implements CommandExecutor {
     }
 
     /**
-     * selects the closest Display to the (player)'s location within a specified (radius).
+     * Gets VivDisplay objects near the player within a given radius, sorted by distance.
+     *
+     * @param player The player around whom to find VivDisplays.
+     * @param radius The search radius.
+     * @return Sorted list of VivDisplays within the radius.
+     */
+    private List<VivDisplay> getNearbyVivDisplays(Player player, int radius) {
+        List<VivDisplay> nearbyVivDisplays = new ArrayList<>();
+        List<Display> nearbyDisplays = getNearbyDisplays(player, radius);
+
+        for (Display display : nearbyDisplays) {
+            // Get the UUID of the display
+            String displayUUID = String.valueOf(display.getUniqueId());
+
+            // Check if it exists in the VivDisplays map
+            if (!vivDisplays.containsKey(displayUUID)) {
+                // Instantiate a new VivDisplay and add it to the list
+                VivDisplay vivDisplay = new VivDisplay(plugin, display);
+                nearbyVivDisplays.add(vivDisplay);
+
+                // Add the newly created VivDisplay to the map with its UUID as the key
+                vivDisplays.put(displayUUID, vivDisplay);
+            }else{
+                nearbyVivDisplays.add(vivDisplays.get(displayUUID));
+            }
+        }
+        nearbyVivDisplays.sort(Comparator.comparingDouble(vivDisplay -> vivDisplay.display.getLocation().distance(player.getLocation())));
+
+        return nearbyVivDisplays;
+    }
+
+    /**
+     * Selects the closest VivDisplay to the player's location within a specified radius.
      *
      * @param player The player performing the command.
      */
     private void handleDisplayClosestCommand(Player player) {
         int radius = 5;
-        List<Display> nearbyDisplays = getNearbyDisplays(player, radius);
+        List<VivDisplay> nearbyVivDisplays = getNearbyVivDisplays(player, radius);
 
-        if (nearbyDisplays.isEmpty()) {
+        if (nearbyVivDisplays.isEmpty()) {
             player.sendMessage("No nearby Displays found within " + radius + " blocks.");
             return;
         }
 
-        nearbyDisplays.sort(Comparator.comparingDouble(entity -> player.getLocation().distance(entity.getLocation())));
-        Display closestDisplay = nearbyDisplays.get(0);
-
-        if (closestDisplay != null) {
-            selectedDisplays.put(player, closestDisplay);
-            player.sendMessage("Closest Display selected.");
-            spawnParticleAtDisplay(closestDisplay);
-        } else {
-            player.sendMessage("No nearby Displays found.");
-        }
+        VivDisplay closestVivDisplay = nearbyVivDisplays.get(0);
+        selectedVivDisplays.put(player, closestVivDisplay);
+        closestVivDisplay.spawnParticle();
+        player.sendMessage("Closest Display selected.");
     }
 
     /**
-     * Spawns particles at the location of the selected Display.
-     *
-     * @param selectedDisplay The Display at which particles should be spawned.
-     */
-    private void spawnParticleAtDisplay(Display selectedDisplay) {
-        Location displayLocation = selectedDisplay.getLocation();
-
-        Particle particle = Particle.WATER_DROP;
-        int count = 100;
-
-        displayLocation.getWorld().spawnParticle(
-                particle,
-                displayLocation,
-                count
-        );
-    }
-
-    /**
-     * selects a display for (player) given an (index).
+     * Selects a VivDisplay for the player given an index.
      *
      * @param player The player performing the command.
      * @param args   Command arguments:
-     *              - [index]: The index of the Display to select.
+     *              - [index]: The index of the VivDisplay to select.
      */
-    private void handleDisplaySelectCommand(Player player, String[] args) {
-        if (args.length >= 2) {
-            int index = Integer.parseInt(args[1]);
-            List<Display> nearbyEntities = nearbyDisplays.get(player);
+    private void handleDisplaySelectCommand(Player player, String[] args) { // this should never be executed by the player
+        if (args.length < 2) {return;}
 
-            if (nearbyEntities != null && index >= 1 && index <= nearbyEntities.size()) {
-                Display selectedDisplay = (Display) nearbyEntities.get(index - 1);
-                selectedDisplays.put(player, selectedDisplay);
-                player.sendMessage("You selected Display #" + index);
-                spawnParticleAtDisplay(selectedDisplay);
-            } else {
-                player.sendMessage("Invalid selection.");
-            }
-        } else {
-            player.sendMessage("Usage: /advdisplay select [index]");
-        }
+        // if index specified
+        int index = Integer.parseInt(args[1]);
+        List<VivDisplay> nearbyVivDisplays = getNearbyVivDisplays(player, 5);
+
+        if (index < 1 || index > nearbyVivDisplays.size()) {return;}
+
+        // if index not oob
+        VivDisplay selectedVivDisplay = nearbyVivDisplays.get(index - 1);
+        selectedVivDisplays.put(player, selectedVivDisplay);
+        selectedVivDisplay.spawnParticle();
+
+        // open gui if selecting from here
+        player.performCommand("display gui");
     }
 
     /**
-     * rotates the selected display for a (player). Allows changing (+=) or setting (=) the rotation with optional offsets.
+     * Rotates the selected VivDisplay for a player. Allows changing (+=) or setting (=) the rotation with optional offsets.
      *
      * @param player The player performing the command.
      * @param args   Command arguments:
@@ -883,44 +628,38 @@ public class DisplayCommands implements CommandExecutor {
     private void handleDisplayRotationCommand(Player player, String[] args) {
         boolean isChange = args.length > 0 && "changerotation".equalsIgnoreCase(args[0]);
 
-        if (args.length >= 3) {
-            float yawOffset, pitchOffset, rollOffset = 0f;
-
-            try {
-                yawOffset = Float.parseFloat(args[1]);
-                pitchOffset = Float.parseFloat(args[2]);
-
-                if (args.length >= 4) {
-                    rollOffset = Float.parseFloat(args[3]);
-                }
-            } catch (NumberFormatException e) {
-                player.sendMessage("Invalid pitch, yaw, or roll offset values.");
-                return;
-            }
-
-            yawOffset = (float) Math.toRadians(yawOffset);
-            pitchOffset = (float) Math.toRadians(pitchOffset);
-            rollOffset = (float) Math.toRadians(rollOffset);
-
-            Display selectedDisplay = selectedDisplays.get(player);
-
-            if (selectedDisplay != null) {
-                Transformation newTransformation = new Transformation(
-                        selectedDisplay.getTransformation().getTranslation(),
-                        selectedDisplay.getTransformation().getLeftRotation(),
-                        selectedDisplay.getTransformation().getScale(),
-                        selectedDisplay.getTransformation().getRightRotation()
-                );
-
-                newTransformation.getLeftRotation().rotateYXZ(rollOffset, pitchOffset, yawOffset);
-
-                selectedDisplay.setTransformation(newTransformation);
-                //player.sendMessage(isChange ? "Rotation changed for selected Display." : "Rotation set for selected Display.");
-            } else {
-                player.sendMessage("You must first select a Display");
-            }
-        } else {
+        if (args.length < 3) {
             player.sendMessage("Usage: /display " + (isChange ? "changeposition" : "setposition") + " <pitchOffset> <yawOffset> [rollOffset]");
+            return;
+        }
+
+        float yawOffset, pitchOffset, rollOffset = 0f;
+
+        try {
+            yawOffset = Float.parseFloat(args[1]);
+            pitchOffset = Float.parseFloat(args[2]);
+
+            if (args.length >= 4) {
+                rollOffset = Float.parseFloat(args[3]);
+            }
+        } catch (NumberFormatException e) {
+            player.sendMessage("Invalid pitch, yaw, or roll offset values.");
+            return;
+        }
+
+        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
+
+        if (selectedVivDisplay == null) {
+            player.sendMessage("You must first select a Display");
+            return;
+        }
+
+        boolean success = isChange ?
+                selectedVivDisplay.changeRotation(yawOffset, pitchOffset, rollOffset, player) :
+                selectedVivDisplay.setRotation(yawOffset, pitchOffset, rollOffset, player);
+
+        if (!success) {
+            player.sendMessage("Failed to apply rotation change.");
         }
     }
 
@@ -938,9 +677,8 @@ public class DisplayCommands implements CommandExecutor {
         return (float) Math.toDegrees(2.0 * Math.atan2(rollRotation.x, rollRotation.w));
     }
 
-
     /**
-     * Handles the positioning of a selected Display for a player.
+     * Handles the positioning of a selected VivDisplay for a player.
      * Allows changing or setting the position with optional offsets.
      *
      * @param player The player performing the command.
@@ -950,42 +688,38 @@ public class DisplayCommands implements CommandExecutor {
      */
     private void handleDisplayPositionCommand(Player player, String[] args) {
         boolean isChange = args.length > 0 && "changeposition".equalsIgnoreCase(args[0]);
-        if (args.length == 4) {
-            double x, y, z;
-            try {
-                x = Double.parseDouble(args[1]);
-                y = Double.parseDouble(args[2]);
-                z = Double.parseDouble(args[3]);
-            } catch (NumberFormatException e) {
-                player.sendMessage("Invalid coordinates. Please provide valid numbers for X, Y, and Z.");
-                return;
-            }
 
-            Display selectedDisplay = selectedDisplays.get(player);
+        if (args.length != 4) {
+            player.sendMessage(isChange ?
+                    "Usage: /display changeposition <xOffset> <yOffset> <zOffset>" :
+                    "Usage: /display setposition <x> <y> <z>");
+            return;
+        }
 
-            if (selectedDisplay != null) {
-                Location currentLocation = selectedDisplay.getLocation();
-                double newX = isChange ? currentLocation.getX() + x : x;
-                double newY = isChange ? currentLocation.getY() + y : y;
-                double newZ = isChange ? currentLocation.getZ() + z : z;
+        double x, y, z;
 
-                // Store the current rotation
-                float currentYaw = selectedDisplay.getLocation().getYaw();
-                float currentPitch = selectedDisplay.getLocation().getPitch();
+        try {
+            x = Double.parseDouble(args[1]);
+            y = Double.parseDouble(args[2]);
+            z = Double.parseDouble(args[3]);
+        } catch (NumberFormatException e) {
+            player.sendMessage("Invalid coordinates. Please provide valid numbers for X, Y, and Z.");
+            return;
+        }
 
-                // Teleport to the new position
-                selectedDisplay.teleport(new Location(player.getWorld(), newX, newY, newZ));
+        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
 
-                // Apply the previous rotation
-                selectedDisplay.setRotation(currentYaw, currentPitch);
+        if (selectedVivDisplay == null) {
+            player.sendMessage("You must first select a Display");
+            return;
+        }
 
-                //player.sendMessage(isChange ? "Position changed for selected Display." : "Position set for selected Display.");
-            } else {
-                player.sendMessage("You must first select a Display");
-            }
-        } else {
-            player.sendMessage(isChange ? "Usage: /display changeposition <xOffset> <yOffset> <zOffset>"
-                    : "Usage: /display setposition <x> <y> <z>");
+        boolean success = isChange ?
+                selectedVivDisplay.changePosition(x, y, z, player) :
+                selectedVivDisplay.setPosition(x, y, z, player);
+
+        if (!success) {
+            player.sendMessage("Failed to apply position change.");
         }
     }
 
@@ -1067,24 +801,70 @@ public class DisplayCommands implements CommandExecutor {
     }
 
     /**
-     * sends (player) a hyperlink to select a (display) with a given (index)
+     * Fetches the VivDisplay object that the player has currently selected.
      *
-     * @param player  The player who will receive the hyperlink.
-     * @param display The display to be selected via the hyperlink.
-     * @param index   The index associated with the display.
+     * @param player The player whose selected display to fetch.
+     * @return The selected VivDisplay object, or null if none is selected.
      */
-    // todo: use UUID here, not index, so you don't need to have ran /nearby for this select to work
-    //  for maintainability..
-    private void createHyperlink(Player player, Display display, int index) {
-        assert display != null;
+    private VivDisplay getSelectedVivDisplay(Player player) {
+        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
+        if (selectedVivDisplay == null) {
+            player.sendMessage("You haven't selected a display to set as a child.");
+        }
+        return selectedVivDisplay;
+    }
 
-        Location location = display.getLocation();
+    /**
+     * Searches for a display with a specific name within a radius of 5 blocks around the player.
+     *
+     * @param player The player around whom to search for displays.
+     * @param displayName The name of the display to search for.
+     * @return The found Display object, or null if no display with the given name is found.
+     */
+    private Display getVivDisplayByName(Player player, String displayName) {
+        // Get the nearby displays within a radius of 5 blocks
+        List<Display> nearbyDisplays = getNearbyDisplays(player, 5);
+
+        // Find the first display with the specified "VivDisplayName" NBT tag equal to displayName
+        for (Display display : nearbyDisplays) {
+            String currentDisplayName = nbtm.getNBT(display, "VivDisplayName", String.class);
+            if (currentDisplayName != null && currentDisplayName.equals(displayName)) {
+                return display; // Found the display, return it
+            }
+        }
+
+        return null; // No display found with the given name
+    }
+
+    /**
+     * Sends a message to a player, but only if the message is not empty.
+     *
+     * @param player The player to whom to send the message.
+     * @param message The message to send.
+     */
+    void sendPlayerMessageIfExists(Player player, String message){
+        if(!message.isEmpty()){
+            player.sendMessage(message);
+        }
+    }
+
+    /**
+     * Sends (player) a hyperlink to select a (vivDisplay) with a given (index)
+     *
+     * @param player    The player who will receive the hyperlink.
+     * @param vivDisplay The VivDisplay to be selected via the hyperlink.
+     * @param index     The index associated with the VivDisplay.
+     */
+    private void createHyperlink(Player player, VivDisplay vivDisplay, int index) {
+        assert vivDisplay != null;
+
+        Location location = vivDisplay.display.getLocation();
         Location playerLocation = player.getLocation();
 
         // get distance rounded to 2 places
         double distance = roundTo(location.distance(playerLocation), 2);
 
-        String name = nbtm.getStringNBT(display, "VivDisplayName");
+        String name = nbtm.getNBT(vivDisplay.display, "VivDisplayName", String.class);
         if(name == null){
             name = "";
         }
@@ -1093,11 +873,11 @@ public class DisplayCommands implements CommandExecutor {
         String displayTypeStr;
 
         // get material & type of display
-        if (display instanceof BlockDisplay) {
-            displayMaterial = ((BlockDisplay) display).getBlock().getMaterial();
+        if (vivDisplay.display instanceof BlockDisplay) {
+            displayMaterial = ((BlockDisplay) vivDisplay.display).getBlock().getMaterial();
             displayTypeStr = "[BlockDisplay]";
-        } else if (display instanceof ItemDisplay) {
-            ItemStack itemStack = ((ItemDisplay) display).getItemStack();
+        } else if (vivDisplay.display instanceof ItemDisplay) {
+            ItemStack itemStack = ((ItemDisplay) vivDisplay.display).getItemStack();
             assert itemStack != null;
             displayMaterial = itemStack.getType();
             displayTypeStr = "[ItemDisplay]";
@@ -1111,6 +891,7 @@ public class DisplayCommands implements CommandExecutor {
         // create message to select this display, if it's not borked
         TextComponent message = new TextComponent(ChatColor.BLUE + "Click to select " + displayTypeStr + " '" + name + "' holding " + displayMaterial.toString() + ", " + distance + " blocks away");
         message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/advdisplay select " + index));
+
         // send it
         player.spigot().sendMessage(message);
     }

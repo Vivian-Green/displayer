@@ -10,6 +10,8 @@
 - displaygroup cut/paste
 - ~~displaygroup parent~~
 - ~~displaygroup unparent~~
+- parent list of children
+- make display parent and unparent update parent's list of children
 - displaygroup b o n e s
   </br></br>
 - advdisplay select UUID
@@ -17,6 +19,6 @@
 - ~~advdisplay rename~~
 - ~~advdisplay details~~
   </br></br></br></br>
-- store display children as tag group, update IsParent correctly
+- ensure no parent time travel alabama ouroborosing
 
 - ability to add cost via vault? cost an item from config to make??
