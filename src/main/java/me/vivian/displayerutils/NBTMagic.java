@@ -1,4 +1,4 @@
-package me.vivian.displayer;
+package me.vivian.displayerutils;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;

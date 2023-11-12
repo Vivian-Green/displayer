@@ -1,11 +1,11 @@
 package me.vivian.displayer;
 
+import me.vivian.displayerutils.ItemManipulation;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.joml.Vector2i;
 
@@ -18,7 +18,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
     /**
      * constructor
      */
-    public EventListeners(){}
+    public EventListeners() {}
 
     // todo: move scale values to config
     double positionScale = 0.01;
@@ -29,7 +29,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
     ItemManipulation im = new ItemManipulation();
 
-    public void registerCommand(CommandExecutor commandExecutor, SubCommandExecutor subCommandExecutor, String commandName){
+    public void registerCommand(CommandExecutor commandExecutor, SubCommandExecutor subCommandExecutor, String commandName) {
         getCommand(commandName).setExecutor(commandExecutor);
         getCommand(commandName).setTabCompleter(subCommandExecutor);
     }
@@ -114,4 +114,3 @@ public final class EventListeners extends JavaPlugin implements Listener {
         return commandMap;
     }
 }
-

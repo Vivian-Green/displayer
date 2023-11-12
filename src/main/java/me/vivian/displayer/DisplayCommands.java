@@ -1,5 +1,7 @@
 package me.vivian.displayer;
 
+import me.vivian.displayerutils.ItemManipulation;
+import me.vivian.displayerutils.NBTMagic;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -14,22 +16,14 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
-import org.joml.Vector3i;
 
 import java.util.*;
 
-/**
- * handles commands for creating, manipulating, and interacting with displays.
- */
+// handles commands for creating, manipulating, and interacting with displays
 public class DisplayCommands implements CommandExecutor {
     private PluginDescriptionFile pluginDesc;
     private Plugin plugin;
 
-    /**
-     * Constructor
-     *
-     * @param thisPlugin The plugin
-     */
     public DisplayCommands(Plugin thisPlugin) {
         plugin = thisPlugin;
         pluginDesc = plugin.getDescription();
@@ -44,8 +38,19 @@ public class DisplayCommands implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            return false;
+            boolean isPlayer = false;
+            String subCommand = args[0].toLowerCase();
+
+            switch (subCommand) {
+                case "destroy":
+                    Player player = Bukkit.getPlayer(args[4]);
+                    ///display destroy nearby 10 10 GreensUsername
+                    handleDisplayDestroyCommand(player, args);
+                    break;
+            }
+            return true;
         }
+        boolean isPlayer = true;
         Player player = (Player) sender;
 
         if (label.equalsIgnoreCase("display") || label.equalsIgnoreCase("displayer")) {
@@ -133,11 +138,7 @@ public class DisplayCommands implements CommandExecutor {
         return true;
     }
 
-    /**
-     * Sends detailed info about the selected display to the player. Mostly for debug purposes.
-     *
-     * @param player The player who executed the command.
-     */
+    // Sends detailed info about the selected display to the (player). Mostly for debug purposes
     private void handleDisplayDetailsCommand(Player player) {
         // Get the selected VivDisplay for the player
         VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
@@ -168,13 +169,7 @@ public class DisplayCommands implements CommandExecutor {
         player.sendMessage("Is Parent: " + selectedVivDisplay.isParent);
     }
 
-    /**
-     * Sets the parent of the (player)'s selected VivDisplay.
-     *
-     * @param player The player performing the command.
-     * @param args   Command arguments:
-     *              - For setting the parent: /displaygroup setparent <parentname>
-     */
+    // Sets the parent of the (player)'s selected VivDisplay.
     private void handleDisplaySetParentCommand(Player player, String[] args) {
         if (args.length < 2) {
             player.sendMessage("Usage: /displaygroup setparent <parentname>");
@@ -196,11 +191,7 @@ public class DisplayCommands implements CommandExecutor {
         sendPlayerMessageIfExists(player, selectedVivDisplay.setParent(parentDisplay));
     }
 
-    /**
-     * Unsets the parent of the (player)'s selected VivDisplay.
-     *
-     * @param player The player performing the command.
-     */
+    // Unsets the parent of the (player)'s selected VivDisplay.
     private void handleDisplayUnparentCommand(Player player) {
         // Get the selected VivDisplay for the player
         VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
@@ -214,8 +205,7 @@ public class DisplayCommands implements CommandExecutor {
     }
 
     /**
-     * Handles the renaming of a selected display by adding a custom NBT tag with the name "name."
-     * If a valid display is selected and the renaming is successful, it updates the display's name.
+     * Handles the renaming of a (player)'s selected display by adding a custom NBT tag with a given arg name
      *
      * @param player The player who issued the command.
      * @param args   Command arguments:
@@ -404,11 +394,7 @@ public class DisplayCommands implements CommandExecutor {
 
 
 
-    /**
-     * Reduces the count of the (player)'s held item by 1. If the new count <= 0, the remove it.
-     *
-     * @param player The player whose held item is being modified.
-     */
+    // Reduces the count of the (player)'s held item by 1. If the new count <= 0, the remove it.
     private void takeFromHeldItem(Player player) {
         ItemStack heldItem = player.getInventory().getItemInMainHand();
         heldItem.setAmount(heldItem.getAmount() - 1);
@@ -419,12 +405,7 @@ public class DisplayCommands implements CommandExecutor {
         }
     }
 
-    /**
-     * Checks if the (player) is holding a valid item for creating a Display.
-     *
-     * @param player The player whose held item is being checked.
-     * @return True if the held item is valid; otherwise, false.
-     */
+    // Checks if a (player) is holding a displayable item
     private boolean isHeldItemValid(Player player) {
         ItemStack heldItem = player.getInventory().getItemInMainHand();
         if (heldItem.getType() == Material.AIR) {
@@ -492,7 +473,7 @@ public class DisplayCommands implements CommandExecutor {
      *
      * @param player The player who issued the command.
      * @param args   Command arguments:
-     *               - args[1]: (Optional) The radius within which to search for VivDisplays. Defaults to 5 if not provided.
+     *               - args[1]: (Optional) The radius within which to search for VivDisplays. Defaults to 5
      */
     private void handleDisplayNearbyCommand(Player player, String[] args) {
         double radius = parseNumberFromArgs(args, 1, 1, 5, player, "Invalid radius specified.");
@@ -511,13 +492,7 @@ public class DisplayCommands implements CommandExecutor {
         }
     }
 
-    /**
-     * Gets Displays within in a given radius of a player
-     *
-     * @param player The player to search near.
-     * @param radius The search radius for nearby Displays.
-     * @return A list of nearby Displays.
-     */
+    // Gets Displays near a (player) within in a given (radius)
     private List<Display> getNearbyDisplays(Player player, double radius) {
         double maxTaxicabDistance = Math.sqrt(3) * radius; // maximum taxicab distance
         Location playerLocation = player.getLocation();
@@ -533,20 +508,15 @@ public class DisplayCommands implements CommandExecutor {
 
             double totalDistance = xDistance + yDistance + zDistance;
 
-            if (totalDistance <= maxTaxicabDistance && playerLocation.distance(displayLocation) <= radius) { // do pythagorean after passing taxicab
+            // do pythagorean after passing taxicab
+            if (totalDistance <= maxTaxicabDistance && playerLocation.distance(displayLocation) <= radius) {
                 nearbyDisplays.add(display);
             }
         }
         return nearbyDisplays;
     }
 
-    /**
-     * Gets VivDisplay objects near the player within a given radius, sorted by distance.
-     *
-     * @param player The player around whom to find VivDisplays.
-     * @param radius The search radius.
-     * @return Sorted list of VivDisplays within the radius.
-     */
+    // Gets VivDisplay objects near the (player) within a given (radius), sorted by distance
     private List<VivDisplay> getNearbyVivDisplays(Player player, int radius) {
         List<VivDisplay> nearbyVivDisplays = new ArrayList<>();
         List<Display> nearbyDisplays = getNearbyDisplays(player, radius);
@@ -572,11 +542,7 @@ public class DisplayCommands implements CommandExecutor {
         return nearbyVivDisplays;
     }
 
-    /**
-     * Selects the closest VivDisplay to the player's location within a specified radius.
-     *
-     * @param player The player performing the command.
-     */
+    // Selects the closest VivDisplay to the (player)'s location within a specified radius.
     private void handleDisplayClosestCommand(Player player) {
         int radius = 5;
         List<VivDisplay> nearbyVivDisplays = getNearbyVivDisplays(player, radius);
@@ -592,14 +558,9 @@ public class DisplayCommands implements CommandExecutor {
         player.sendMessage("Closest Display selected.");
     }
 
-    /**
-     * Selects a VivDisplay for the player given an index.
-     *
-     * @param player The player performing the command.
-     * @param args   Command arguments:
-     *              - [index]: The index of the VivDisplay to select.
-     */
+    // Selects a VivDisplay for the (player) given an index.
     private void handleDisplaySelectCommand(Player player, String[] args) { // this should never be executed by the player
+        // todo: early return if player
         if (args.length < 2) {return;}
 
         // if index specified
@@ -618,7 +579,7 @@ public class DisplayCommands implements CommandExecutor {
     }
 
     /**
-     * Rotates the selected VivDisplay for a player. Allows changing (+=) or setting (=) the rotation with optional offsets.
+     * Rotates the selected VivDisplay for a player. Allows changing (+=) or setting (=) the rotation around 2 or 3 axis
      *
      * @param player The player performing the command.
      * @param args   Command arguments:
@@ -678,7 +639,7 @@ public class DisplayCommands implements CommandExecutor {
     }
 
     /**
-     * Handles the positioning of a selected VivDisplay for a player.
+     * Handles the positioning of a (player)'s selected VivDisplay
      * Allows changing or setting the position with optional offsets.
      *
      * @param player The player performing the command.
@@ -723,26 +684,14 @@ public class DisplayCommands implements CommandExecutor {
         }
     }
 
-    /**
-     * Creates an ItemStack with the specified (material) and (displayName) at the given (x, y) coordinates in the (inventory).
-     *
-     * @param inventory   The inventory to place the button in.
-     * @param material    The material for the button.
-     * @param displayName The display name for the button.
-     * @param x           The X-coordinate for the button.
-     * @param y           The Y-coordinate for the button.
-     */
+    // Creates an ItemStack in the (inventory) with the specified (material) and (displayName) at the given (x, y) coordinates.
     private void createButtonAtXY(Inventory inventory, Material material, String displayName, int x, int y) {
         ItemStack button = new ItemStack(material);
         button = im.itemWithName(button, displayName);
         im.setInventoryItemXY(inventory, button, x, y);
     }
 
-    /**
-     * Creates the display-editing inventory-GUI for a (player) with buttons for adjusting position, rotation, and size.
-     *
-     * @param player The player for whom the GUI is created.
-     */
+    // Creates & opens the display-editing inventory-GUI for a (player) with buttons for adjusting position, rotation, and size.
     private void handleDisplayGUICommand(Player player) {
         Inventory inventory = Bukkit.createInventory(null, 54, "display GUI");
 
@@ -773,25 +722,13 @@ public class DisplayCommands implements CommandExecutor {
         player.openInventory(inventory);
     }
 
-    /**
-     * Rounds a double (num) to a specified number of decimal (places).
-     *
-     * @param num    The number to be rounded.
-     * @param places The number of decimal places to round to.
-     * @return The rounded double value.
-     */
-    private double roundTo(double num, int places){
+    // rounds a double (num)'s position to (places)
+    private double roundTo(double num, int places) {
         double mult = Math.pow(10, places);
         return Math.round(num * mult)/mult;
     }
 
-    /**
-     * rounds a (location)'s position to (places)
-     *
-     * @param location The original location.
-     * @param places   The number of decimal places to round to.
-     * @return A new location with rounded coordinates.
-     */
+    // rounds a (location)'s position to (places)
     private Location locationRoundedTo(Location location, int places) {
         double x = roundTo((float) location.getX(), places);
         double y = roundTo((float) location.getY(), places);
@@ -800,12 +737,7 @@ public class DisplayCommands implements CommandExecutor {
         return new Location(location.getWorld(), x, y, z, location.getYaw(), location.getPitch());
     }
 
-    /**
-     * Fetches the VivDisplay object that the player has currently selected.
-     *
-     * @param player The player whose selected display to fetch.
-     * @return The selected VivDisplay object, or null if none is selected.
-     */
+    //self-explanatory
     private VivDisplay getSelectedVivDisplay(Player player) {
         VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
@@ -821,7 +753,7 @@ public class DisplayCommands implements CommandExecutor {
      * @param displayName The name of the display to search for.
      * @return The found Display object, or null if no display with the given name is found.
      */
-    private Display getVivDisplayByName(Player player, String displayName) {
+    private Display getVivDisplayByName(Player player, String displayName) { //todo: is this supposed to return a display & not a VivDisplay?
         // Get the nearby displays within a radius of 5 blocks
         List<Display> nearbyDisplays = getNearbyDisplays(player, 5);
 
@@ -836,25 +768,14 @@ public class DisplayCommands implements CommandExecutor {
         return null; // No display found with the given name
     }
 
-    /**
-     * Sends a message to a player, but only if the message is not empty.
-     *
-     * @param player The player to whom to send the message.
-     * @param message The message to send.
-     */
-    void sendPlayerMessageIfExists(Player player, String message){
-        if(!message.isEmpty()){
+    // Sends a message to a player, but only if the message is not empty.
+    void sendPlayerMessageIfExists(Player player, String message) {
+        if (!message.isEmpty()) {
             player.sendMessage(message);
         }
     }
 
-    /**
-     * Sends (player) a hyperlink to select a (vivDisplay) with a given (index)
-     *
-     * @param player    The player who will receive the hyperlink.
-     * @param vivDisplay The VivDisplay to be selected via the hyperlink.
-     * @param index     The index associated with the VivDisplay.
-     */
+    // Sends (player) a hyperlink to select a (vivDisplay) with a given (index)
     private void createHyperlink(Player player, VivDisplay vivDisplay, int index) {
         assert vivDisplay != null;
 
@@ -865,7 +786,7 @@ public class DisplayCommands implements CommandExecutor {
         double distance = roundTo(location.distance(playerLocation), 2);
 
         String name = nbtm.getNBT(vivDisplay.display, "VivDisplayName", String.class);
-        if(name == null){
+        if (name == null) {
             name = "";
         }
 
@@ -888,11 +809,10 @@ public class DisplayCommands implements CommandExecutor {
             return; // Exit early if display is borked
         }
 
-        // create message to select this display, if it's not borked
+        // create & send message to select this display, if it's not borked
         TextComponent message = new TextComponent(ChatColor.BLUE + "Click to select " + displayTypeStr + " '" + name + "' holding " + displayMaterial.toString() + ", " + distance + " blocks away");
         message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/advdisplay select " + index));
 
-        // send it
         player.spigot().sendMessage(message);
     }
 }

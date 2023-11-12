@@ -1,5 +1,6 @@
 package me.vivian.displayer;
 
+import me.vivian.displayerutils.NBTMagic;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -30,7 +31,7 @@ public class VivDisplay{
     public String parentUUID;
     public boolean isChild;
     public boolean isParent;
-    public VivDisplay(Plugin thisPlugin, Display thisDisplay){
+    public VivDisplay(Plugin thisPlugin, Display thisDisplay) {
         // todo: handle null
         plugin = thisPlugin;
         display = thisDisplay;
@@ -42,7 +43,7 @@ public class VivDisplay{
         isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
     }
 
-    public VivDisplay(Plugin thisPlugin, World world, Location location, EntityType entityType, Object displayData){
+    public VivDisplay(Plugin thisPlugin, World world, Location location, EntityType entityType, Object displayData) {
         // todo: handle null
         plugin = thisPlugin;
         createDisplay(world, location, entityType, displayData);
@@ -115,7 +116,7 @@ public class VivDisplay{
             player.sendMessage("You must first select a Display");
         }
     }
-    public ItemStack getItemStack(){
+    public ItemStack getItemStack() {
         return getItemStackFromDisplay(display);
     }
 

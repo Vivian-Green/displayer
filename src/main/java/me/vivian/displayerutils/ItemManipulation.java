@@ -1,4 +1,4 @@
-package me.vivian.displayer;
+package me.vivian.displayerutils;
 
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -14,7 +14,7 @@ public class ItemManipulation {
     /**
      * constructor
      */
-    public ItemManipulation(){}
+    public ItemManipulation() {}
 
     /**
      * Checks if a slot (index) is out of bounds for the given (inventory size).

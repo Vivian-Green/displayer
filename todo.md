@@ -8,16 +8,12 @@
 - displaygroup move, rotate, resize
 - displaygroup prefabs (creative mode, maybe require items in inv in survival?)
 - displaygroup cut/paste
-- ~~displaygroup parent~~
-- ~~displaygroup unparent~~
 - parent list of children
 - make display parent and unparent update parent's list of children
 - displaygroup b o n e s
   </br></br>
 - advdisplay select UUID
 - advdisplay help
-- ~~advdisplay rename~~
-- ~~advdisplay details~~
   </br></br></br></br>
 - ensure no parent time travel alabama ouroborosing
 
