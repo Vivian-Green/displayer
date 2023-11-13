@@ -1,13 +1,16 @@
 package me.vivian.displayer;
 
 import me.vivian.displayerutils.ItemManipulation;
+import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.joml.Vector2i;
+import org.joml.Vector3d;
 
 import java.util.HashMap;
 
@@ -30,6 +33,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
     ItemManipulation im = new ItemManipulation();
 
     public void registerCommand(CommandExecutor commandExecutor, SubCommandExecutor subCommandExecutor, String commandName) {
+        System.out.println(commandName);
         getCommand(commandName).setExecutor(commandExecutor);
         getCommand(commandName).setTabCompleter(subCommandExecutor);
     }
@@ -58,6 +62,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        System.out.println("click within an inventory");
         // ensure this is the display gui
         if (!event.getView().getTitle().equals("display GUI")) {
             return;
@@ -72,6 +77,8 @@ public final class EventListeners extends JavaPlugin implements Listener {
         if (slot < 0 || slot >= event.getInventory().getSize()) {
             return;
         }
+
+        System.out.println("click within display gui");
 
         int column = slot % 9; // Calculate the column (zero-based)
         int row = (slot - column) / 9; // Calculate the row (zero-based)
@@ -88,11 +95,90 @@ public final class EventListeners extends JavaPlugin implements Listener {
         HashMap<String, String> commandMap = getCommandMap(multiplier, positionScale, rotationScale, sizeScale, brightnessScale);
 
         String command = commandMap.getOrDefault(selectedSlot.x + "," + selectedSlot.y, null);
+        System.out.println("clicked button command:");
+        System.out.println(command);
         if (command == null) {return;}
 
         // Execute the command
         player.performCommand(command);
     }
+
+    @EventHandler
+    public void onPlayerRotate(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+        if (player.getInventory().getItemInMainHand().getType() == Material.LEAD || player.getInventory().getItemInMainHand().getType() == Material.SPECTRAL_ARROW || player.getInventory().getItemInMainHand().getType() == Material.LEAD) {
+            float fromYaw = event.getFrom().getYaw();
+            float toYaw = event.getTo().getYaw();
+            float fromPitch = event.getFrom().getPitch();
+            float toPitch = event.getTo().getPitch();
+            if (fromYaw != toYaw || fromPitch != toPitch) {
+                // The player has changed their rotation while holding a honey bottle.
+                float deltaYaw = toYaw - fromYaw;
+                float deltaPitch = toPitch - fromPitch;
+                // Get the player's selected VivDisplay
+                VivDisplay selectedVivDisplay = DisplayCommands.getSelectedVivDisplay(player);
+
+                // If the player has not selected a VivDisplay, send an error message and return
+                if (selectedVivDisplay == null) {
+                    player.sendMessage("You must first select a Display");
+                    return;
+                }
+                if (selectedVivDisplay.isThisParent()) {
+                    if (player.getInventory().getItemInMainHand().getType() == Material.LEAD){
+                        DisplayCommands.rotateHierarchy(selectedVivDisplay, new Vector3d(0, 0, -deltaYaw));
+                    }
+                    if (player.getInventory().getItemInMainHand().getType() == Material.SPECTRAL_ARROW){
+                        DisplayCommands.rotateHierarchy(selectedVivDisplay, new Vector3d(deltaYaw, deltaPitch, 0));
+                    }
+                }else{
+                    if (player.getInventory().getItemInMainHand().getType() == Material.LEAD){
+                        selectedVivDisplay.changeRotation(0, 0, -deltaYaw, null);
+                    }
+                    if (player.getInventory().getItemInMainHand().getType() == Material.SPECTRAL_ARROW){
+                        selectedVivDisplay.changeRotation(deltaYaw, deltaPitch, 0, null);
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+        if (player.getInventory().getItemInMainHand().getType() == Material.LEAD || player.getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD) {
+            Vector3d from = new Vector3d(event.getFrom().getX(), event.getFrom().getY(), event.getFrom().getZ());
+            Vector3d to = new Vector3d(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ());
+            Vector3d delta = new Vector3d(to.x - from.x, to.y - from.y, to.z - from.z);
+
+            // Get the player's selected VivDisplay
+            VivDisplay selectedVivDisplay = DisplayCommands.getSelectedVivDisplay(player);
+
+            // If the player has not selected a VivDisplay, send an error message and return
+            if (selectedVivDisplay == null) {
+                player.sendMessage("You must first select a Display");
+                return;
+            }
+            if (selectedVivDisplay.isThisParent()) {
+                if (player.getInventory().getItemInMainHand().getType() == Material.LEAD) {
+                    DisplayCommands.translateHierarchy(selectedVivDisplay, delta);
+                }
+                if (player.getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD) {
+                    DisplayCommands.resizeHierarchy(selectedVivDisplay, (float) ((delta.x+delta.y+delta.z)*0.1+1));
+                }
+
+            }else{
+                if (player.getInventory().getItemInMainHand().getType() == Material.LEAD) {
+                    selectedVivDisplay.changePosition(delta);
+                }
+                if (player.getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD) {
+                    selectedVivDisplay.changeScale((delta.x+delta.y+delta.z)*0.1, null);
+                }
+            }
+
+
+        }
+    }
+
 
     private static HashMap<String, String> getCommandMap(double multiplier, double positionScale, double rotationScale, double sizeScale, double brightnessScale) {
         // it was this or a switch statement

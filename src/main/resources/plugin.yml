@@ -63,11 +63,23 @@ commands:
 
   displaygroup:
     description: Commands for handling grouped displays
-    usage: /displaygroup parent <parentName> | unparent
+    usage: /displaygroup parent <parentName> | unparent | copypaste
     subcommands:
       parent:
-        description: sets the parent of the selected display
+        description: Sets the parent of the selected display
         usage: /displaygroup parent <parentName>
       unparent:
-        description: unsets the parent of the selected display
+        description: Unsets the parent of the selected display
         usage: /displaygroup unparent
+      copypaste:
+        description: Copies and pastes the hierarchy of the selected display at the player's current location
+        usage: /displaygroup copypaste
+      rotate:
+        description: Rotates the hierarchy of the selected display
+        usage: /displaygroup rotate <xRotation> <yRotation> <zRotation>
+      translate:
+        description: Translates the hierarchy of the selected display
+        usage: /displaygroup translate <xTranslation> <yTranslation> <zTranslation>
+      show:
+        description: Highlights the displaygroup selected
+        usage: /displaygroup show

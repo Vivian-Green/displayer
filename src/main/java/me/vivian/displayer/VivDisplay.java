@@ -11,6 +11,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
 import org.bukkit.Location;
+import org.joml.Vector3d;
 
 import java.util.Map;
 
@@ -41,6 +42,11 @@ public class VivDisplay{
         parentUUID = nbtm.getNBT(display, "VivDisplayParentUUID", String.class);
         isChild = nbtm.getNBT(display, "VivDisplayIsChild", Boolean.class);
         isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
+    }
+
+    public Boolean isThisParent() {
+        isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
+        return isParent;
     }
 
     public VivDisplay(Plugin thisPlugin, World world, Location location, EntityType entityType, Object displayData) {
@@ -225,7 +231,9 @@ public class VivDisplay{
             display.setTransformation(transformation);
             return true;
         } else {
-            player.sendMessage("Invalid scale value. Scale must be greater than 0.0.");
+            if (player != null) {
+                player.sendMessage("Invalid scale value. Scale must be greater than 0.0.");
+            }
             return false;
         }
     }
@@ -242,12 +250,20 @@ public class VivDisplay{
             Transformation transformation = display.getTransformation();
             transformation.getScale().set(newSize);
             display.setTransformation(transformation);
-            player.sendMessage("Display scale set to " + newSize);
+            if (player != null) {
+                player.sendMessage("Display scale set to " + newSize);
+            }
             return true;
         } else {
-            player.sendMessage("Invalid scale value. Scale must be greater than 0.0.");
+            if (player != null) {
+                player.sendMessage("Invalid scale value. Scale must be greater than 0.0.");
+            }
             return false;
         }
+    }
+
+    public float getScale() {
+        return (display.getTransformation().getScale().x+display.getTransformation().getScale().y+display.getTransformation().getScale().z)/3;
     }
 
     /**
@@ -306,7 +322,11 @@ public class VivDisplay{
         transformation.getLeftRotation().set(rotation);
 
         display.setTransformation(transformation);
-        player.sendMessage("Rotation set for the selected Display.");
+
+        // Only send the message if player is not null
+        if (player != null) {
+            player.sendMessage("Rotation set for the selected Display.");
+        }
         return true;
     }
 
@@ -319,7 +339,7 @@ public class VivDisplay{
      * @param player  The player performing the position change.
      * @return True if the position change was successful, false otherwise.
      */
-    public boolean changePosition(double xOffset, double yOffset, double zOffset, Player player) {
+    public boolean changePosition(double xOffset, double yOffset, double zOffset) {
         Location currentLocation = display.getLocation();
         double newX = currentLocation.getX() + xOffset;
         double newY = currentLocation.getY() + yOffset;
@@ -333,6 +353,10 @@ public class VivDisplay{
         display.teleport(new Location(currentLocation.getWorld(), newX, newY, newZ, currentYaw, currentPitch));
 
         return true;
+    }
+
+    public boolean changePosition(Vector3d offset) {
+        return changePosition(offset.x, offset.y, offset.z);
     }
 
     /**
@@ -352,18 +376,32 @@ public class VivDisplay{
         // Teleport to the new position with the current rotation
         display.teleport(new Location(display.getLocation().getWorld(), x, y, z, currentYaw, currentPitch));
 
-        player.sendMessage("Position set for the selected Display.");
+        // Only send the message if player is not null
+        if (player != null) {
+            player.sendMessage("Position set for the selected Display.");
+        }
+
         return true;
     }
+
+    public Vector3d getPosition() {
+        Location location = display.getLocation();
+        return new Vector3d(location.getX(), location.getY(), location.getZ());
+    }
+
 
     /**
      * spawns particles at this display
      */
-    public void spawnParticle() {
+    public void spawnParticle(Particle particle, Integer count) {
         Location displayLocation = display.getLocation();
 
-        Particle particle = Particle.WATER_DROP;
-        int count = 100;
+        if (particle == null) {
+            particle = Particle.ENCHANTMENT_TABLE;
+        }
+        if (count == null) {
+            count = 100;
+        }
 
         displayLocation.getWorld().spawnParticle(
                 particle,
