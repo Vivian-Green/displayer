@@ -3,6 +3,9 @@ package me.vivian.displayer;
 import me.vivian.displayerutils.ItemManipulation;
 import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,6 +15,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -32,7 +37,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
     ItemManipulation im = new ItemManipulation();
 
-    public void registerCommand(CommandExecutor commandExecutor, SubCommandExecutor subCommandExecutor, String commandName) {
+    public void registerCommand(CommandExecutor commandExecutor, TabCompleter subCommandExecutor, String commandName) {
         System.out.println(commandName);
         getCommand(commandName).setExecutor(commandExecutor);
         getCommand(commandName).setTabCompleter(subCommandExecutor);
@@ -45,7 +50,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         System.out.println("THIS IS VERY WIP AND SHOULD NOT BE ON A PUBLIC SERVER");
 
         CommandExecutor mainCommandExecutor = new DisplayCommands(this);
-        SubCommandExecutor subCommandExecutor = new SubCommandExecutor(getDescription());
+        TabCompleter subCommandExecutor = new me.vivian.displayer.AutoFill();
 
         registerCommand(mainCommandExecutor, subCommandExecutor, "display");
         registerCommand(mainCommandExecutor, subCommandExecutor, "advdisplay");

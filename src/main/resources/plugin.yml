@@ -63,7 +63,7 @@ commands:
 
   displaygroup:
     description: Commands for handling grouped displays
-    usage: /displaygroup parent <parentName> | unparent | copypaste
+    usage: /displaygroup parent <parentName> | unparent | copypaste | show | rotate <yaw> <pitch> <roll> | translate <xTranslation> <yTranslation> <zTranslation>
     subcommands:
       parent:
         description: Sets the parent of the selected display

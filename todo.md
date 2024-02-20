@@ -18,3 +18,16 @@
 - ensure no parent time travel alabama ouroborosing
 
 - ability to add cost via vault? cost an item from config to make??
+
+- ability to replace ItemStack in display
+- display unselect command OR auto-unselect after time
+
+
+
+
+
+
+
+# bugs:
+- `/display create block` destroys the held item even if it is not a valid block
+- rotations for display groups use local space instead of global space.

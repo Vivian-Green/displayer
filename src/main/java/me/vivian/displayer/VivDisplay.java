@@ -13,6 +13,7 @@ import org.joml.Quaternionf;
 import org.bukkit.Location;
 import org.joml.Vector3d;
 
+import java.io.File;
 import java.util.Map;
 
 
@@ -32,6 +33,7 @@ public class VivDisplay{
     public String parentUUID;
     public boolean isChild;
     public boolean isParent;
+
     public VivDisplay(Plugin thisPlugin, Display thisDisplay) {
         // todo: handle null
         plugin = thisPlugin;
@@ -44,21 +46,21 @@ public class VivDisplay{
         isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
     }
 
-    public Boolean isThisParent() {
-        isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
-        return isParent;
-    }
-
     public VivDisplay(Plugin thisPlugin, World world, Location location, EntityType entityType, Object displayData) {
         // todo: handle null
         plugin = thisPlugin;
-        createDisplay(world, location, entityType, displayData);
+        display = createDisplay(world, location, entityType, displayData);
         nbtm = new NBTMagic(plugin);
 
         displayName = nbtm.getNBT(display, "VivDisplayName", String.class);
         parentUUID = nbtm.getNBT(display, "VivDisplayParentUUID", String.class);
         isChild = nbtm.getNBT(display, "VivDisplayIsChild", Boolean.class);
         isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
+    }
+
+    public Boolean isThisParent() {
+        isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
+        return isParent;
     }
 
     /**
@@ -91,7 +93,6 @@ public class VivDisplay{
      * @param vivDisplays The map of VivDisplays where the VivDisplay should be removed from.
      */
     public void destroy(Player player, Map<String, VivDisplay> vivDisplays, Map<Player, VivDisplay> selectedVivDisplays) {
-        // todo: remove from selectedVivDisplays too
         if (display != null) {
             try {
                 player.getWorld().dropItemNaturally(display.getLocation(), getItemStackFromDisplay(display));
@@ -336,7 +337,6 @@ public class VivDisplay{
      * @param xOffset The X-axis offset to add to the current position.
      * @param yOffset The Y-axis offset to add to the current position.
      * @param zOffset The Z-axis offset to add to the current position.
-     * @param player  The player performing the position change.
      * @return True if the position change was successful, false otherwise.
      */
     public boolean changePosition(double xOffset, double yOffset, double zOffset) {
@@ -395,6 +395,8 @@ public class VivDisplay{
      */
     public void spawnParticle(Particle particle, Integer count) {
         Location displayLocation = display.getLocation();
+
+        Vector3d offset = new Vector3d(0, 1, 0);
 
         if (particle == null) {
             particle = Particle.ENCHANTMENT_TABLE;
