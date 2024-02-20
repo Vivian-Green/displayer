@@ -120,6 +120,12 @@ public class DisplayCommands implements CommandExecutor {
                     player.sendMessage("Invalid subcommand for /advdisplay. Try /advdisplay help");
             }
         } else if (label.equalsIgnoreCase("displaygroup")) {
+            if (Config.getConfig().getBoolean("doDisplayGroups") == false) {
+                // this is actually enough to disable all of this, since you can't set a parent (create a group) otherwise
+                player.sendMessage("display groups are disabled");
+                return false;
+            }
+
             if (args.length < 1) {
                 player.sendMessage("Usage: /displaygroup setparent <parentname>");
                 return false;
@@ -186,6 +192,7 @@ public class DisplayCommands implements CommandExecutor {
 
     // Sets the parent of the (player)'s selected VivDisplay.
     private void handleDisplaySetParentCommand(Player player, String[] args) {
+
         if (args.length < 2) {
             player.sendMessage("Usage: /displaygroup setparent <parentname>");
             return;
@@ -1187,11 +1194,6 @@ public class DisplayCommands implements CommandExecutor {
      *               - /displaygroup rotate <xRotation> <yRotation> <zRotation>
      */
     public void handleDisplayGroupRotateCommand(Player player, String[] args) {
-        if (Config.getConfig().getBoolean("doDisplayGroups") == false) {
-            // this is actually enough to disable all of this, since you can't set a parent (create a group) otherwise
-            player.sendMessage("display groups are disabled");
-            return;
-        }
         // Check if the correct number of arguments are provided
         if (args.length != 4) {
             player.sendMessage("Usage: /displaygroup rotate <xRotation> <yRotation> <zRotation>");
