@@ -1,8 +1,7 @@
-package me.vivian.displayer;
+package me.vivian.displayer.display;
 
 import me.vivian.displayerutils.NBTMagic;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
@@ -13,19 +12,20 @@ import org.joml.Quaternionf;
 import org.bukkit.Location;
 import org.joml.Vector3d;
 
-import java.io.File;
 import java.util.Map;
 
 
 // todo: return strings instead of needing player as arg
 // todo: handle case display is null
+
+// todo: add errs & texts to texts.yml
 /**
  * Wrapper class for a display entity in the game world, used to hold display values
  * Provides methods to interact with and manage displays, including creation, destruction, and retrieval
  * of display information.
  */
 public class VivDisplay{
-    Display display;
+    public Display display;
     Plugin plugin;
     NBTMagic nbtm;
 
@@ -387,28 +387,5 @@ public class VivDisplay{
     public Vector3d getPosition() {
         Location location = display.getLocation();
         return new Vector3d(location.getX(), location.getY(), location.getZ());
-    }
-
-
-    /**
-     * spawns particles at this display
-     */
-    public void spawnParticle(Particle particle, Integer count) {
-        Location displayLocation = display.getLocation();
-
-        Vector3d offset = new Vector3d(0, 1, 0);
-
-        if (particle == null) {
-            particle = Particle.ENCHANTMENT_TABLE;
-        }
-        if (count == null) {
-            count = 100;
-        }
-
-        displayLocation.getWorld().spawnParticle(
-                particle,
-                displayLocation,
-                count
-        );
     }
 }

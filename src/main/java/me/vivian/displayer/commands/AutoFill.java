@@ -1,4 +1,4 @@
-package me.vivian.displayer;
+package me.vivian.displayer.commands;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -28,8 +28,9 @@ public class AutoFill implements TabCompleter {
         return Collections.emptyList();
     }
 
+
     private List<String> handleDisplayerSubcommands(CommandSender sender, String[] args) {
-        List<String> completions = new ArrayList<>();
+        List<String> completions = new ArrayList<> ();
 
         if (args.length == 1) {
             completions.addAll(Arrays.asList("create", "nearby", "closest", "destroy", "gui", "help"));
@@ -37,7 +38,7 @@ public class AutoFill implements TabCompleter {
             String currentSubcommand = args[0].toLowerCase();
             switch (currentSubcommand) {
                 case "create":
-                    switch(args.length) {
+                    switch (args.length) {
                         case 2:
                             completions.add("item");
                             completions.add("block");
@@ -54,7 +55,7 @@ public class AutoFill implements TabCompleter {
                     }
                     break;
                 case "destroy":
-                    switch(args.length) {
+                    switch (args.length) {
                         case 2:
                             completions.add("nearby");
                             break;
@@ -103,19 +104,19 @@ public class AutoFill implements TabCompleter {
                     }
                     break;
                 case "setrotation":
-                    switch(args.length) {
+                    switch (args.length) {
                         case 2:
-                            completions.add(yaw+"");
+                            completions.add(yaw + "");
                             break;
                         case 3:
-                            completions.add(pitch+"");
+                            completions.add(pitch + "");
                             break;
                         case 4:
                             completions.addAll(Arrays.asList("<roll>", "0"));
                             break;
                     }
                 case "changerotation":
-                    switch(args.length) {
+                    switch (args.length) {
                         case 2:
                             completions.add("<yaw>");
                             break;
@@ -128,19 +129,19 @@ public class AutoFill implements TabCompleter {
                     }
                     break;
                 case "setposition":
-                    switch(args.length) {
+                    switch (args.length) {
                         case 2:
-                            completions.add(x+"");
+                            completions.add(x + "");
                             break;
                         case 3:
-                            completions.add(y+"");
+                            completions.add(y + "");
                             break;
                         case 4:
-                            completions.add(z+"");
+                            completions.add(z + "");
                             break;
                     }
                 case "changeposition":
-                    switch(args.length) {
+                    switch (args.length) {
                         case 2:
                             completions.add("<x>");
                             break;
@@ -191,7 +192,7 @@ public class AutoFill implements TabCompleter {
                     // No additional arguments needed for these subcommands
                     break;
                 case "rotate":
-                    switch(args.length) {
+                    switch (args.length) {
                         case 2:
                             completions.add("<yaw>");
                             break;
@@ -204,7 +205,7 @@ public class AutoFill implements TabCompleter {
                     }
                     break;
                 case "translate":
-                    switch(args.length) {
+                    switch (args.length) {
                         case 2:
                             completions.add("<x>");
                             break;
@@ -221,6 +222,4 @@ public class AutoFill implements TabCompleter {
 
         return completions;
     }
-
-
 }

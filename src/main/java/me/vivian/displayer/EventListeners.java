@@ -1,11 +1,15 @@
 package me.vivian.displayer;
 
+import me.vivian.displayer.commands.AutoFill;
+import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.config.Texts;
+import me.vivian.displayer.display.DisplayGroupHandler;
+import me.vivian.displayer.display.DisplayHandler;
+import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.ItemManipulation;
 import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,17 +19,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Handles startup and events relevant to displays/display GUIs.
  */
 public final class EventListeners extends JavaPlugin implements Listener {
-    /**
-     * constructor
-     */
+
     public EventListeners() {}
 
     // todo: move scale values to config
@@ -35,7 +36,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
     double brightnessScale = 0.01;
     double multiplierFastValue = 10.0;
 
-    ItemManipulation im = new ItemManipulation();
+    Map<String, String> errMap;
 
     public void registerCommand(CommandExecutor commandExecutor, TabCompleter subCommandExecutor, String commandName) {
         System.out.println(commandName);
@@ -45,12 +46,12 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        // todo: un-gpt comments lmao
-        // Plugin startup logic
-        System.out.println("THIS IS VERY WIP AND SHOULD NOT BE ON A PUBLIC SERVER");
+        this.saveResource("plugin.yml", false);
+        this.saveResource("config.yml", false);
+        this.saveResource("texts.yml", false);
 
-        CommandExecutor mainCommandExecutor = new DisplayCommands(this);
-        TabCompleter subCommandExecutor = new me.vivian.displayer.AutoFill();
+        CommandExecutor mainCommandExecutor = new CommandHandler(this);
+        TabCompleter subCommandExecutor = new AutoFill();
 
         registerCommand(mainCommandExecutor, subCommandExecutor, "display");
         registerCommand(mainCommandExecutor, subCommandExecutor, "advdisplay");
@@ -58,6 +59,8 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
         // Register event listeners
         getServer().getPluginManager().registerEvents(this, this);
+
+        errMap = Texts.getErrors();
     }
 
     /**
@@ -110,6 +113,8 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerRotate(PlayerMoveEvent event) {
+        // todo: if player is sneaking, multiply any movement by 0.1
+
         Player player = event.getPlayer();
         if (player.getInventory().getItemInMainHand().getType() == Material.LEAD || player.getInventory().getItemInMainHand().getType() == Material.SPECTRAL_ARROW || player.getInventory().getItemInMainHand().getType() == Material.LEAD) {
             float fromYaw = event.getFrom().getYaw();
@@ -121,19 +126,19 @@ public final class EventListeners extends JavaPlugin implements Listener {
                 float deltaYaw = toYaw - fromYaw;
                 float deltaPitch = toPitch - fromPitch;
                 // Get the player's selected VivDisplay
-                VivDisplay selectedVivDisplay = DisplayCommands.getSelectedVivDisplay(player);
+                VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
 
                 // If the player has not selected a VivDisplay, send an error message and return
                 if (selectedVivDisplay == null) {
-                    player.sendMessage("You must first select a Display");
+                    player.sendMessage(errMap.get("noSelectedDisplay"));
                     return;
                 }
                 if (selectedVivDisplay.isThisParent()) {
                     if (player.getInventory().getItemInMainHand().getType() == Material.LEAD){
-                        DisplayCommands.rotateHierarchy(selectedVivDisplay, new Vector3d(0, 0, -deltaYaw));
+                        DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(0, 0, -deltaYaw));
                     }
                     if (player.getInventory().getItemInMainHand().getType() == Material.SPECTRAL_ARROW){
-                        DisplayCommands.rotateHierarchy(selectedVivDisplay, new Vector3d(deltaYaw, deltaPitch, 0));
+                        DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(deltaYaw, deltaPitch, 0));
                     }
                 }else{
                     if (player.getInventory().getItemInMainHand().getType() == Material.LEAD){
@@ -156,19 +161,19 @@ public final class EventListeners extends JavaPlugin implements Listener {
             Vector3d delta = new Vector3d(to.x - from.x, to.y - from.y, to.z - from.z);
 
             // Get the player's selected VivDisplay
-            VivDisplay selectedVivDisplay = DisplayCommands.getSelectedVivDisplay(player);
+            VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
 
             // If the player has not selected a VivDisplay, send an error message and return
             if (selectedVivDisplay == null) {
-                player.sendMessage("You must first select a Display");
+                player.sendMessage(errMap.get("noSelectedDisplay"));
                 return;
             }
             if (selectedVivDisplay.isThisParent()) {
                 if (player.getInventory().getItemInMainHand().getType() == Material.LEAD) {
-                    DisplayCommands.translateHierarchy(selectedVivDisplay, delta);
+                    DisplayGroupHandler.translateHierarchy(selectedVivDisplay, delta);
                 }
                 if (player.getInventory().getItemInMainHand().getType() == Material.BLAZE_ROD) {
-                    DisplayCommands.resizeHierarchy(selectedVivDisplay, (float) ((delta.x+delta.y+delta.z)*0.1+1));
+                    DisplayGroupHandler.resizeHierarchy(selectedVivDisplay, (float) ((delta.x+delta.y+delta.z)*0.1+1));
                 }
 
             }else{

@@ -1,20 +1,43 @@
 package me.vivian.displayerutils;
 
+import me.vivian.displayer.config.Texts;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Provides utility methods for manipulating inventory items.
  */
 public class ItemManipulation {
-
-    /**
-     * constructor
-     */
     public ItemManipulation() {}
+
+    static Map<String, String> errMap = Texts.getErrors();
+
+    // Reduces the count of the (player)'s held item by 1. If the new count <= 0, the remove it.
+    public static void takeFromHeldItem(Player player) {
+        ItemStack heldItem = player.getInventory().getItemInMainHand();
+        heldItem.setAmount(heldItem.getAmount() - 1);
+        if (heldItem.getAmount() <= 0) {
+            player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+        } else {
+            player.getInventory().setItemInMainHand(heldItem);
+        }
+    }
+
+    // Checks if a (player) is holding a displayable item
+    public static boolean isHeldItemValid(Player player) {
+        ItemStack heldItem = player.getInventory().getItemInMainHand();
+        if (heldItem.getType() == Material.AIR) {
+            player.sendMessage(errMap.get("displayCreateEmptyHand"));
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Checks if a slot (index) is out of bounds for the given (inventory size).
@@ -40,7 +63,8 @@ public class ItemManipulation {
      * @param Y          The Y coordinate of the slot.
      */
     public void setInventoryItemXY(Inventory inventory, ItemStack itemStack, Integer X, Integer Y) {
-        // TODO: Check if the slot is empty first or empty it first if needed.
+        // TODO URGENT: Ensure slot is empty first! This can delete shit!
+
         int index = Y * 9 + X;
         if (isSlotOOB(index, inventory.getSize())) {
             return;
