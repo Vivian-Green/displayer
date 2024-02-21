@@ -44,8 +44,7 @@ public class CommandHandler implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        boolean isPlayer = sender instanceof Player;
-        if (!isPlayer) {
+        if (!(sender instanceof Player)) {
             return onConsoleCommand(sender, command, label, args);
         }
 
