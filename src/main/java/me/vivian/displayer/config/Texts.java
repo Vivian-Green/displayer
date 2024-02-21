@@ -21,8 +21,6 @@ public class Texts {
         //       alternatively, make this so long that someone else is more disgusted than you & does it for you
         File textsFile = new File(CommandHandler.getPlugin().getDataFolder(), "texts.yml");
         tCfg = YamlConfiguration.loadConfiguration(textsFile);
-
-        isLoaded = true;
     }
 
     public static FileConfiguration getTextsConfig() { // todo: getter & setter for just the gd texts
