@@ -14,11 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Texts {
-
-
     private static FileConfiguration tCfg;
-
-    private static boolean isLoaded = false;
 
     public static void loadTexts() {
         // todo: just copy a gd default file, this is already getting too long
@@ -30,25 +26,19 @@ public class Texts {
     }
 
     public static FileConfiguration getTextsConfig() { // todo: getter & setter for just the gd texts
-        if(!isLoaded) loadTexts();
         return tCfg;
     }
 
     public static String getText(String key) {
-        if(!isLoaded) loadTexts();
         return tCfg.getString(key);
     }
 
     public static List<String> getTexts(String key) {
-        if(!isLoaded) loadTexts();
-
         // todo: ensure not null before cast if necessary?
         return (List<String>) tCfg.getList(key);
     }
 
     public static Map<String, String> getErrors() {
-        if(!isLoaded) loadTexts();
-
         // todo: ensure not null before cast if necessary?
         // Map<String, Object> errors = tCfg.getConfigurationSection("errors").getValues(false);
 

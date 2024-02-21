@@ -45,7 +45,7 @@ public class Parsing {
      * @param args   The command arguments, where args[1] is the yaw offset, args[2] is the pitch offset, and optionally, args[3] is the roll offset.
      * @return A float array containing the parsed yaw, pitch, and roll offsets, or null if parsing fails.
      */
-    public static float[] parseRotationOffsets(Player player, String[] args) { // todo: why the FUCK is one of these float[] and the other double[]??
+    public static float[] parseRotationOffsets(Player player, String[] args) {
         float yawOffset, pitchOffset, rollOffset = 0;
 
         try {

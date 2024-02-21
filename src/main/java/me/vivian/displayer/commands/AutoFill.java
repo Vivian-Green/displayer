@@ -171,7 +171,7 @@ public class AutoFill implements TabCompleter {
         if (args.length == 1) return Arrays.asList("parent", "unparent", "copypaste", "show", "rotate", "translate");
 
         List<String> completions = new ArrayList<>();
-        
+
         String currentSubcommand = args[0].toLowerCase();
         switch (currentSubcommand) {
             case "parent":
