@@ -25,6 +25,11 @@ public class TransformMath {
         return Math.round(num * mult) / mult;
     }
 
+    public static float roundTo(float num, int places) {
+        float mult = (float) Math.pow(10, places);
+        return Math.round(num * mult) / mult;
+    }
+
     // rounds a (location)'s position to (places)
     public static Location locationRoundedTo(Location location, int places) {
         double x = roundTo((float) location.getX(), places);
