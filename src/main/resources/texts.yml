@@ -5,7 +5,7 @@ errors:
   displayGroupUsage: 'Usage: /displaygroup setparent <parentname>'
   advDisplaySetPositionUsage: 'Usage: /advdisplay setposition <x> <y> <z>'
   displayNearbyFoundUnknownItem: 'createHyperlink(): This boy ain''t right. Was I passed a text display?'
-  displayCreateAtSelectedNoSelection: 'You need to select a display first!'
+  noSelectedDisplay: 'You need to select a display first!'
   advDisplaySetSizeInvalid: 'Invalid size. Usage: /advdisplay setsize <size: number>'
   displayUsage: 'Usage: /display create | nearby [radius] | destroy [nearby] [maxCount] [radius] | gui | help'
   displayClosestNotFound_Begin: 'No nearby Displays found within '
