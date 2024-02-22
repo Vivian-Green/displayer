@@ -19,6 +19,46 @@ public class TransformMath {
         return (float) Math.toDegrees(2.0 * Math.atan2(rollRotation.x, rollRotation.w));
     }
 
+    public static Quaternionf eulerToQuaternion(float yaw, float pitch, float roll) {
+        // Convert the Euler angles to radians
+        double yawRad = Math.toRadians(yaw);
+        double pitchRad = Math.toRadians(pitch);
+        double rollRad = Math.toRadians(roll);
+
+        // quaternion components
+        double cy = Math.cos(yawRad * 0.5);
+        double sy = Math.sin(yawRad * 0.5);
+        double cp = Math.cos(pitchRad * 0.5);
+        double sp = Math.sin(pitchRad * 0.5);
+        double cr = Math.cos(rollRad * 0.5);
+        double sr = Math.sin(rollRad * 0.5);
+
+        double w = cr * cp * cy + sr * sp * sy;
+        double x = sr * cp * cy - cr * sp * sy;
+        double y = cr * sp * cy + sr * cp * sy;
+        double z = cr * cp * sy - sr * sp * cy;
+
+        // Create the quaternion
+        return new Quaternionf((float)x, (float)y, (float)z, (float)w);
+    }
+
+
+    public static float[] quaternionToEuler(Quaternionf quaternion) {
+        float[] euler = new float[3];
+
+        // big math go brrrrrrrrrr
+        euler[0] = (float) Math.atan2(2.0*(quaternion.w*quaternion.x + quaternion.y*quaternion.z), 1.0 - 2.0*(quaternion.x*quaternion.x + quaternion.y*quaternion.y));
+        euler[1] = (float) Math.asin(2.0*(quaternion.w*quaternion.y - quaternion.z*quaternion.x));
+        euler[2] = (float) Math.atan2(2.0*(quaternion.w*quaternion.z + quaternion.x*quaternion.y), 1.0 - 2.0*(quaternion.y*quaternion.y + quaternion.z*quaternion.z));
+
+        euler[0] = (float) Math.toDegrees(euler[0]);
+        euler[1] = (float) Math.toDegrees(euler[1]);
+        euler[2] = (float) Math.toDegrees(euler[2]);
+
+        return euler;
+    }
+
+
     // rounds a double (num)'s position to (places)
     public static double roundTo(double num, int places) {
         double mult = Math.pow(10, places);

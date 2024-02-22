@@ -1,13 +1,16 @@
 package me.vivian.displayer.display;
 
-import me.vivian.displayer.ParticleHandler;
+import me.vivian.displayer.TransformMath;
 import me.vivian.displayer.commands.CommandHandler;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Transformation;
 import org.joml.Matrix3d;
+import org.joml.Quaternionf;
 import org.joml.Vector3d;
 
+import javax.vecmath.AxisAngle4d;
+import javax.vecmath.Quat4d;
 import java.util.*;
 
 public class DisplayGroupHandler {
@@ -16,9 +19,9 @@ public class DisplayGroupHandler {
         // Get all displays in the hierarchy
         if (vivDisplay == null) {
             System.out.println("translateHierarchy: vivDisplay is null");
-        } else {
-            System.out.println(vivDisplay.displayName);
+            return;
         }
+        System.out.println(vivDisplay.displayName);
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
 
         // Translate all VivDisplays in the hierarchy
@@ -172,34 +175,99 @@ public class DisplayGroupHandler {
     }
 
     // Function to rotate a VivDisplay around a point using degrees
-    public static void rotateVivDisplayAroundPoint(VivDisplay vivDisplay, Vector3d point, Vector3d rotationDegrees) {
+    /*public static void rotateVivDisplayAroundPoint(VivDisplay vivDisplay, Vector3d point, Vector3d rotationDegrees) {
+        // todo: use absolute rotation, not relative- position seems correct
+
         // Convert degrees to radians
-        //roll, yaw, pitch
+        // roll, yaw, pitch
         double xRotation = Math.toRadians(rotationDegrees.x);
         double yRotation = Math.toRadians(rotationDegrees.y);
         double zRotation = Math.toRadians(rotationDegrees.z);
 
+        Location oldLocation = vivDisplay.display.getLocation();
+
         // Translate the VivDisplay's position so that the rotation point is at the origin
-        Vector3d translatedPosition = new Vector3d(vivDisplay.display.getLocation().getX() - point.x,
-                vivDisplay.display.getLocation().getY() - point.y,
-                vivDisplay.display.getLocation().getZ() - point.z);
+        Vector3d relativePosition = new Vector3d(oldLocation.getX() - point.x, oldLocation.getY() - point.y, oldLocation.getZ() - point.z);
 
-        // Calculate the rotation matrix
-        // Matrix3d rotationMatrix = new Matrix3d().rotateXYZ(xRotation, yRotation, zRotation);
-        Matrix3d rotationMatrix = new Matrix3d().rotateXYZ(xRotation, zRotation, -yRotation);
+        // rotate relative position by rotationMatrix
+        Matrix3d rotationMatrix = new Matrix3d().rotateXYZ(xRotation, zRotation, -yRotation); // todo: does yRot need to be negative? ignore for now
+        Vector3d rotatedPosition = rotationMatrix.transform(relativePosition);
 
-        // Apply the rotation matrix to the translated position
-        Vector3d rotatedPosition = rotationMatrix.transform(translatedPosition);
-
-        // Translate the rotated position back
-        Vector3d newPosition = new Vector3d(rotatedPosition.x + point.x,
-                rotatedPosition.y + point.y,
-                rotatedPosition.z + point.z);
+        // absolute position from rotated relative position
+        Vector3d newPosition = new Vector3d(rotatedPosition.x + point.x, rotatedPosition.y + point.y, rotatedPosition.z + point.z);
 
         // Set the VivDisplay's position and rotation
         vivDisplay.setPosition(newPosition.x, newPosition.y, newPosition.z, null);
         vivDisplay.changeRotation((float) rotationDegrees.x, (float) rotationDegrees.y, (float) rotationDegrees.z, null);
+    }*/
+
+    public static void rotateVivDisplayAroundPoint(VivDisplay vivDisplay, Vector3d point, Vector3d rotationDegrees) {
+        // todo: hella borked, needs debugging- changeRotation should NOT be the call here.
+        System.out.println("rotationDegrees (euler): " + rotationDegrees.x + ", " + rotationDegrees.y + ", " + rotationDegrees.z);
+
+        // Get the Transformation of the VivDisplay
+        Transformation oldTransform = vivDisplay.display.getTransformation();
+        Location oldLocation = vivDisplay.display.getLocation();
+
+        Quaternionf quaternionRight = oldTransform.getRightRotation();
+
+        // Convert quaternion to Euler angles
+        double sinr_cosp = 2 * (quaternionRight.w * quaternionRight.x + quaternionRight.y * quaternionRight.z);
+        double cosr_cosp = 1 - 2 * (quaternionRight.x * quaternionRight.x + quaternionRight.y * quaternionRight.y);
+        double roll = Math.atan2(sinr_cosp, cosr_cosp);
+
+        double sinp = 2 * (quaternionRight.w * quaternionRight.y - quaternionRight.z * quaternionRight.x);
+        double pitch;
+        if (Math.abs(sinp) >= 1)
+            pitch = Math.copySign(Math.PI / 2, sinp); // use 90 degrees if out of range
+        else
+            pitch = Math.asin(sinp);
+
+        double siny_cosp = 2 * (quaternionRight.w * quaternionRight.z + quaternionRight.x * quaternionRight.y);
+        double cosy_cosp = 1 - 2 * (quaternionRight.y * quaternionRight.y + quaternionRight.z * quaternionRight.z);
+        double yaw = Math.atan2(siny_cosp, cosy_cosp);
+
+        // Now you have yaw, pitch, and roll in radians. Convert to degrees if needed.
+        yaw = Math.toDegrees(yaw);
+        pitch = Math.toDegrees(pitch);
+        roll = Math.toDegrees(roll);
+
+        System.out.println("old (euler) rotation: " + yaw + ", " + pitch + ", " + roll);
+
+        // display quaternion
+        Quaternionf currentRotation = TransformMath.eulerToQuaternion((float) yaw, (float) pitch, (float) roll);
+        System.out.println("old (quaternion) rotation: " + currentRotation.x + ", " + currentRotation.y + ", " + currentRotation.z + ", " + currentRotation.w);
+
+        // rotation offset quaternion
+        Quaternionf rotationQuaternion = TransformMath.eulerToQuaternion((float) rotationDegrees.x, (float) rotationDegrees.y, (float) rotationDegrees.z);
+
+        System.out.println("rotationQuaternion: " + rotationQuaternion.x + ", " + rotationQuaternion.y + ", " + rotationQuaternion.z + ", " + rotationQuaternion.w);
+
+        // Multiply the quaternions (this is probably the part where I am bad - tf is local space)
+        Quaternionf newRotation = rotationQuaternion.mul(currentRotation);
+        System.out.println("new (quaternion) rotation: " + newRotation.x + ", " + newRotation.y + ", " + newRotation.z + ", " + newRotation.w);
+
+        // Convert the quaternion back to Euler angles
+        float[] euler = TransformMath.quaternionToEuler(newRotation);
+
+        // Set the new rotation of the VivDisplay
+        System.out.println("out (euler) rotation: " + euler[0] + ", " + euler[1] + ", " + euler[2]);
+        vivDisplay.changeRotation(/*euler[1] ??*/0 , euler[2], 0/*euler[0] ??*/, null);
+
+        // Translate the VivDisplay's position so that the rotation point is at the origin
+        Vector3d relativePosition = new Vector3d(oldLocation.getX() - point.x, oldLocation.getY() - point.y, oldLocation.getZ() - point.z);
+
+        // rotate relative position by rotationMatrix
+        Matrix3d rotationMatrix = new Matrix3d().rotateXYZ(Math.toRadians(rotationDegrees.x), Math.toRadians(rotationDegrees.z), -Math.toRadians(rotationDegrees.x)); // todo: does yRot need to be negative? ignore for now
+        Vector3d rotatedPosition = rotationMatrix.transform(relativePosition);
+
+        // absolute position from rotated relative position
+        Vector3d newPosition = new Vector3d(rotatedPosition.x + point.x, rotatedPosition.y + point.y, rotatedPosition.z + point.z);
+
+        // Set the VivDisplay's position and rotation
+        vivDisplay.setPosition(newPosition.x, newPosition.y, newPosition.z, null);
     }
+
 
     // Function to rotate all displays in a hierarchy
     public static void rotateHierarchy(VivDisplay vivDisplay, Vector3d rotation) {
@@ -207,6 +275,7 @@ public class DisplayGroupHandler {
             System.out.println("translateHierarchy: vivDisplay is null");
         } else {
             System.out.println(vivDisplay.displayName);
+            System.out.println("rotateHierarchy rot (euler): " + rotation.x + ", " + rotation.y + ", " + rotation.z);
         }
         // Get all displays in the hierarchy
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);

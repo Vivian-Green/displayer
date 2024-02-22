@@ -163,7 +163,8 @@ public class CommandHandler implements CommandExecutor {
         String subCommand = args[0].toLowerCase();
 
         switch (subCommand) {
-            case "parent":
+            case "parent": // todo: command to temp set default parent, command to clear; reset on rejoin,
+                // todo: recursive parenting is recursive
                 DisplayGroupCommands.handleDisplayGroupSetParentCommand(player, args);
                 break;
             case "unparent":

@@ -31,7 +31,7 @@ public class DisplayHandler {
     }
 
     public static void createItemDisplay(Player player, String[] args) {
-        ItemStack displayItem = player.getInventory().getItemInMainHand();
+        ItemStack displayItem = player.getInventory().getItemInMainHand().clone();
         displayItem.setAmount(1); // forgor this lmao
         VivDisplay vivDisplay = new VivDisplay(plugin, player.getWorld(), player.getEyeLocation(), EntityType.ITEM_DISPLAY, displayItem);
         updateDisplay(player, vivDisplay, args);

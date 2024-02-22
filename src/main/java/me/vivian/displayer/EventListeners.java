@@ -117,8 +117,11 @@ public final class EventListeners extends JavaPlugin implements Listener {
         Material heldItemMaterial = player.getInventory().getItemInMainHand().getType();
         if (!(heldItemMaterial == Material.LEAD || heldItemMaterial == Material.SPECTRAL_ARROW)) return;
 
-        float deltaYaw = event.getTo().getYaw() - event.getFrom().getYaw();
-        float deltaPitch = event.getTo().getPitch() - event.getFrom().getPitch();
+
+        float deltaYaw = (event.getTo().getYaw() - event.getFrom().getYaw()) % 360;
+        float deltaPitch = (event.getTo().getPitch() - event.getFrom().getPitch()) % 360;
+        System.out.println("deltaYaw: " + deltaYaw);
+        System.out.println("deltaPitch: " + deltaPitch);
 
         // ensure selected display
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
@@ -129,6 +132,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
         if (selectedVivDisplay.isThisParent()) {
             if (heldItemMaterial == Material.LEAD){
+                System.out.println("-deltaYaw: " + -deltaYaw);
                 DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(0, 0, -deltaYaw));
             }
             if (heldItemMaterial == Material.SPECTRAL_ARROW){
