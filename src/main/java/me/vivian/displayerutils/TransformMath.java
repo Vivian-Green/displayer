@@ -1,4 +1,4 @@
-package me.vivian.displayer;
+package me.vivian.displayerutils;
 
 import org.bukkit.Location;
 import org.bukkit.util.Transformation;
@@ -57,6 +57,7 @@ public class TransformMath {
 
         return euler;
     }
+
 
 
     // rounds a double (num)'s position to (places)

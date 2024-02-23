@@ -1,6 +1,6 @@
 package me.vivian.displayer.display;
 
-import me.vivian.displayer.TransformMath;
+import me.vivian.displayerutils.TransformMath;
 import me.vivian.displayer.commands.CommandHandler;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -9,8 +9,6 @@ import org.joml.Matrix3d;
 import org.joml.Quaternionf;
 import org.joml.Vector3d;
 
-import javax.vecmath.AxisAngle4d;
-import javax.vecmath.Quat4d;
 import java.util.*;
 
 public class DisplayGroupHandler {

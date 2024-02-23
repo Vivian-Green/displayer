@@ -1,6 +1,6 @@
 package me.vivian.displayer.commands;
 
-import me.vivian.displayer.TransformMath;
+import me.vivian.displayerutils.TransformMath;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
