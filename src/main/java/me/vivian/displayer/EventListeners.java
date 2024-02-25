@@ -10,10 +10,12 @@ import me.vivian.displayerutils.ItemManipulation;
 import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -182,6 +184,13 @@ public final class EventListeners extends JavaPlugin implements Listener {
             if (heldItemMaterial == Material.SPECTRAL_ARROW) {
                 selectedVivDisplay.changeScale((delta.x+delta.y+delta.z)*0.1, null);
             }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
+        if (event.getRightClicked() instanceof ArmorStand) {
+            ArmorStandClickHandler.onInteractWithArmorStand(event);
         }
     }
 

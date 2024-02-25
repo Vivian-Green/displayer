@@ -207,7 +207,7 @@ public class CommandHandler implements CommandExecutor {
         return false;
     }
 
-    public static final float YAW_OFFSET = 90f;
+    /*public static final float YAW_OFFSET = 90f;
     public static final float SHOULDER_X_OFFSET = 5f / 16f;
     public static final float SHOULDER_Y_OFFSET = 22f / 16f;
     public static final float ARM_X_OFFSET = 10f / 16f;
@@ -224,9 +224,9 @@ public class CommandHandler implements CommandExecutor {
 
         // Create and return the vector
         return new Vector(x, y, z);
-    }
+    }*/
 
-    public static Location getArmTip(ArmorStand armorStand) {
+    /*public static Location getArmTip(ArmorStand armorStand) {
         // Gets shoulder location
         Location shoulderLocation = armorStand.getLocation().clone();
         shoulderLocation.setYaw(shoulderLocation.getYaw() + YAW_OFFSET);
@@ -246,7 +246,7 @@ public class CommandHandler implements CommandExecutor {
 
         shoulderLocation.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, shoulderLocation, 1);
         return shoulderLocation;
-    }
+    }*/
 
     static void handleDebugCommand(Player player) {
 
