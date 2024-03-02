@@ -1,18 +1,10 @@
 package me.vivian.displayer;
 
-import me.vivian.displayer.commands.AutoFill;
-import me.vivian.displayer.commands.CommandHandler;
-import me.vivian.displayer.config.Texts;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemDisplay;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.ItemStack;
@@ -22,15 +14,10 @@ import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 
 public class ArmorStandClickHandler extends JavaPlugin implements Listener {
+    // todo: clean up- a lot-
 
     public static final float SHOULDER_X_OFFSET = 5f / 16f;
     public static final float SHOULDER_Y_OFFSET = 22f / 16f;
-
-    @Override
-    public void onEnable() {
-        // Register event listeners
-        getServer().getPluginManager().registerEvents(this, this);
-    }
 
     public static void onInteractWithArmorStand(PlayerInteractAtEntityEvent event) {
         System.out.println("AAAAAAAAAAAA");
@@ -41,15 +28,6 @@ public class ArmorStandClickHandler extends JavaPlugin implements Listener {
         ItemStack rightHandItemStack = armorStand.getEquipment().getItemInMainHand();
         ItemStack leftHandItemStack = armorStand.getEquipment().getItemInOffHand();
 
-        // Check if the ArmorStand is holding an item in each hand
-        if (!rightHandItemStack.getType().equals(Material.AIR)) {
-            // Get the item's location for the right hand
-            Location rightHandItemLocation = getItemLocation(armorStand, false);
-
-            // Spawn the Display entity at the item's location for the right hand
-            spawnDisplayEntity(rightHandItemLocation, rightHandItemStack, 0.625);
-        }
-
         if (!leftHandItemStack.getType().equals(Material.AIR)) {
             // Get the item's location for the left hand
             Location leftHandItemLocation = getItemLocation(armorStand, true);
@@ -57,15 +35,23 @@ public class ArmorStandClickHandler extends JavaPlugin implements Listener {
             // Spawn the Display entity at the item's location for the left hand
             spawnDisplayEntity(leftHandItemLocation, leftHandItemStack, 0.625);
         }
+        if (!rightHandItemStack.getType().equals(Material.AIR)) {
+            // Get the item's location for the right hand
+            Location rightHandItemLocation = getItemLocation(armorStand, false);
+
+            // Spawn the Display entity at the item's location for the right hand
+            spawnDisplayEntity(rightHandItemLocation, rightHandItemStack, 0.625);
+        }
     }
 
     public static Location getItemLocation(ArmorStand armorStand, boolean isLeftArm) {
-        // Get the ArmorStand's location
+        // Get the armorstand location
         Location armorStandLocation = armorStand.getLocation();
 
         System.out.println("armorstand rotation:" + armorStandLocation.getDirection());
 
-        // Estimate the shoulder position
+        // get shoulder location
+
         //Vector shoulderOffset = new Vector(isLeftArm ? -SHOULDER_X_OFFSET : SHOULDER_X_OFFSET, SHOULDER_Y_OFFSET, 0);
         //shoulderOffset = rotateVectorAroundY(shoulderOffset, armorStandLocation.getYaw());
 
@@ -79,34 +65,52 @@ public class ArmorStandClickHandler extends JavaPlugin implements Listener {
 
         // Get the arm direction vector
         EulerAngle armPose = getArmRotation(armorStand, isLeftArm);
-        shoulderLocation.setPitch((float) armPose.getX() + (float) shoulderLocation.getPitch()); // todo: needs to be in armorstand's base rotation space
-        shoulderLocation.setYaw((float) armPose.getY() + (float) shoulderLocation.getYaw());
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        System.out.println("shoulder location: " + shoulderLocation);
+        System.out.println("arm pose: " + Math.toDegrees(armPose.getX()) + ", " + Math.toDegrees(armPose.getY()) + ", " + Math.toDegrees(armPose.getZ()));
+
+        shoulderLocation.setPitch((float) Math.toDegrees(armPose.getX()) + shoulderLocation.getPitch() + 90); // todo: needs to be in armorstand's base rotation space
+        shoulderLocation.setYaw((float) Math.toDegrees(armPose.getY()) + shoulderLocation.getYaw());
+        System.out.println("shoulder location added: " + shoulderLocation);
 
         spawnDisplayEntity(shoulderLocation, new ItemStack(Material.ENDER_CHEST), 0.15);
 
-        Vector armDirection = getArmDirection(armorStand, isLeftArm);
-
-
-
-
 
         // Get the offset for the item
-        Vector itemOffset;
+        Vector itemOffset = new Vector(0, 0, -0);
         if (isLeftArm) {
-            itemOffset = new Vector(-0.0625F, 0.125F, -0.625F);
+            itemOffset = new Vector(-0.0625F, 0.125F, 0.625F);
         } else {
-            itemOffset = new Vector(0.0625F, 0.125F, -0.625F);
+            itemOffset = new Vector(0.0625F, 0.125F, 0.625F);
         }
 
+        Vector armDirection = shoulderLocation.getDirection();
+
+        // Calculate the right and up vectors based on armDirection
+        Vector right = armDirection.clone().crossProduct(new Vector(0, 1, 0)).normalize();
+        Vector up = right.clone().crossProduct(armDirection).normalize();
+
+        // Transform the local offset to world space
+        double offsetX = itemOffset.getX() * right.getX() + itemOffset.getY() * up.getX() + itemOffset.getZ() * armDirection.getX();
+        double offsetY = itemOffset.getX() * right.getY() + itemOffset.getY() * up.getY() + itemOffset.getZ() * armDirection.getY();
+        double offsetZ = itemOffset.getX() * right.getZ() + itemOffset.getY() * up.getZ() + itemOffset.getZ() * armDirection.getZ();
+
+        // Add the transformed offset to the shoulder location
+        Location itemLocation = shoulderLocation.clone().add(new Vector(offsetX, offsetY, offsetZ));
+
+
         // Rotate the item offset to match the arm's rotation
-        // todo: use armPose
-        itemOffset = rotateVector(itemOffset, armDirection);
+        // todo: use armPose, rotateVector seems borked as hell
+        // todo: is this relative to shoulderLocation?
+
+        //itemOffset = rotateVector(itemOffset, armDirection);
 
         // Add the item offset to the shoulder location to get the item's location
-        Vector itemLocationVector = shoulderLocation.toVector().add(itemOffset);
+        //Vector itemLocationVector = shoulderLocation.toVector();
 
         // Convert the item location Vector back to a Location
-        Location itemLocation = itemLocationVector.toLocation(armorStand.getWorld(), armorStandLocation.getYaw(), armorStandLocation.getPitch());
+        //Location itemLocation = shoulderLocation;
+        //Location itemLocation = shoulderLocation(armorStand.getWorld(), armorStandLocation.getYaw(), armorStandLocation.getPitch());
 
 
         return itemLocation;
@@ -176,8 +180,8 @@ public class ArmorStandClickHandler extends JavaPlugin implements Listener {
 
 
     public static Vector eulerAngleToDirectionVector(EulerAngle eulerAngle) {
-        double yaw = Math.toRadians(Math.toDegrees(eulerAngle.getY()) + 90);
-        double pitch = Math.toRadians(Math.toDegrees(eulerAngle.getX()) + 180);
+        double yaw = (Math.toDegrees(eulerAngle.getY()) + 90);
+        double pitch = (Math.toDegrees(eulerAngle.getX()) + 180);
 
         double x = Math.sin(pitch) * Math.cos(yaw);
         double y = Math.sin(pitch) * Math.sin(yaw);
