@@ -16,7 +16,7 @@
 - ensure no parent time travel alabama ouroborosing
 - ability to replace ItemStack in display
 - display unselect command OR auto-unselect after time
-
+  </br></br></br></br>
 - move armor stand conversion to command or tool instead of on interact
 - add heads to armor stand conversion
 - different translation offsets for how different items are held, not just sprites
