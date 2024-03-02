@@ -6,11 +6,10 @@ todo: review readme & ensure up to date
 
 ## Features
 
-- Create displays with various types, including items and blocks.
-- Manage display properties such as rotation, position, and size.
-- List nearby displays and select them for editing.
-- Open a user-friendly graphical user interface (GUI) for easy, precise display management.
-- in-game tools for faster display editing
+- display editing w/ rotation, position, and size.
+- display editing gui
+- WIP display groups
+- WIP armor stand conversion
 
 ## Startup Guide
 
