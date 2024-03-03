@@ -12,6 +12,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -21,12 +22,17 @@ import org.bukkit.util.Transformation;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public class DisplayCommands {
 
     static Map<String, String> errMap = Texts.getErrors();
 
-    // Sends detailed info about the selected display to the (player). Mostly for debug purposes
+    /**
+     * writes an awful, technical, details message
+     *
+     * @param player The player who issued the command.
+     */
     static void handleAdvDisplayDetailsCommand(Player player) { // todo: EW AAAAA GROSS EW NO
         // Get the selected VivDisplay for the player
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
@@ -117,6 +123,13 @@ public class DisplayCommands {
         CommandHandler.sendPlayerMessageIfExists(player, selectedVivDisplay.rename(name));
     }
 
+    /**
+     * /display destroy [nearby]
+     * Destroys (player)'s selected display, or nearby displays in range if "nearby" (args[1]) specified
+     *
+     * @param player The player executing the command.
+     * @param args   Additional arguments provided with the command.
+     */
     static void handleDisplayDestroyCommand(Player player, String[] args) {
         if (args.length < 2) {
             DisplayHandler.destroySelectedDisplay(player);
@@ -131,6 +144,14 @@ public class DisplayCommands {
         DisplayHandler.destroyNearbyDisplays(player, args);
     }
 
+    /**
+     * If [block] (args[1]) specified, creates a block display; otherwise, creates an item display.
+     * If ([atselected] (args[2]) specified AND no selected display) OR (player)'s held item is invalid, warn (player)
+     *
+     * @param player The player executing the command.
+     * @param args   Command arguments:
+     *               - /display create <name> [block/item] [atselected]
+     */
     static void handleDisplayCreateCommand(Player player, String[] args) {
         boolean isBlock = args.length >= 2 && Objects.equals(args[1], "block");
         boolean atSelected = args.length >= 3 && args[2].equalsIgnoreCase("atselected");
@@ -159,12 +180,42 @@ public class DisplayCommands {
     }
 
     /**
+     * /display replaceitem
+     * If (player)'s held item is invalid or no selected display, warn (player)
+     * Drops the display's old item at itself, taking 1 from the (player)'s held item
+     *
+     * @param player The player executing the command.
+     */
+    static void handleDisplayReplaceItemCommand(Player player) {
+        if (!ItemManipulation.isHeldItemValid(player)) {
+            player.sendMessage(errMap.get("displayCreateEmptyHand")); // todo: generic this name or use different label
+            return;
+        }
+
+        VivDisplay selectedDisplay = CommandHandler.selectedVivDisplays.get(player);
+        if (selectedDisplay == null) {
+            player.sendMessage(errMap.get("noSelectedDisplay"));
+            return;
+        }
+
+        ItemStack newItem = player.getInventory().getItemInMainHand();
+        newItem.setAmount(1); // ensure no item duping-
+
+        ItemStack oldItem = selectedDisplay.replaceItem(newItem);
+        player.getWorld().dropItem(selectedDisplay.display.getLocation(), oldItem);
+
+        // todo: check for creative mode before taking shit, also whatever perms are good enough for that idk
+        // todo: dry? since this check is needed twice now
+        ItemManipulation.takeFromHeldItem(player);
+    }
+
+    /**
      * finds nearby VivDisplay objects within a given radius,
      * sends messages to the (player) with hyperlinks to each
      *
      * @param player The player who issued the command.
      * @param args   Command arguments:
-     *               - args[1]: (Optional) The radius within which to search for VivDisplays. Defaults to 5
+     *               - args[1]: (Optional) The radius  to search for displays. Defaults to 5
      */
     static void handleDisplayNearbyCommand(Player player, String[] args) {
         double radius = Parsing.parseNumberFromArgs(args, 1, 1, 5, player, "Invalid radius specified.");
@@ -183,9 +234,13 @@ public class DisplayCommands {
         }
     }
 
-    // Selects the closest VivDisplay to the (player)'s location within a specified radius.
+    /**
+     * Selects the closest VivDisplay to the player's location within a specified radius.
+     *
+     * @param player The player executing the command.
+     */
     static void handleDisplayClosestCommand(Player player) {
-        int radius = 5;
+        int radius = 5; // todo: config this? lmao
         List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, radius);
 
         if (nearbyVivDisplays.isEmpty()) {
@@ -199,29 +254,43 @@ public class DisplayCommands {
         player.sendMessage(errMap.get("displayClosestSuccess"));
     }
 
-    // Selects a VivDisplay for the (player) given an index.
+    /**
+     * Selects a display for the player given a UUID.
+     *
+     * @param player The player who issued the command.
+     * @param args   Command arguments: - args[1]: The UUID of the display to select.
+     */
     static void handleAdvDisplaySelectCommand(Player player, String[] args) { // this should never be executed by the player
         // todo: early return if player
         if (args.length < 2) {
             return;
         }
 
-        // if index specified
-        int index = Integer.parseInt(args[1]);
-        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, 5);
-
-        if (index < 1 || index > nearbyVivDisplays.size()) {
-            return;
+        // if UUID specified
+        UUID displayUUID;
+        try {
+            displayUUID = UUID.fromString(args[1]);
+        } catch (IllegalArgumentException e) {
+            return; // Invalid UUID format
         }
 
-        // if index not oob
-        VivDisplay selectedVivDisplay = nearbyVivDisplays.get(index - 1);
-        CommandHandler.selectedVivDisplays.put(player, selectedVivDisplay);
-        ParticleHandler.spawnParticle(selectedVivDisplay.display, null, null);
+        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, 5); // todo: config this-
 
-        // open gui if selecting from here
-        player.performCommand("display gui");
+        // Find the VivDisplay with the specified UUID
+        VivDisplay selectedVivDisplay = nearbyVivDisplays.stream()
+                .filter(vivDisplay -> vivDisplay.display.getUniqueId().equals(displayUUID))
+                .findFirst()
+                .orElse(null);
+
+        if (selectedVivDisplay != null) {
+            CommandHandler.selectedVivDisplays.put(player, selectedVivDisplay);
+            ParticleHandler.spawnParticle(selectedVivDisplay.display, null, null);
+
+            // open gui if selecting from here
+            player.performCommand("display gui");
+        }
     }
+
 
     /**
      * Rotates the selected VivDisplay for a player. Allows changing (+=) or setting (=) the rotation around 2 or 3 axis
@@ -332,20 +401,29 @@ public class DisplayCommands {
         }
     }
 
-    // Creates & opens the display-editing inventory-GUI for a (player) with buttons for adjusting position, rotation, and size.
+    /**
+     * Creates and opens the display-editing inventory-GUI for a (player) with buttons for adjusting position, rotation, and size.
+     *
+     * @param player The player performing the command.
+     */
     static void handleDisplayGUICommand(Player player) {
         Inventory inventory = GUIHandler.displayGUIBuilder();
         player.openInventory(inventory);
     }
 
-    // Sends (player) a hyperlink to select a (vivDisplay) with a given (index)
-    public static void createHyperlink(Player player, VivDisplay vivDisplay, int index) {
+    /**
+     * Sends a hyperlink to the player for selecting a VivDisplay with a given UUID.
+     *
+     * @param player    The player to send the hyperlink to.
+     * @param vivDisplay The VivDisplay to create a hyperlink for.
+     */
+    public static void createHyperlink(Player player, VivDisplay vivDisplay) {
         assert vivDisplay != null;
 
         Location location = vivDisplay.display.getLocation();
         Location playerLocation = player.getLocation();
 
-        // get distance rounded to 2 places
+        // Get distance rounded to 2 places
         double distance = TransformMath.roundTo(location.distance(playerLocation), 2);
 
         String name = CommandHandler.nbtm.getNBT(vivDisplay.display, "VivDisplayName", String.class);
@@ -354,7 +432,7 @@ public class DisplayCommands {
         Material displayMaterial;
         String displayTypeStr;
 
-        // get material & type of display
+        // Get material & type of display
         if (vivDisplay.display instanceof BlockDisplay) {
             displayMaterial = ((BlockDisplay) vivDisplay.display).getBlock().getMaterial();
             displayTypeStr = errMap.get("displayNearbyHyperlink_BlockDisplayDisplayText");
@@ -367,20 +445,22 @@ public class DisplayCommands {
             displayMaterial = Material.AIR;
             displayTypeStr = errMap.get("displayNearbyHyperlink_UnknownDisplayDisplayText");
             System.out.println(errMap.get("displayNearbyFoundUnknownItem"));
-            return; // Exit early if display is borked
+            return; // Exit early if the display is borked
         }
 
-        // create & send message to select this display, if it's not borked
+        // Create & send message to select this display, if it's not borked
         String hyperLinkText = errMap.get("displayNearbyHyperlinkText");
         hyperLinkText = hyperLinkText.replace("$DisplayTypeDisplayText", displayTypeStr);
         hyperLinkText = hyperLinkText.replace("$DisplayName", name);
         hyperLinkText = hyperLinkText.replace("$DisplayMaterial", displayMaterial.toString());
-        hyperLinkText = hyperLinkText.replace("$Distance", distance+"");
+        hyperLinkText = hyperLinkText.replace("$Distance", distance + "");
 
         TextComponent message = new TextComponent(hyperLinkText);
 
-        message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/advdisplay select " + index));
+        // Set click event to run command for selecting the display using its UUID
+        message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/advdisplay select " + vivDisplay.display.getUniqueId()));
 
         player.spigot().sendMessage(message);
     }
+
 }

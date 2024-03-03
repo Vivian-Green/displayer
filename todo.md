@@ -3,7 +3,9 @@
 - import armorstand data from cmi
 - item frame (map) functionality
 - text display functionality
+- change advdisplay select to use UUIDs
 - display nearby GUI
+
   </br></br>
 - displaygroup prefabs (creative mode, maybe require items in inv in survival?)
 - displaygroup cut/paste
@@ -13,7 +15,6 @@
 - displaygroup tree GUI (only show 1 layer in gui-)
 - displaygroup editing GUI
   </br></br>
-- advdisplay select UUID
 - advdisplay help
   </br></br></br></br>
 - ensure no parent time travel alabama ouroborosing

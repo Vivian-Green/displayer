@@ -150,6 +150,21 @@ public class VivDisplay{
         }
     }
 
+    public ItemStack replaceItem(ItemStack newItem){
+        ItemStack oldItem = getItemStackFromDisplay(display);
+
+        if (display instanceof ItemDisplay) {
+            ItemDisplay itemDisplay = (ItemDisplay) display;
+            itemDisplay.setItemStack(newItem);
+
+        } else if (display instanceof BlockDisplay) {
+            BlockDisplay blockDisplay = (BlockDisplay) display;
+            BlockData blockData = newItem.getType().createBlockData();
+            blockDisplay.setBlock(blockData);
+        }
+        return oldItem;
+    }
+
     /**
      * Renames this VivDisplay.
      *

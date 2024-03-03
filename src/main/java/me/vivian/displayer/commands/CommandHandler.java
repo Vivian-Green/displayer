@@ -108,6 +108,9 @@ public class CommandHandler implements CommandExecutor {
             case "help":
                 DisplayCommands.handleDisplayHelpCommand(player);
                 break;
+            case "replaceitem":
+                DisplayCommands.handleDisplayReplaceItemCommand(player);
+                break;
             default:
                 player.sendMessage(errMap.get("displayInvalidSubcommand"));
         }
