@@ -127,25 +127,25 @@ public class CommandHandler implements CommandExecutor {
 
         switch (subCommand) {
             case "select":
-                DisplayCommands.handleAdvDisplaySelectCommand(player, args);
+                AdvDisplayCommands.handleAdvDisplaySelectCommand(player, args);
                 break;
             case "setrotation":
             case "changerotation":
-                DisplayCommands.handleAdvDisplayRotationCommand(player, args);
+                AdvDisplayCommands.handleAdvDisplayRotationCommand(player, args);
                 break;
             case "setposition":
             case "changeposition":
-                DisplayCommands.handleAdvDisplayPositionCommand(player, args);
+                AdvDisplayCommands.handleAdvDisplayPositionCommand(player, args);
                 break;
             case "setsize":
             case "changesize":
-                DisplayCommands.handleAdvDisplaySizeCommand(player, args);
+                AdvDisplayCommands.handleAdvDisplaySizeCommand(player, args);
                 break;
             case "rename":
-                DisplayCommands.handleAdvDisplayRenameCommand(player, args);
+                AdvDisplayCommands.handleAdvDisplayRenameCommand(player, args);
                 break;
             case "details":
-                DisplayCommands.handleAdvDisplayDetailsCommand(player);
+                AdvDisplayCommands.handleAdvDisplayDetailsCommand(player);
                 break;
             case "debug":
                 handleDebugCommand(player);
