@@ -77,7 +77,7 @@ public class AutoFill implements TabCompleter {
 
 
         if (args.length == 1) {
-            return Arrays.asList("select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "rename", "details");
+            return Arrays.asList("replaceitem", "select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "rename", "details");
         }
 
         List<String> completions = new ArrayList<>();
@@ -159,8 +159,6 @@ public class AutoFill implements TabCompleter {
                 if (args.length == 2) {
                     completions.add("<name>");
                 }
-                break;
-            case "details":
                 break;
         }
 
