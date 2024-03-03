@@ -165,10 +165,7 @@ public class DisplayCommands {
 
         List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, (int) radius);
 
-        if (nearbyVivDisplays.isEmpty()) {
-            // errs in func
-            return;
-        }
+        if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
         player.sendMessage(errMap.get("displayNearbyTitle"));
         int maxDisplaysToShow = 10;
@@ -186,10 +183,7 @@ public class DisplayCommands {
         int radius = 5; // todo: config this? lmao
         List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, radius);
 
-        if (nearbyVivDisplays.isEmpty()) {
-            // errs in func
-            return;
-        }
+        if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
         VivDisplay closestVivDisplay = nearbyVivDisplays.get(0);
         CommandHandler.selectedVivDisplays.put(player, closestVivDisplay);

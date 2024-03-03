@@ -196,21 +196,31 @@ public class CommandHandler implements CommandExecutor {
     }
 
     // Sends a message to a player, but only if the message is not empty.
-    static void sendPlayerMessageIfExists(Player player, String message) {
-        if (!message.isEmpty()) {
-            player.sendMessage(message);
-        }
-    }
-
-    static boolean sendPlayerMessageIf(Player player, String message, Boolean condition) {
-        if (condition) {
+    static boolean sendPlayerMessageIfExists(Player player, String message) {
+        if (message != null && !message.isEmpty()) {
             player.sendMessage(message);
             return true;
         }
         return false;
     }
 
-    static void handleDebugCommand(Player player) {
+    // send player a if b
+    static boolean sendPlayerMessageIf(Player player, String message, Boolean condition) {
+        return sendPlayerMessageIf(player, message, condition, null);
+    }
 
+    // send player ternary a if b else c
+    static boolean sendPlayerMessageIf(Player player, String message, Boolean condition, String messageOnFalse) {
+        if (condition) {
+            sendPlayerMessageIfExists(player, message);
+            return true;
+        }
+        sendPlayerMessageIfExists(player, messageOnFalse);
+        return false;
+    }
+
+
+    static void handleDebugCommand(Player player) {
+        return;
     }
 }

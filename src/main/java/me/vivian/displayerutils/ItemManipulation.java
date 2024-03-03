@@ -1,5 +1,6 @@
 package me.vivian.displayerutils;
 
+import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Texts;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -32,8 +33,9 @@ public class ItemManipulation {
     // Checks if a (player) is holding a displayable item
     public static boolean isHeldItemValid(Player player) {
         ItemStack heldItem = player.getInventory().getItemInMainHand();
+
         if (heldItem.getType() == Material.AIR) {
-            player.sendMessage(errMap.get("displayCreateEmptyHand"));
+            player.sendMessage();
             return false;
         }
         return true;

@@ -43,9 +43,8 @@ public class AdvDisplayCommands {
         player.sendMessage("Distance to Display: " + TransformMath.roundTo(player.getLocation().distance(displayLocation), 2));
 
         // Send NBT data related to parent and child
-        if (selectedVivDisplay.isChild) {
-            player.sendMessage("Parent UUID: " + selectedVivDisplay.parentUUID);
-        }
+        CommandHandler.sendPlayerMessageIf(player, "Parent UUID: " + selectedVivDisplay.parentUUID, selectedVivDisplay.isChild);
+
         player.sendMessage("Is Parent: " + selectedVivDisplay.isThisParent());
     }
 
@@ -119,11 +118,7 @@ public class AdvDisplayCommands {
         boolean isChange = args.length > 0 && "changerotation".equalsIgnoreCase(args[0]);
 
         if (args.length < 4) {
-            if (isChange) {
-                player.sendMessage(errMap.get("advDisplayChangeRotationUsage"));
-            } else {
-                player.sendMessage(errMap.get("advDisplaySetRotationUsage"));
-            }
+            CommandHandler.sendPlayerMessageIf(player, errMap.get("advDisplayChangeRotationUsage"), isChange, errMap.get("advDisplaySetRotationUsage"));
             return;
         }
 
@@ -153,11 +148,7 @@ public class AdvDisplayCommands {
         boolean isChange = args.length > 0 && "changeposition".equalsIgnoreCase(args[0]);
 
         if (args.length != 4) {
-            if (isChange) {
-                player.sendMessage(errMap.get("advDisplayChangePositionUsage"));
-            } else {
-                player.sendMessage(errMap.get("advDisplaySetPositionUsage"));
-            }
+            CommandHandler.sendPlayerMessageIf(player, errMap.get("advDisplayChangePositionUsage"), isChange, errMap.get("advDisplaySetPositionUsage"));
             return;
         }
 
@@ -192,19 +183,14 @@ public class AdvDisplayCommands {
                 errMap.get("advDisplaySetSizeInvalid");
 
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
-        if (selectedVivDisplay == null) {return;}
+        if (selectedVivDisplay == null) return; // todo: warn?
 
         Transformation transformation = selectedVivDisplay.display.getTransformation();
         double currentSize = transformation.getScale().x;
         double minSize = isChange ? -currentSize : 0.0;
         double sizeArg = CommandParsing.parseNumberFromArgs(args, 1, minSize, minSize + 1, player, errorMessage);
 
-        if (sizeArg < minSize) {
-            // player.sendMessage(errorMessage);
-            // will err in parsing iirc?
-            // todo: ensure ^
-            return;
-        }
+        if (sizeArg < minSize) return; // todo: warn?
 
         double newScale = isChange ? (currentSize + sizeArg) : sizeArg;
 
