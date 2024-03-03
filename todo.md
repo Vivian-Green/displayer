@@ -1,32 +1,30 @@
 # display todos:
-
-- import armorstand data from cmi
+- land claim integration
 - item frame (map) functionality
 - text display functionality
-- change advdisplay select to use UUIDs
-- display nearby GUI
-
+- import armorstand data from cmi
+</br></br>
+- rename command autofill in display GUI
+- replace item in display GUI
   </br></br>
+- display nearby GUI
+- display select wand
+- wand materials config?
+</br></br>
+- ensure no parent time travel alabama ouroborosing
+- display unselect command OR auto-unselect after time
+- move armor stand conversion to command or tool instead of on interact
+</br></br></br></br>
+- add heads to armor stand conversion
+- different translation offsets for how different items are held, not just sprites
+</br></br>
 - displaygroup prefabs (creative mode, maybe require items in inv in survival?)
 - displaygroup cut/paste
 - parent list of children
 - make display parent and unparent update parent's list of children
-- displaygroup b o n e s
 - displaygroup tree GUI (only show 1 layer in gui-)
 - displaygroup editing GUI
-  </br></br>
-- advdisplay help
-  </br></br></br></br>
-- ensure no parent time travel alabama ouroborosing
-- ability to replace ItemStack in display
-- display unselect command OR auto-unselect after time
-  </br></br></br></br>
-- move armor stand conversion to command or tool instead of on interact
-- add heads to armor stand conversion
-- different translation offsets for how different items are held, not just sprites
-
-
-
+- bones?
 
 
 # bugs:
