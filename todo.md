@@ -4,7 +4,6 @@
 - text display functionality
 - import armorstand data from cmi
 </br></br>
-- rename command autofill in display GUI
 - replace item in display GUI
   </br></br>
 - display nearby GUI

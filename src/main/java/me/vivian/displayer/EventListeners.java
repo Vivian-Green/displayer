@@ -90,7 +90,12 @@ public final class EventListeners extends JavaPlugin implements Listener {
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
 
-        Vector2i selectedSlot = new Vector2i(column, row);
+        if (row == 5 && column == 7) {
+            // If the clicked slot is at row 5, column 7, close the GUI and autofill the command
+            player.closeInventory();
+            player.chat("/advdisplay rename ");
+            return;
+        }
 
         // Regular click: 1x
         // Shift click: 10x
@@ -98,9 +103,10 @@ public final class EventListeners extends JavaPlugin implements Listener {
         double multiplier = event.isShiftClick() ? multiplierFastValue : 1.0;
         multiplier = multiplier / (event.isRightClick() ? (multiplierFastValue * multiplier) : 1.0);
 
+
         HashMap<String, String> commandMap = getCommandMap(multiplier, positionScale, rotationScale, sizeScale, brightnessScale);
 
-        String command = commandMap.getOrDefault(selectedSlot.x + "," + selectedSlot.y, null);
+        String command = commandMap.getOrDefault(column + "," + row, null);
         //System.out.println("clicked button command:");
         //System.out.println(command);
         if (command == null) {return;}
