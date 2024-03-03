@@ -13,9 +13,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class AutoFill implements TabCompleter {
-    List<String> displaySubcommands = Arrays.asList("replaceitem", "create", "nearby", "closest", "destroy", "gui", "help");
-    List<String> advDisplaySubcommands = Arrays.asList("select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "rename", "details");
-    List<String> displayGroupSubcommands = Arrays.asList("parent", "unparent", "copypaste", "show", "rotate", "translate");
+    static final List<String> displaySubcommands = Arrays.asList("replaceitem", "create", "nearby", "closest", "destroy", "gui", "help");
+    static final List<String> advDisplaySubcommands = Arrays.asList("select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "rename", "details");
+    static final List<String> displayGroupSubcommands = Arrays.asList("parent", "unparent", "copypaste", "show", "rotate", "translate");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
