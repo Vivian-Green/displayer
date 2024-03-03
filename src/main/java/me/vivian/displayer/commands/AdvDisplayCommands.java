@@ -57,7 +57,7 @@ public class AdvDisplayCommands {
      */
     static void handleAdvDisplayRenameCommand(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(errMap.get("advDisplayRenameUsage"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("advDisplayRenameUsage"));
             return;
         }
         // Get the selected VivDisplay for the player

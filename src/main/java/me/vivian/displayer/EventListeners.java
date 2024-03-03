@@ -128,7 +128,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // ensure selected display
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
-            player.sendMessage(errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -165,7 +165,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // ensure selectedVivDisplay
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
-            player.sendMessage(errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
             return;
         }
 

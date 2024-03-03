@@ -62,7 +62,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
             return;
         }
 
-        CommandHandler.sendPlayerMessageIfExists(player, selectedVivDisplay.setParent(parentDisplay));
+        player.sendMessage(selectedVivDisplay.setParent(parentDisplay));
     }
 
     // Unsets the parent of the (player)'s selected VivDisplay.
@@ -75,7 +75,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
             return;
         }
 
-        CommandHandler.sendPlayerMessageIfExists(player, selectedVivDisplay.unsetParent());
+        player.sendMessage(selectedVivDisplay.unsetParent());
     }
 
     /**

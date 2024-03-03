@@ -83,7 +83,7 @@ public class CommandHandler implements CommandExecutor {
 
     public boolean onPlayerDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            player.sendMessage(errMap.get("displayUsage"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayUsage"));
             return false;
         }
 
@@ -112,14 +112,14 @@ public class CommandHandler implements CommandExecutor {
                 DisplayCommands.handleDisplayReplaceItemCommand(player);
                 break;
             default:
-                player.sendMessage(errMap.get("displayInvalidSubcommand"));
+                CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayInvalidSubcommand"));
         }
         return true;
     }
 
     public boolean onPlayerAdvDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            player.sendMessage(errMap.get("advDisplayUsage"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("advDisplayUsage"));
             return false;
         }
 
@@ -150,7 +150,7 @@ public class CommandHandler implements CommandExecutor {
             case "debug":
                 handleDebugCommand(player);
             default:
-                player.sendMessage(errMap.get("advDisplayInvalidSubcommand"));
+                CommandHandler.sendPlayerMessageIfExists(player, errMap.get("advDisplayInvalidSubcommand"));
         }
         return true;
     }
@@ -158,12 +158,12 @@ public class CommandHandler implements CommandExecutor {
     public boolean onPlayerDisplayGroupCommand(Player player, String[] args) {
         if (Config.getConfig().getBoolean("doDisplayGroups") == false) {
             // this is actually enough to disable all of this, since you can't set a parent (create a group) otherwise
-            player.sendMessage(errMap.get("displayGroupDisabled"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupDisabled"));
             return false;
         }
 
         if (args.length < 1) {
-            player.sendMessage(errMap.get("displayGroupUsage"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupUsage"));
             return false;
         }
 
@@ -190,13 +190,13 @@ public class CommandHandler implements CommandExecutor {
                 DisplayGroupCommands.handleDisplayGroupShowCommand(player, args);
                 break;
             default:
-                player.sendMessage(errMap.get("displayGroupInvalidSubcommand"));
+                CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupInvalidSubcommand"));
         }
         return true;
     }
 
     // Sends a message to a player, but only if the message is not empty.
-    static boolean sendPlayerMessageIfExists(Player player, String message) {
+    public static boolean sendPlayerMessageIfExists(Player player, String message) {
         if (message != null && !message.isEmpty()) {
             player.sendMessage(message);
             return true;

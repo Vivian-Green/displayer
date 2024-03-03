@@ -80,7 +80,7 @@ public class DisplayCommands {
         }
 
         if (!args[1].equalsIgnoreCase("nearby")) {
-            player.sendMessage(errMap.get("advDisplayDestroyUsage"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("advDisplayDestroyUsage"));
             return;
         }
 
@@ -99,15 +99,15 @@ public class DisplayCommands {
         boolean isBlock = args.length >= 2 && Objects.equals(args[1], "block");
         boolean atSelected = args.length >= 3 && args[2].equalsIgnoreCase("atselected");
 
-        // todo: where put this when it just kinda figured itself out on errs? player.sendMessage(errMap.get("displayCreateUsage"));
+        // todo: where put this when it just kinda figured itself out on errs? CommandHandler.sendPlayerMessageIfExists(player, )(errMap.get("displayCreateUsage"));
 
         if (!ItemManipulation.isHeldItemValid(player)) {
-            player.sendMessage(errMap.get("displayCreateEmptyHand"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayCreateEmptyHand"));
             return;
         }
 
         if (atSelected && CommandHandler.selectedVivDisplays.get(player) == null) {
-            player.sendMessage(errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -131,13 +131,13 @@ public class DisplayCommands {
      */
     static void handleDisplayReplaceItemCommand(Player player) {
         if (!ItemManipulation.isHeldItemValid(player)) {
-            player.sendMessage(errMap.get("displayCreateEmptyHand")); // todo: generic this name or use different label
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayCreateEmptyHand")); // todo: generic this name or use different label
             return;
         }
 
         VivDisplay selectedDisplay = CommandHandler.selectedVivDisplays.get(player);
         if (selectedDisplay == null) {
-            player.sendMessage(errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -167,7 +167,7 @@ public class DisplayCommands {
 
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
-        player.sendMessage(errMap.get("displayNearbyTitle"));
+        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayNearbyTitle"));
         int maxDisplaysToShow = 10;
         for (int index = 0; index < maxDisplaysToShow && index < nearbyVivDisplays.size(); index++) {
             createHyperlink(player, nearbyVivDisplays.get(index));
@@ -188,7 +188,7 @@ public class DisplayCommands {
         VivDisplay closestVivDisplay = nearbyVivDisplays.get(0);
         CommandHandler.selectedVivDisplays.put(player, closestVivDisplay);
         ParticleHandler.spawnParticle(closestVivDisplay.display, null, null);
-        player.sendMessage(errMap.get("displayClosestSuccess"));
+        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayClosestSuccess"));
     }
 
     /**

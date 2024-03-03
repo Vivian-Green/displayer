@@ -22,7 +22,7 @@ public class DisplayHandler {
     private static final Plugin plugin = CommandHandler.getPlugin();
     public static void createBlockDisplay(Player player, String[] args) {
         if (!player.getInventory().getItemInMainHand().getType().isBlock()) {
-            player.sendMessage(errMap.get("invalidBlock"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("invalidBlock"));
             return;
         }
         BlockData blockData = player.getInventory().getItemInMainHand().getType().createBlockData();
@@ -123,7 +123,7 @@ public class DisplayHandler {
         nearbyVivDisplays.sort(Comparator.comparingDouble(vivDisplay -> vivDisplay.display.getLocation().distance(player.getLocation())));
 
         if (nearbyVivDisplays.isEmpty()) {
-            player.sendMessage(errMap.get("displayNearbyNotFound_Begin") + radius + errMap.get("displayNearbyNotFound_End"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayNearbyNotFound_Begin") + radius + errMap.get("displayNearbyNotFound_End"));
         }
 
         return nearbyVivDisplays;
@@ -132,7 +132,7 @@ public class DisplayHandler {
     public static void destroySelectedDisplay(Player player) {
         VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
-            player.sendMessage(errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
         } else {
             selectedVivDisplay.destroy(player, CommandHandler.vivDisplays, CommandHandler.selectedVivDisplays);
         }
@@ -142,7 +142,7 @@ public class DisplayHandler {
     public static VivDisplay getSelectedVivDisplay(Player player) {
         VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
-            player.sendMessage(errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
         }
         return selectedVivDisplay;
     }
@@ -173,7 +173,7 @@ public class DisplayHandler {
         VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
 
         if (selectedVivDisplay == null) {
-            player.sendMessage(errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
             return null;
         }
 
