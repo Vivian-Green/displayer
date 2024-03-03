@@ -1,13 +1,10 @@
+
+# empty errors simply won't be sent
 errors:
-  advDisplayUsage: 'Usage: /advdisplay select <index> | setrotation <yaw> <pitch> | changerotation <yawOffset> <pitchOffset> | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset> | rename <name>'
-  advDisplaySetRotationUsage: 'Usage: /advdisplay setrotation <yaw> <pitch> [roll]'
-  advDisplayChangePositionUsage: 'Usage: /advdisplay changeposition <x offset> <y offset> <z offset>'
-  displayGroupUsage: 'Usage: /displaygroup setparent <parentname>'
-  advDisplaySetPositionUsage: 'Usage: /advdisplay setposition <x> <y> <z>'
-  displayNearbyFoundUnknownItem: 'createHyperlink(): This boy ain''t right. Was I passed a text display?'
   noSelectedDisplay: 'You need to select a display first!'
-  advDisplaySetSizeInvalid: 'Invalid size. Usage: /advdisplay setsize <size: number>'
+
   displayUsage: 'Usage: /display create | nearby [radius] | destroy [nearby] [maxCount] [radius] | gui | help'
+  displayNearbyFoundUnknownItem: 'createHyperlink(): This boy ain''t right. Was I passed a text display?'
   displayClosestNotFound_Begin: 'No nearby Displays found within '
   displayClosestNotFound_End: ' blocks.'
   displayNearbyHyperlinkText: '§9Click to select $DisplayTypeDisplayText $DisplayName holding $DisplayMaterial, $Distance blocks away' # $DisplayTypeDisplayText, $DisplayMaterial, $DisplayName, $Distance
@@ -15,20 +12,27 @@ errors:
   displayNearbyNotFound_End: ' blocks.'
   displayCreateEmptyHand: 'You need to hold an item first!'
   displayGroupDisabled: 'display groups are disabled'
-  advDisplayChangeSizeInvalid: 'Invalid size offset. Usage: /advdisplay changesize <size offset: number>'
   displayCreateUsage: 'Usage: /display create <block/item> [atSelected]'
-  advDisplayDestroyUsage: 'Usage: /display destroy [nearby [max count] [radius]]'
   displayClosestSuccess: 'Closest Display selected.'
-  advDisplayInvalidSubcommand: 'Invalid subcommand for /advdisplay. Try /advdisplay help'
   displayNearbyTitle: 'Nearby Displays:'
   displayNearbyHyperlink_ItemDisplayDisplayText: 'Item Display'
   displayNearbyHyperlink_BlockDisplayDisplayText: 'Block Display'
   displayNearbyHyperlink_UnknownDisplayDisplayText: '[???]'
-  advDisplayRenameUsage: 'Usage: /advdisplay rename <name>'
   displayGroupInvalidSubcommand: 'Invalid subcommand for /displaygroup. Try /displaygroup help'
   displayInvalidSubcommand: 'Invalid subcommand. Try /display help'
+
+  advDisplayUsage: 'Usage: /advdisplay select <index> | setrotation <yaw> <pitch> | changerotation <yawOffset> <pitchOffset> | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset> | rename <name>'
+  advDisplaySetRotationUsage: 'Usage: /advdisplay setrotation <yaw> <pitch> [roll]'
+  advDisplayChangePositionUsage: 'Usage: /advdisplay changeposition <x offset> <y offset> <z offset>'
+  advDisplaySetPositionUsage: 'Usage: /advdisplay setposition <x> <y> <z>'
+  advDisplaySetSizeInvalid: 'Invalid size. Usage: /advdisplay setsize <size: number>'
+  advDisplayChangeSizeInvalid: 'Invalid size offset. Usage: /advdisplay changesize <size offset: number>'
+  advDisplayDestroyUsage: 'Usage: /display destroy [nearby [max count] [radius]]'
+  advDisplayInvalidSubcommand: 'Invalid subcommand for /advdisplay. Try /advdisplay help'
   advDisplayChangeRotationUsage: 'Usage: /advdisplay changerotation <yaw offset> <pitch offset> [roll offset]'
-  
+  advDisplayRenameUsage: 'Usage: /advdisplay rename <name>'
+
+  displayGroupUsage: 'Usage: /displaygroup setparent <parentname>'
   displayGroupPasteSuccess: 'Successfully copied and pasted the selected Display's hierarchy at your current location.'
   displayGroupSetParentUsage: 'Usage: /displaygroup setparent <parentname>'
   displayGroupSetParentNoParent_Begin: 'No nearby display with the name "'
@@ -39,7 +43,8 @@ errors:
   displayGroupTranslateUsage: 'Usage: /displaygroup translate <xTranslation> <yTranslation> <zTranslation>'
   displayGroupTranslateInvalidTranslation: 'Invalid translation. Please provide valid numbers for xTranslation, yTranslation, and zTranslation.'
   displayGroupTranslateSuccess: 'Successfully translated the selected display group.'
-  displayGroupShowUsage: ''
+  displayGroupShowUsage: 'Usage: /displaygroup show'
+  displayGroupShowSuccess: 'Particles shown at every display in the group.'
 
 displayGUIBookTitle: 'controls for /display gui'
 displayGUIBookAuthor: 'displayer'
