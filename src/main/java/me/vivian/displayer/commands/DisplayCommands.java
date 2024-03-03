@@ -230,7 +230,7 @@ public class DisplayCommands {
         player.sendMessage(errMap.get("displayNearbyTitle"));
         int maxDisplaysToShow = 10;
         for (int index = 0; index < maxDisplaysToShow && index < nearbyVivDisplays.size(); index++) {
-            createHyperlink(player, nearbyVivDisplays.get(index), index + 1);
+            createHyperlink(player, nearbyVivDisplays.get(index));
         }
     }
 
