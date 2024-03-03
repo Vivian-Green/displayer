@@ -1,1 +1,9 @@
+
+# allow display group commands (default: false)
 doDisplayGroups: false
+
+# furthest distance to search when looking for nearby displays (default: 16)
+# high values might affect performance in large areas with a lot of displays
+maxSearchRadius: 16
+# how deep to search for descendants in display group trees before giving up?
+maxSearchDepth: 10

@@ -29,12 +29,12 @@ public class CommandParsing {
         try {
             double value = Double.parseDouble(args[index]);
             if (value < minValue) {
-                CommandHandler.sendPlayerMessageIfExists(player, errorMessage);
+                CommandHandler.sendPlayerMsgIfMsg(player, errorMessage);
                 return defaultValue; // Return the default value
             }
             return value;
         } catch (NumberFormatException e) {
-            CommandHandler.sendPlayerMessageIfExists(player, errorMessage);
+            CommandHandler.sendPlayerMsgIfMsg(player, errorMessage);
             return defaultValue; // Return the default value
         }
     }
@@ -57,7 +57,7 @@ public class CommandParsing {
                 rollOffset = Float.parseFloat(args[3]);
             }
         } catch (NumberFormatException e) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("parseInvalidRotation"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("parseInvalidRotation"));
             return null;
         }
 
@@ -72,7 +72,7 @@ public class CommandParsing {
             y = Double.parseDouble(args[2]);
             z = Double.parseDouble(args[3]);
         } catch (NumberFormatException e) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("parseInvalidPosition"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("parseInvalidPosition"));
             return null;
         }
 

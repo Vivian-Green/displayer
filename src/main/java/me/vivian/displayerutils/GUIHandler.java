@@ -61,7 +61,7 @@ public class GUIHandler {
         if (itemManipulation == null) itemManipulation = new ItemManipulation();
         // todo: move materials & names to config
 
-        Inventory inventory = Bukkit.createInventory(null, 54, "display GUI"); // todo: config this
+        Inventory inventory = Bukkit.createInventory(null, 54, "display GUI"); // todo: config this, ctrl+shift+f
 
         Material posButtonMaterial = Material.ORANGE_CONCRETE;
         Material rotButtonMaterial = Material.LIME_CONCRETE;
@@ -94,7 +94,7 @@ public class GUIHandler {
     public static Inventory displayNearbyGUIBuilder(List<VivDisplay> nearbyVivDisplays) {
         if (itemManipulation == null) itemManipulation = new ItemManipulation();
 
-        Inventory inventory = Bukkit.createInventory(null, 54, "nearby displays"); // todo: config this
+        Inventory inventory = Bukkit.createInventory(null, 54, "nearby displays"); // todo: config this, ctrl+shift+f
 
         int maxDisplaysToShow = 10;
         for (int index = 0; index < maxDisplaysToShow && index < nearbyVivDisplays.size(); index++) {
@@ -122,8 +122,6 @@ public class GUIHandler {
             dataContainer.set(new NamespacedKey(CommandHandler.getPlugin(), "displayUUID"), PersistentDataType.STRING, displayUUID.toString());
 
             button.setItemMeta(buttonMeta);
-
-            // todo: put display UUID in item nbt
 
             inventory.setItem(index, button);
         }

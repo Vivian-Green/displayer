@@ -6,6 +6,7 @@ import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.TransformMath;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
@@ -43,7 +44,7 @@ public class AdvDisplayCommands {
         player.sendMessage("Distance to Display: " + TransformMath.roundTo(player.getLocation().distance(displayLocation), 2));
 
         // Send NBT data related to parent and child
-        CommandHandler.sendPlayerMessageIf(player, "Parent UUID: " + selectedVivDisplay.parentUUID, selectedVivDisplay.isChild);
+        CommandHandler.sendPlayerAifBelseC(player, "Parent UUID: " + selectedVivDisplay.parentUUID, selectedVivDisplay.isChild);
 
         player.sendMessage("Is Parent: " + selectedVivDisplay.isThisParent());
     }
@@ -55,17 +56,20 @@ public class AdvDisplayCommands {
      * @param args   Command arguments:
      *               - /advdisplay rename <name>
      */
-    static void handleAdvDisplayRenameCommand(Player player, String[] args) {
+    static void handleAdvDisplayRenameCommand(Player player, String[] args) { // todo: move back to DisplayCommands
         if (args.length < 2) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("advDisplayRenameUsage"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("advDisplayRenameUsage"));
             return;
         }
         // Get the selected VivDisplay for the player
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
-        if (selectedVivDisplay == null) {return;}
+        if (selectedVivDisplay == null) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            return;
+        }
 
         String name = args[1]; // Get the name to set
-        CommandHandler.sendPlayerMessageIfExists(player, selectedVivDisplay.rename(name));
+        CommandHandler.sendPlayerMsgIfMsg(player, selectedVivDisplay.rename(name));
     }
 
     /**
@@ -85,7 +89,8 @@ public class AdvDisplayCommands {
         try {
             displayUUID = UUID.fromString(args[1]);
         } catch (IllegalArgumentException e) {
-            return; // Invalid UUID format
+            Bukkit.getLogger().warning("handleAdvDisplaySelectCommand: failed to create a UUID from arg 1 of '/advdisplay select ?'");
+            return;
         }
 
         List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, 5); // todo: config this-
@@ -118,7 +123,7 @@ public class AdvDisplayCommands {
         boolean isChange = args.length > 0 && "changerotation".equalsIgnoreCase(args[0]);
 
         if (args.length < 4) {
-            CommandHandler.sendPlayerMessageIf(player, errMap.get("advDisplayChangeRotationUsage"), isChange, errMap.get("advDisplaySetRotationUsage"));
+            CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayChangeRotationUsage"), isChange, errMap.get("advDisplaySetRotationUsage"));
             return;
         }
 
@@ -132,7 +137,7 @@ public class AdvDisplayCommands {
                 selectedVivDisplay.changeRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2], player) :
                 selectedVivDisplay.setRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2], player);
 
-        CommandHandler.sendPlayerMessageIf(player, "Failed to apply rotation change.", !success);
+        CommandHandler.sendPlayerAifBelseC(player, "Failed to apply rotation change.", !success); // todo: config this
     }
 
     /**
@@ -148,23 +153,21 @@ public class AdvDisplayCommands {
         boolean isChange = args.length > 0 && "changeposition".equalsIgnoreCase(args[0]);
 
         if (args.length != 4) {
-            CommandHandler.sendPlayerMessageIf(player, errMap.get("advDisplayChangePositionUsage"), isChange, errMap.get("advDisplaySetPositionUsage"));
+            CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayChangePositionUsage"), isChange, errMap.get("advDisplaySetPositionUsage"));
             return;
         }
 
         double[] positionOffsets = CommandParsing.parsePositionOffsets(args, player);
-        if (positionOffsets == null) {
-            return;
-        }
+        if (positionOffsets == null) return;
 
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
-        if (selectedVivDisplay == null) {return;}
+        if (selectedVivDisplay == null) return;
 
         boolean success = isChange ?
                 selectedVivDisplay.changePosition(positionOffsets[0], positionOffsets[1], positionOffsets[2]) :
                 selectedVivDisplay.setPosition(positionOffsets[0], positionOffsets[1], positionOffsets[2], player);
 
-        CommandHandler.sendPlayerMessageIf(player, "Failed to apply position", !success);
+        CommandHandler.sendPlayerAifBelseC(player, "Failed to apply position", !success); // todo: config this
     }
 
     /**

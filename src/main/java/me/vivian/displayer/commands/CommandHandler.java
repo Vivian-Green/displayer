@@ -81,7 +81,7 @@ public class CommandHandler implements CommandExecutor {
 
     public boolean onPlayerDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayUsage"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayUsage"));
             return false;
         }
 
@@ -110,14 +110,14 @@ public class CommandHandler implements CommandExecutor {
                 DisplayCommands.handleDisplayReplaceItemCommand(player);
                 break;
             default:
-                CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayInvalidSubcommand"));
+                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayInvalidSubcommand"));
         }
         return true;
     }
 
     public boolean onPlayerAdvDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("advDisplayUsage"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("advDisplayUsage"));
             return false;
         }
 
@@ -148,20 +148,20 @@ public class CommandHandler implements CommandExecutor {
             case "debug":
                 handleDebugCommand(player);
             default:
-                CommandHandler.sendPlayerMessageIfExists(player, errMap.get("advDisplayInvalidSubcommand"));
+                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("advDisplayInvalidSubcommand"));
         }
         return true;
     }
 
     public boolean onPlayerDisplayGroupCommand(Player player, String[] args) {
-        if (Config.getConfig().getBoolean("doDisplayGroups") == false) {
+        if (!Config.getConfig().getBoolean("doDisplayGroups")) {
             // this is actually enough to disable all of this, since you can't set a parent (create a group) otherwise
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupDisabled"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupDisabled"));
             return false;
         }
 
         if (args.length < 1) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupUsage"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupUsage"));
             return false;
         }
 
@@ -188,13 +188,13 @@ public class CommandHandler implements CommandExecutor {
                 DisplayGroupCommands.handleDisplayGroupShowCommand(player, args);
                 break;
             default:
-                CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupInvalidSubcommand"));
+                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupInvalidSubcommand"));
         }
         return true;
     }
 
     // Sends a message to a player, but only if the message is not empty.
-    public static boolean sendPlayerMessageIfExists(Player player, String message) {
+    public static boolean sendPlayerMsgIfMsg(Player player, String message) {
         if (message != null && !message.isEmpty()) {
             player.sendMessage(message);
             return true;
@@ -202,18 +202,16 @@ public class CommandHandler implements CommandExecutor {
         return false;
     }
 
-    // send player a if b
-    static boolean sendPlayerMessageIf(Player player, String message, Boolean condition) {
-        return sendPlayerMessageIf(player, message, condition, null);
+    static boolean sendPlayerAifBelseC(Player player, String message, Boolean condition) {
+        return sendPlayerAifBelseC(player, message, condition, null);
     }
 
-    // send player ternary a if b else c
-    static boolean sendPlayerMessageIf(Player player, String message, Boolean condition, String messageOnFalse) {
+    static boolean sendPlayerAifBelseC(Player player, String message, Boolean condition, String messageOnFalse) {
         if (condition) {
-            sendPlayerMessageIfExists(player, message);
+            sendPlayerMsgIfMsg(player, message);
             return true;
         }
-        sendPlayerMessageIfExists(player, messageOnFalse);
+        sendPlayerMsgIfMsg(player, messageOnFalse);
         return false;
     }
 

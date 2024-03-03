@@ -1,8 +1,10 @@
 package me.vivian.displayer.display;
 
+import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.TransformMath;
 import me.vivian.displayer.commands.CommandHandler;
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 import org.joml.Matrix3d;
@@ -12,6 +14,8 @@ import org.joml.Vector3d;
 import java.util.*;
 
 public class DisplayGroupHandler {
+    static FileConfiguration config = Config.getConfig();
+
     // Function to translate all displays in a hierarchy
     public static void translateHierarchy(VivDisplay vivDisplay, Vector3d translation) {
         // Get all displays in the hierarchy
@@ -64,6 +68,10 @@ public class DisplayGroupHandler {
 
         // Get all displays in the hierarchy
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
+        if (hierarchy == null) return; /* either this vivDisplay is null, or its topmost parent is, which is a weird case
+            todo: handle by getting topmost not-null parent?
+
+        */
 
         // Create a map to store the copies of each VivDisplay
         Map<String, VivDisplay> copies = new HashMap<>();
@@ -107,14 +115,26 @@ public class DisplayGroupHandler {
         CommandHandler.selectedVivDisplays.put(player, originalSelectedDisplay);
     }
 
+
+    private static List<VivDisplay> getAllDescendants(VivDisplay parentVivDisplay){
+        return getAllDescendants(parentVivDisplay, 0);
+    }
+
     // Function to get all descendants of a VivDisplay
-    private static List<VivDisplay> getAllDescendants(VivDisplay parentVivDisplay) {
+    private static List<VivDisplay> getAllDescendants(VivDisplay parentVivDisplay, int depth) {
+        if (depth >= config.getInt("maxSearchDepth")) return null;
+
         List<VivDisplay> descendants = new ArrayList<>();
         for (VivDisplay vivDisplay: CommandHandler.vivDisplays.values()) {
             if (vivDisplay.parentUUID != null && vivDisplay.parentUUID.equals(parentVivDisplay.display.getUniqueId().toString())) {
-                descendants.add(vivDisplay);
-                descendants.addAll(getAllDescendants(vivDisplay)); // Recursive call
+                // descendants.add(vivDisplay); // unnecessary yea?
+
+                List<VivDisplay> thisDescendants = getAllDescendants(vivDisplay, depth+1);
+                if (thisDescendants == null) continue;
+
+                descendants.addAll(thisDescendants); // Recursive call
                 System.out.println(vivDisplay.displayName);
+                // todo: recursive parents-
             }
         }
         return descendants;
@@ -123,41 +143,49 @@ public class DisplayGroupHandler {
     // Function to get all displays in a hierarchy
     public static List<VivDisplay> getAllDisplaysInHierarchy(VivDisplay vivDisplay) {
         if (vivDisplay == null) {
-            System.out.println("translateHierarchy: vivDisplay is null");
+            System.out.println("translateHierarchy: vivDisplay is null"); // todo: warn
+            return null;
         } else {
             System.out.println(vivDisplay.displayName);
         }
+
         VivDisplay topmostParent = getHighestVivDisplay(vivDisplay);
         if (topmostParent == null) {
-            System.out.println("translateHierarchy: topmostParent is null");
+            System.out.println("translateHierarchy: topmostParent is null"); // todo: warn
+            return null;
         } else {
             System.out.println(topmostParent.displayName);
         }
+
         List<VivDisplay> hierarchy = getAllDescendants(topmostParent);
-        hierarchy.add(vivDisplay);
+        //hierarchy.add(vivDisplay); // todo: is this line necessary?
         System.out.println(vivDisplay.displayName);
         return hierarchy;
     }
 
     public static VivDisplay getHighestVivDisplay(VivDisplay vivDisplay) {
         if (vivDisplay == null) {
-            System.out.println("getHighestVivDisplay: vivDisplay is null");
+            System.out.println("getHighestVivDisplay: vivDisplay is null"); // todo: warn
+            return null;
         } else {
             System.out.println(vivDisplay.displayName);
         }
 
-        int maxDepth = 25;
-        while (maxDepth > 0 && vivDisplay != null && vivDisplay.parentUUID != null && CommandHandler.vivDisplays.get(vivDisplay.parentUUID) != null) {
+        int depthLeft = config.getInt("maxSearchDepth");
+        while (depthLeft > 0 && vivDisplay.parentUUID != null) {
             // todo: check for recursive trees
-            vivDisplay = CommandHandler.vivDisplays.get(vivDisplay.parentUUID);
-            maxDepth--;
+            VivDisplay thisVivDisplay = CommandHandler.vivDisplays.get(vivDisplay.parentUUID);
+            if (thisVivDisplay == null) break;
+
+            depthLeft--;
+            vivDisplay = thisVivDisplay;
         }
-        if (maxDepth < 1) {
+        return vivDisplay;
+
+        /*if (maxDepth < 1) {                    // leaving this here commented out bc- lmao-
             // handle recursive group
             return vivDisplay;
-        }
-
-        return vivDisplay;
+        }*/
     }
 
 
@@ -225,7 +253,6 @@ public class DisplayGroupHandler {
         double cosy_cosp = 1 - 2 * (quaternionRight.y * quaternionRight.y + quaternionRight.z * quaternionRight.z);
         double yaw = Math.atan2(siny_cosp, cosy_cosp);
 
-        // Now you have yaw, pitch, and roll in radians. Convert to degrees if needed.
         yaw = Math.toDegrees(yaw);
         pitch = Math.toDegrees(pitch);
         roll = Math.toDegrees(roll);

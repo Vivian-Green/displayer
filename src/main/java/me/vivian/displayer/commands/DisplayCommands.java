@@ -1,9 +1,11 @@
 package me.vivian.displayer.commands;
 
+import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.*;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +18,8 @@ public class DisplayCommands {
 
     static Map<String, String> errMap = Texts.getErrors();
     static Map<String, String> msgMap = Texts.getMessages();
+
+    static FileConfiguration config = Config.getConfig();
 
     /**
      * writes an awful, technical, /help message
@@ -75,7 +79,7 @@ public class DisplayCommands {
         }
 
         if (!args[1].equalsIgnoreCase("nearby")) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("advDisplayDestroyUsage"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("advDisplayDestroyUsage"));
             return;
         }
 
@@ -97,12 +101,12 @@ public class DisplayCommands {
         // todo: where put this when it just kinda figured itself out on errs? CommandHandler.sendPlayerMessageIfExists(player, )(errMap.get("displayCreateUsage"));
 
         if (!ItemManipulation.isHeldItemValid(player)) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayCreateEmptyHand"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateEmptyHand"));
             return;
         }
 
         if (atSelected && CommandHandler.selectedVivDisplays.get(player) == null) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -126,13 +130,13 @@ public class DisplayCommands {
      */
     static void handleDisplayReplaceItemCommand(Player player) {
         if (!ItemManipulation.isHeldItemValid(player)) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayCreateEmptyHand")); // todo: generic this name or use different label
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateEmptyHand")); // todo: generic this name or use different label
             return;
         }
 
         VivDisplay selectedDisplay = CommandHandler.selectedVivDisplays.get(player);
         if (selectedDisplay == null) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -162,7 +166,7 @@ public class DisplayCommands {
 
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
-        CommandHandler.sendPlayerMessageIfExists(player, msgMap.get("displayNearbyTitle"));
+        CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayNearbyTitle"));
 
         Inventory inventory = GUIHandler.displayNearbyGUIBuilder(nearbyVivDisplays);
         player.openInventory(inventory);
@@ -174,7 +178,7 @@ public class DisplayCommands {
      * @param player The player executing the command.
      */
     static void handleDisplayClosestCommand(Player player) {
-        int radius = 5; // todo: config this? lmao
+        int radius = config.getInt("maxSearchRadius");
         List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, radius);
 
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
@@ -182,7 +186,7 @@ public class DisplayCommands {
         VivDisplay closestVivDisplay = nearbyVivDisplays.get(0);
         CommandHandler.selectedVivDisplays.put(player, closestVivDisplay);
         ParticleHandler.spawnParticle(closestVivDisplay.display, null, null);
-        CommandHandler.sendPlayerMessageIfExists(player, msgMap.get("displayClosestSuccess"));
+        CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayClosestSuccess"));
     }
 
     /**

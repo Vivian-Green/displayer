@@ -143,11 +143,11 @@ public final class EventListeners extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals("display GUI")) { // todo: config this
+        if (event.getView().getTitle().equals("display GUI")) { // todo: config this, ctrl+shift+f
             event.setCancelled(true);
             onDisplayGUIClick(event);
         }
-        if (event.getView().getTitle().equals("nearby displays")) { // todo: config this
+        if (event.getView().getTitle().equals("nearby displays")) { // todo: config this, ctrl+shift+f
             event.setCancelled(true);
             onDisplayNearbyGUIClick(event);
         }
@@ -174,7 +174,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // ensure selected display
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -211,7 +211,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // ensure selectedVivDisplay
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
