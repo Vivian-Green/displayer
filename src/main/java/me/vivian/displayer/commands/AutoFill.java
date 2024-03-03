@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class AutoFill implements TabCompleter {
+    List<String> displaySubcommands = Arrays.asList("replaceitem", "create", "nearby", "closest", "destroy", "gui", "help");
+    List<String> advDisplaySubcommands = Arrays.asList("select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "rename", "details");
+    List<String> displayGroupSubcommands = Arrays.asList("parent", "unparent", "copypaste", "show", "rotate", "translate");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -31,11 +34,9 @@ public class AutoFill implements TabCompleter {
 
 
     private List<String> handleDisplayerSubcommands(CommandSender sender, String[] args) {
-        List<String> completions = new ArrayList<> ();
+        if (args.length == 1) return displaySubcommands;
 
-        if (args.length == 1) {
-            return Arrays.asList("create", "nearby", "closest", "destroy", "gui", "help");
-        }
+        List<String> completions = new ArrayList<> ();
         String currentSubcommand = args[0].toLowerCase();
         switch (currentSubcommand) {
             case "create":
@@ -74,11 +75,7 @@ public class AutoFill implements TabCompleter {
     }
 
     private List<String> handleAdvDisplaySubcommands(CommandSender sender, String[] args) {
-
-
-        if (args.length == 1) {
-            return Arrays.asList("replaceitem", "select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "rename", "details");
-        }
+        if (args.length == 1) return advDisplaySubcommands;
 
         List<String> completions = new ArrayList<>();
         if (!(sender instanceof Player)) return completions;
@@ -166,7 +163,7 @@ public class AutoFill implements TabCompleter {
     }
 
     private List<String> handleDisplayGroupSubcommands(CommandSender sender, String[] args) {
-        if (args.length == 1) return Arrays.asList("parent", "unparent", "copypaste", "show", "rotate", "translate");
+        if (args.length == 1) return displayGroupSubcommands;
 
         List<String> completions = new ArrayList<>();
 
