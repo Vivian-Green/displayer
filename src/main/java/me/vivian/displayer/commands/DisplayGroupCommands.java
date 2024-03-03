@@ -1,5 +1,6 @@
 package me.vivian.displayer.commands;
 
+import me.vivian.displayer.config.Texts;
 import me.vivian.displayerutils.ParticleHandler;
 import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.DisplayHandler;
@@ -10,7 +11,11 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.joml.Vector3d;
 
+import java.util.Map;
+
 public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
+    static Map<String, String> errMap = Texts.getErrors();
+
     /**
      * Handles the copy and paste command for a player's selected display group.
      *
@@ -24,7 +29,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
-            player.sendMessage("You must first select a Display");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -35,13 +40,13 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         DisplayGroupHandler.copyAndPasteHierarchy(selectedVivDisplay, player, newLocation);
 
         // Send a success message to the player
-        player.sendMessage("Successfully copied and pasted the selected Display's hierarchy at your current location.");
+        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupPasteSuccess"));
     }
 
     // Sets the parent of the (player)'s selected VivDisplay.
     public static void handleDisplayGroupSetParentCommand(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage("Usage: /displaygroup setparent <parentname>");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupSetParentUsage"));
             return;
         }
 
@@ -53,7 +58,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         // Find the parent display by name
         Display parentDisplay = DisplayHandler.getVivDisplayByName(player, parentName);
         if (parentDisplay == null) {
-            player.sendMessage("No nearby display with the name '" + parentName + "' found.");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupSetParentNoParent_Begin") + parentName + errMap.get("displayGroupSetParentNoParent_End"));
             return;
         }
 
@@ -66,7 +71,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
 
         if (selectedVivDisplay == null) {
-            player.sendMessage("You haven't selected a display to unparent.");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -83,7 +88,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
     public static void handleDisplayGroupRotateCommand(Player player, String[] args) {
         // Check if the correct number of arguments are provided
         if (args.length != 4) {
-            player.sendMessage("Usage: /displaygroup rotate <xRotation> <yRotation> <zRotation>");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupRotateUsage"));
             return;
         }
 
@@ -94,7 +99,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
             yaw = Double.parseDouble(args[2]);
             roll = Double.parseDouble(args[3]);
         } catch (NumberFormatException e) {
-            player.sendMessage("Invalid rotation. Please provide valid numbers for xRotation, yRotation, and zRotation.");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupInvalidRotation"));
             return;
         }
 
@@ -103,7 +108,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
-            player.sendMessage("You must first select a Display");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -113,7 +118,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(roll, yaw, pitch));
 
         // Send a success message to the player
-        player.sendMessage("Successfully rotated the selected Display's hierarchy.");
+        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupRotateSuccess"));
     }
 
     /**
@@ -126,7 +131,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
     public static void handleDisplayGroupTranslateCommand(Player player, String[] args) {
         // Check if the correct number of arguments are provided
         if (args.length != 4) {
-            player.sendMessage("Usage: /displaygroup translate <xTranslation> <yTranslation> <zTranslation>");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupTranslateUsage"));
             return;
         }
 
@@ -137,7 +142,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
             yTranslation = Double.parseDouble(args[2]);
             zTranslation = Double.parseDouble(args[3]);
         } catch (NumberFormatException e) {
-            player.sendMessage("Invalid translation. Please provide valid numbers for xTranslation, yTranslation, and zTranslation.");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupTranslateInvalidTranslation"));
             return;
         }
 
@@ -146,7 +151,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
-            player.sendMessage("You must first select a Display");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -154,13 +159,13 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         DisplayGroupHandler.translateHierarchy(selectedVivDisplay, new Vector3d(xTranslation, yTranslation, zTranslation));
 
         // Send a success message to the player
-        player.sendMessage("Successfully translated the selected display group.");
+        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupTranslateSuccess"));
     }
 
     public static void handleDisplayGroupShowCommand(Player player, String[] args) {
         // Check if the correct number of arguments is provided
         if (args.length != 1) {
-            player.sendMessage("Usage: /displaygroup show");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupShowUsage"));
             return;
         }
 
@@ -169,7 +174,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
 
         // Check if the selected VivDisplay exists
         if (selectedVivDisplay == null) {
-            player.sendMessage("Display group not found or not selected.");
+            CommandHandler.sendPlayerMessageIfExists(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -179,6 +184,6 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         ParticleHandler.spawnParticlesAtHierarchy(selectedVivDisplay, particle, particleCount);
 
         // Send a success message to the player
-        player.sendMessage("Particles shown at every display in the group.");
+        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupShowSuccess"));
     }
 }

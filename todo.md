@@ -3,6 +3,7 @@
 - item frame (map) functionality
 - text display functionality
 - import armorstand data from cmi
+- move some texts.yaml.errors strings to texts.yaml.messages
 </br></br>
 - rename command autofill in display GUI
 - replace item in display GUI

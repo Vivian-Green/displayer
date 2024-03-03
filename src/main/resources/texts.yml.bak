@@ -28,18 +28,6 @@ errors:
   displayGroupInvalidSubcommand: 'Invalid subcommand for /displaygroup. Try /displaygroup help'
   displayInvalidSubcommand: 'Invalid subcommand. Try /display help'
   advDisplayChangeRotationUsage: 'Usage: /advdisplay changerotation <yaw offset> <pitch offset> [roll offset]'
-  
-  displayGroupPasteSuccess: 'Successfully copied and pasted the selected Display's hierarchy at your current location.'
-  displayGroupSetParentUsage: 'Usage: /displaygroup setparent <parentname>'
-  displayGroupSetParentNoParent_Begin: 'No nearby display with the name "'
-  displayGroupSetParentNoParent_End:  '" found.'
-  displayGroupRotateUsage: 'Usage: /displaygroup rotate <xRotation> <yRotation> <zRotation>'
-  displayGroupInvalidRotation: 'Invalid rotation. Please provide valid numbers for xRotation, yRotation, and zRotation.'
-  displayGroupRotateSuccess: 'Successfully rotated the selected Display's hierarchy.'
-  displayGroupTranslateUsage: 'Usage: /displaygroup translate <xTranslation> <yTranslation> <zTranslation>'
-  displayGroupTranslateInvalidTranslation: 'Invalid translation. Please provide valid numbers for xTranslation, yTranslation, and zTranslation.'
-  displayGroupTranslateSuccess: 'Successfully translated the selected display group.'
-  displayGroupShowUsage: ''
 
 displayGUIBookTitle: 'controls for /display gui'
 displayGUIBookAuthor: 'displayer'
