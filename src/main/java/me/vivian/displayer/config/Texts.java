@@ -36,22 +36,27 @@ public class Texts {
         return (List<String>) tCfg.getList(key);
     }
 
-    public static Map<String, String> getErrors() {
-        // todo: ensure not null before cast if necessary?
-        // Map<String, Object> errors = tCfg.getConfigurationSection("errors").getValues(false);
+    public static Map<String, String> loadMessages(String section) {
+        Map<String, Object> messagesAsObjects = tCfg.getConfigurationSection(section).getValues(false);
+        Map<String, String> messages = new HashMap<>();
 
-        Map<String, Object> errorsButAsObjectsForNoReason = tCfg.getConfigurationSection("errors").getValues(false);
-        Map<String, String> errors = new HashMap<>();
-
-        for (Map.Entry<String, Object> entry : errorsButAsObjectsForNoReason.entrySet()) {
+        for (Map.Entry<String, Object> entry : messagesAsObjects.entrySet()) {
             if (entry.getValue() instanceof String) {
-                errors.put(entry.getKey(), (String) entry.getValue());
+                messages.put(entry.getKey(), (String) entry.getValue());
             } else {
-                System.out.println("error loading... errors? on key " + entry.getKey());
+                System.out.println("Error loading messages on key " + entry.getKey());
             }
         }
 
-        return errors;
+        return messages;
+    }
+
+    public static Map<String, String> getErrors() {
+        return loadMessages("errors");
+    }
+
+    public static Map<String, String> getMessages() {
+        return loadMessages("messages");
     }
 }
 

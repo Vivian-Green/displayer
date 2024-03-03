@@ -7,18 +7,11 @@ errors:
   displayNearbyFoundUnknownItem: 'createHyperlink(): This boy ain''t right. Was I passed a text display?'
   displayClosestNotFound_Begin: 'No nearby Displays found within '
   displayClosestNotFound_End: ' blocks.'
-  displayNearbyHyperlinkText: '§9Click to select $DisplayTypeDisplayText $DisplayName holding $DisplayMaterial, $Distance blocks away' # $DisplayTypeDisplayText, $DisplayMaterial, $DisplayName, $Distance
   displayNearbyNotFound_Begin: 'No nearby Displays found within '
   displayNearbyNotFound_End: ' blocks.'
   displayCreateEmptyHand: 'You need to hold an item first!'
   displayGroupDisabled: 'display groups are disabled'
   displayCreateUsage: 'Usage: /display create <block/item> [atSelected]'
-  displayClosestSuccess: 'Closest Display selected.'
-  displayNearbyTitle: 'Nearby Displays:'
-  displayNearbyHyperlink_ItemDisplayDisplayText: 'Item Display'
-  displayNearbyHyperlink_BlockDisplayDisplayText: 'Block Display'
-  displayNearbyHyperlink_UnknownDisplayDisplayText: '[???]'
-  displayGroupInvalidSubcommand: 'Invalid subcommand for /displaygroup. Try /displaygroup help'
   displayInvalidSubcommand: 'Invalid subcommand. Try /display help'
 
   advDisplayUsage: 'Usage: /advdisplay select <index> | setrotation <yaw> <pitch> | changerotation <yawOffset> <pitchOffset> | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset> | rename <name>'
@@ -33,24 +26,35 @@ errors:
   advDisplayRenameUsage: 'Usage: /advdisplay rename <name>'
 
   displayGroupUsage: 'Usage: /displaygroup setparent <parentname>'
-  displayGroupPasteSuccess: 'Successfully copied and pasted the selected Display's hierarchy at your current location.'
   displayGroupSetParentUsage: 'Usage: /displaygroup setparent <parentname>'
   displayGroupSetParentNoParent_Begin: 'No nearby display with the name "'
   displayGroupSetParentNoParent_End:  '" found.'
   displayGroupRotateUsage: 'Usage: /displaygroup rotate <xRotation> <yRotation> <zRotation>'
   displayGroupInvalidRotation: 'Invalid rotation. Please provide valid numbers for xRotation, yRotation, and zRotation.'
-  displayGroupRotateSuccess: 'Successfully rotated the selected Display's hierarchy.'
   displayGroupTranslateUsage: 'Usage: /displaygroup translate <xTranslation> <yTranslation> <zTranslation>'
   displayGroupTranslateInvalidTranslation: 'Invalid translation. Please provide valid numbers for xTranslation, yTranslation, and zTranslation.'
-  displayGroupTranslateSuccess: 'Successfully translated the selected display group.'
   displayGroupShowUsage: 'Usage: /displaygroup show'
+  displayGroupInvalidSubcommand: 'Invalid subcommand for /displaygroup. Try /displaygroup help'
+
+messages:
+  displayNearbyHyperlinkText: '§9Click to select $DisplayTypeDisplayText $DisplayName holding $DisplayMaterial, $Distance blocks away' # $DisplayTypeDisplayText, $DisplayMaterial, $DisplayName, $Distance
+  displayClosestSuccess: 'Closest Display selected.'
+  displayNearbyTitle: 'Nearby Displays:'
+  displayNearbyHyperlink_ItemDisplayDisplayText: 'Item Display'
+  displayNearbyHyperlink_BlockDisplayDisplayText: 'Block Display'
+  displayNearbyHyperlink_UnknownDisplayDisplayText: '[???]'
+
+  displayGroupPasteSuccess: 'Successfully copied and pasted the selected Display's hierarchy at your current location.'
+  displayGroupRotateSuccess: 'Successfully rotated the selected Display's hierarchy.'
+  displayGroupTranslateSuccess: 'Successfully translated the selected display group.'
   displayGroupShowSuccess: 'Particles shown at every display in the group.'
+
 
 displayGUIBookTitle: 'controls for /display gui'
 displayGUIBookAuthor: 'displayer'
 displayGUIBookLore:
-- 'click blocks above to move your whatever around'
-- 'right click (take half): 0.1x speed'
-- 'click: 1x speed'
-- 'shift click (take all): 10x speed'
-- 'todo: rewrite this so the gui makes sense for bedrock players without being so long that it c'
+  - 'click blocks above to move your whatever around'
+  - 'right click (take half): 0.1x speed'
+  - 'click: 1x speed'
+  - 'shift click (take all): 10x speed'
+  - 'todo: rewrite this so the gui makes sense for bedrock players without being so long that it c'

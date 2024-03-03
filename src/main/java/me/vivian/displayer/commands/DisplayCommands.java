@@ -21,6 +21,7 @@ import java.util.Objects;
 public class DisplayCommands {
 
     static Map<String, String> errMap = Texts.getErrors();
+    static Map<String, String> msgMap = Texts.getMessages();
 
     /**
      * writes an awful, technical, /help message
@@ -167,7 +168,7 @@ public class DisplayCommands {
 
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
-        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayNearbyTitle"));
+        CommandHandler.sendPlayerMessageIfExists(player, msgMap.get("displayNearbyTitle"));
         int maxDisplaysToShow = 10;
         for (int index = 0; index < maxDisplaysToShow && index < nearbyVivDisplays.size(); index++) {
             createHyperlink(player, nearbyVivDisplays.get(index));
@@ -188,7 +189,7 @@ public class DisplayCommands {
         VivDisplay closestVivDisplay = nearbyVivDisplays.get(0);
         CommandHandler.selectedVivDisplays.put(player, closestVivDisplay);
         ParticleHandler.spawnParticle(closestVivDisplay.display, null, null);
-        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayClosestSuccess"));
+        CommandHandler.sendPlayerMessageIfExists(player, msgMap.get("displayClosestSuccess"));
     }
 
     /**
@@ -225,21 +226,21 @@ public class DisplayCommands {
         // Get material & type of display
         if (vivDisplay.display instanceof BlockDisplay) {
             displayMaterial = ((BlockDisplay) vivDisplay.display).getBlock().getMaterial();
-            displayTypeStr = errMap.get("displayNearbyHyperlink_BlockDisplayDisplayText");
+            displayTypeStr = msgMap.get("displayNearbyHyperlink_BlockDisplayDisplayText");
         } else if (vivDisplay.display instanceof ItemDisplay) {
             ItemStack itemStack = ((ItemDisplay) vivDisplay.display).getItemStack();
             assert itemStack != null;
             displayMaterial = itemStack.getType();
-            displayTypeStr = errMap.get("displayNearbyHyperlink_ItemDisplayDisplayText");
+            displayTypeStr = msgMap.get("displayNearbyHyperlink_ItemDisplayDisplayText");
         } else {
             displayMaterial = Material.AIR;
-            displayTypeStr = errMap.get("displayNearbyHyperlink_UnknownDisplayDisplayText");
+            displayTypeStr = msgMap.get("displayNearbyHyperlink_UnknownDisplayDisplayText");
             System.out.println(errMap.get("displayNearbyFoundUnknownItem"));
             return; // Exit early if the display is borked
         }
 
         // Create & send message to select this display, if it's not borked
-        String hyperLinkText = errMap.get("displayNearbyHyperlinkText");
+        String hyperLinkText = msgMap.get("displayNearbyHyperlinkText");
         hyperLinkText = hyperLinkText.replace("$DisplayTypeDisplayText", displayTypeStr);
         hyperLinkText = hyperLinkText.replace("$DisplayName", name);
         hyperLinkText = hyperLinkText.replace("$DisplayMaterial", displayMaterial.toString());

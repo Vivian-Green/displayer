@@ -15,6 +15,7 @@ import java.util.Map;
 
 public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
     static Map<String, String> errMap = Texts.getErrors();
+    static Map<String, String> msgMap = Texts.getMessages();
 
     /**
      * Handles the copy and paste command for a player's selected display group.
@@ -40,7 +41,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         DisplayGroupHandler.copyAndPasteHierarchy(selectedVivDisplay, player, newLocation);
 
         // Send a success message to the player
-        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupPasteSuccess"));
+        CommandHandler.sendPlayerMessageIfExists(player, msgMap.get("displayGroupPasteSuccess"));
     }
 
     // Sets the parent of the (player)'s selected VivDisplay.
@@ -118,7 +119,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(roll, yaw, pitch));
 
         // Send a success message to the player
-        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupRotateSuccess"));
+        CommandHandler.sendPlayerMessageIfExists(player, msgMap.get("displayGroupRotateSuccess"));
     }
 
     /**
@@ -159,7 +160,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         DisplayGroupHandler.translateHierarchy(selectedVivDisplay, new Vector3d(xTranslation, yTranslation, zTranslation));
 
         // Send a success message to the player
-        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupTranslateSuccess"));
+        CommandHandler.sendPlayerMessageIfExists(player, msgMap.get("displayGroupTranslateSuccess"));
     }
 
     public static void handleDisplayGroupShowCommand(Player player, String[] args) {
@@ -184,6 +185,6 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         ParticleHandler.spawnParticlesAtHierarchy(selectedVivDisplay, particle, particleCount);
 
         // Send a success message to the player
-        CommandHandler.sendPlayerMessageIfExists(player, errMap.get("displayGroupShowSuccess"));
+        CommandHandler.sendPlayerMessageIfExists(player, msgMap.get("displayGroupShowSuccess"));
     }
 }
