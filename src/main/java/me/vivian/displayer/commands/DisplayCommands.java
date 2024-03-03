@@ -1,5 +1,6 @@
 package me.vivian.displayer.commands;
 
+import com.Zrips.CMI.commands.list.list;
 import me.vivian.displayerutils.*;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
@@ -14,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -169,10 +171,9 @@ public class DisplayCommands {
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
         CommandHandler.sendPlayerMessageIfExists(player, msgMap.get("displayNearbyTitle"));
-        int maxDisplaysToShow = 10;
-        for (int index = 0; index < maxDisplaysToShow && index < nearbyVivDisplays.size(); index++) {
-            createHyperlink(player, nearbyVivDisplays.get(index));
-        }
+
+        Inventory inventory = GUIHandler.displayNearbyGUIBuilder(nearbyVivDisplays);
+        player.openInventory(inventory);
     }
 
     /**
@@ -200,57 +201,5 @@ public class DisplayCommands {
     static void handleDisplayGUICommand(Player player) {
         Inventory inventory = GUIHandler.displayGUIBuilder();
         player.openInventory(inventory);
-    }
-
-    /**
-     * Sends a hyperlink to the player for selecting a VivDisplay with a given UUID.
-     *
-     * @param player    The player to send the hyperlink to.
-     * @param vivDisplay The VivDisplay to create a hyperlink for.
-     */
-    public static void createHyperlink(Player player, VivDisplay vivDisplay) {
-        assert vivDisplay != null;
-
-        Location location = vivDisplay.display.getLocation();
-        Location playerLocation = player.getLocation();
-
-        // Get distance rounded to 2 places
-        double distance = TransformMath.roundTo(location.distance(playerLocation), 2);
-
-        String name = CommandHandler.nbtm.getNBT(vivDisplay.display, "VivDisplayName", String.class);
-        if (name == null) name = "";
-
-        Material displayMaterial;
-        String displayTypeStr;
-
-        // Get material & type of display
-        if (vivDisplay.display instanceof BlockDisplay) {
-            displayMaterial = ((BlockDisplay) vivDisplay.display).getBlock().getMaterial();
-            displayTypeStr = msgMap.get("displayNearbyHyperlink_BlockDisplayDisplayText");
-        } else if (vivDisplay.display instanceof ItemDisplay) {
-            ItemStack itemStack = ((ItemDisplay) vivDisplay.display).getItemStack();
-            assert itemStack != null;
-            displayMaterial = itemStack.getType();
-            displayTypeStr = msgMap.get("displayNearbyHyperlink_ItemDisplayDisplayText");
-        } else {
-            displayMaterial = Material.AIR;
-            displayTypeStr = msgMap.get("displayNearbyHyperlink_UnknownDisplayDisplayText");
-            System.out.println(errMap.get("displayNearbyFoundUnknownItem"));
-            return; // Exit early if the display is borked
-        }
-
-        // Create & send message to select this display, if it's not borked
-        String hyperLinkText = msgMap.get("displayNearbyHyperlinkText");
-        hyperLinkText = hyperLinkText.replace("$DisplayTypeDisplayText", displayTypeStr);
-        hyperLinkText = hyperLinkText.replace("$DisplayName", name);
-        hyperLinkText = hyperLinkText.replace("$DisplayMaterial", displayMaterial.toString());
-        hyperLinkText = hyperLinkText.replace("$Distance", distance + "");
-
-        TextComponent message = new TextComponent(hyperLinkText);
-
-        // Set click event to run command for selecting the display using its UUID
-        message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/advdisplay select " + vivDisplay.display.getUniqueId()));
-
-        player.spigot().sendMessage(message);
     }
 }

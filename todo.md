@@ -1,9 +1,14 @@
 # display todos:
+- VivDisplay.getMaterial()
+- move /advdisplay rename to /display rename
+- remove tape from display GUI; call command funcs directly
+-
 - land claim integration
 - item frame (map) functionality
 - text display functionality
 - import armorstand data from cmi
 </br></br>
+- max display size config
 - replace item in display GUI
   </br></br>
 - display nearby GUI

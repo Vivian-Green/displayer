@@ -21,12 +21,13 @@ public class AutoFill implements TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         String lowerCaseCommandName = command.getName().toLowerCase();
 
-        if ("display".equals(lowerCaseCommandName)) {
-            return handleDisplayerSubcommands(sender, args);
-        } else if ("advdisplay".equals(lowerCaseCommandName)) {
-            return handleAdvDisplaySubcommands(sender, args);
-        } else if ("displaygroup".equals(lowerCaseCommandName)) {
-            return handleDisplayGroupSubcommands(sender, args);
+        switch (lowerCaseCommandName) {
+            case "display":
+                return handleDisplayerSubcommands(sender, args);
+            case "advdisplay":
+                return handleAdvDisplaySubcommands(sender, args);
+            case "displaygroup":
+                return handleDisplayGroupSubcommands(sender, args);
         }
 
         return Collections.emptyList();

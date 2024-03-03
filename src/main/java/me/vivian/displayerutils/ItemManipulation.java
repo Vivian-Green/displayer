@@ -99,8 +99,10 @@ public class ItemManipulation {
      */
     public ItemStack itemWithName(ItemStack itemStack, String name) {
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(name);
+
+        if (!name.isEmpty()) itemMeta.setDisplayName(name);
         itemStack.setItemMeta(itemMeta);
+
         return itemStack;
     }
 

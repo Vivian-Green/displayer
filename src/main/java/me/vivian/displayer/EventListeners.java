@@ -8,6 +8,7 @@ import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.ItemManipulation;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.ArmorStand;
@@ -18,6 +19,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
@@ -66,18 +70,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         errMap = Texts.getErrors();
     }
 
-    /**
-     * Handles inventory click events, for display GUIs
-     *
-     * @param event The InventoryClickEvent triggered when a player clicks an inventory.
-     */
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals("display GUI")) {
-            return;
-        }
-
-        event.setCancelled(true);
+    public void onDisplayGUIClick(InventoryClickEvent event){
         Player player = (Player) event.getWhoClicked();
 
         int slot = event.getRawSlot();
@@ -113,6 +106,55 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
         // todo: call functions directly instead of using tape I mean commands-
         player.performCommand(command);
+    }
+
+    public void onDisplayNearbyGUIClick(InventoryClickEvent event) {
+        // mise en place
+        int slot = event.getRawSlot();
+
+        if (slot < 0 || slot >= event.getInventory().getSize()) return; // OOB slot
+
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) return; // empty slot
+
+        ItemMeta itemMeta = clickedItem.getItemMeta();
+        if (itemMeta == null) return; // no metadata?
+
+
+        PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
+        Player player = (Player) event.getWhoClicked();
+
+        // the actual code
+
+        // Check for display UUID nbt
+        if (!dataContainer.has(new NamespacedKey(CommandHandler.getPlugin(), "displayUUID"), PersistentDataType.STRING)) return;
+
+        String UUIDStr = dataContainer.get(new NamespacedKey(CommandHandler.getPlugin(), "displayUUID"), PersistentDataType.STRING);
+
+        // Perform your desired action with the display UUID
+        player.performCommand("/advdisplay select " + UUIDStr);
+    }
+
+
+
+
+    /**
+     * Handles inventory click events, for display GUIs
+     *
+     * @param event The InventoryClickEvent triggered when a player clicks an inventory.
+     */
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getView().getTitle().equals("display GUI")) { // todo: config this
+            event.setCancelled(true);
+            onDisplayGUIClick(event);
+        }
+        if (event.getView().getTitle().equals("nearby displays")) { // todo: config this
+            event.setCancelled(true);
+            onDisplayNearbyGUIClick(event);
+        }
+
+
     }
 
     @EventHandler

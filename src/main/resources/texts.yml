@@ -44,8 +44,8 @@ messages:
   displayNearbyHyperlink_BlockDisplayDisplayText: 'Block Display'
   displayNearbyHyperlink_UnknownDisplayDisplayText: '[???]'
 
-  displayGroupPasteSuccess: 'Successfully copied and pasted the selected Display's hierarchy at your current location.'
-  displayGroupRotateSuccess: 'Successfully rotated the selected Display's hierarchy.'
+  displayGroupPasteSuccess: 'Successfully copied and pasted the selected Display''s hierarchy at your current location.'
+  displayGroupRotateSuccess: 'Successfully rotated the selected Display''s hierarchy.'
   displayGroupTranslateSuccess: 'Successfully translated the selected display group.'
   displayGroupShowSuccess: 'Particles shown at every display in the group.'
 
