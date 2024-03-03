@@ -1,11 +1,11 @@
-package me.vivian.displayer.commands;
+package me.vivian.displayerutils;
 
 import me.vivian.displayer.config.Texts;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
 
-public class Parsing {
+public class CommandParsing {
     static Map<String, String> errMap = Texts.getErrors();
 
     /**

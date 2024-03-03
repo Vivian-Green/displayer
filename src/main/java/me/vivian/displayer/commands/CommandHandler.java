@@ -210,47 +210,6 @@ public class CommandHandler implements CommandExecutor {
         return false;
     }
 
-    /*public static final float YAW_OFFSET = 90f;
-    public static final float SHOULDER_X_OFFSET = 5f / 16f;
-    public static final float SHOULDER_Y_OFFSET = 22f / 16f;
-    public static final float ARM_X_OFFSET = 10f / 16f;
-
-    public Vector getDirection(double yaw, double pitch, double roll) {
-        // Convert to radians
-        double yawRad = Math.toRadians(yaw);
-        double pitchRad = Math.toRadians(pitch);
-
-        // Calculate the direction vector
-        double x = Math.cos(yawRad) * Math.cos(pitchRad);
-        double y = Math.sin(pitchRad);
-        double z = Math.sin(yawRad) * Math.cos(pitchRad);
-
-        // Create and return the vector
-        return new Vector(x, y, z);
-    }*/
-
-    /*public static Location getArmTip(ArmorStand armorStand) {
-        // Gets shoulder location
-        Location shoulderLocation = armorStand.getLocation().clone();
-        shoulderLocation.setYaw(shoulderLocation.getYaw() + YAW_OFFSET);
-        org.bukkit.util.Vector direction = shoulderLocation.getDirection();
-        shoulderLocation.setX(shoulderLocation.getX() + SHOULDER_X_OFFSET * direction.getX());
-        shoulderLocation.setY(shoulderLocation.getY() + SHOULDER_Y_OFFSET);
-        shoulderLocation.setZ(shoulderLocation.getZ() + SHOULDER_X_OFFSET * direction.getZ());
-        shoulderLocation.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, shoulderLocation, 1);
-        // Get Hand Location
-
-        EulerAngle armPose = armorStand.getRightArmPose();
-        Vector armDirection = getDirection(armPose.getY(), armPose.getX(), -armPose.getZ());
-        armDirection = rotateAroundAxisY(armDirection, Math.toRadians(shoulderLocation.getYaw() - YAW_OFFSET));
-        shoulderLocation.setX(shoulderLocation.getX() + ARM_X_OFFSET * armDirection.getX());
-        shoulderLocation.setY(shoulderLocation.getY() + ARM_X_OFFSET * armDirection.getY());
-        shoulderLocation.setZ(shoulderLocation.getZ() + ARM_X_OFFSET * armDirection.getZ());
-
-        shoulderLocation.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, shoulderLocation, 1);
-        return shoulderLocation;
-    }*/
-
     static void handleDebugCommand(Player player) {
 
     }

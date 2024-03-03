@@ -1,6 +1,6 @@
 package me.vivian.displayer.commands;
 
-import me.vivian.displayer.ParticleHandler;
+import me.vivian.displayerutils.ParticleHandler;
 import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;

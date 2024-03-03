@@ -1,4 +1,4 @@
-package me.vivian.displayer;
+package me.vivian.displayerutils;
 
 import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.VivDisplay;

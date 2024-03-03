@@ -1,7 +1,7 @@
 package me.vivian.displayer.display;
 
 import me.vivian.displayer.commands.CommandHandler;
-import me.vivian.displayer.commands.Parsing;
+import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayer.config.Texts;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
@@ -52,8 +52,8 @@ public class DisplayHandler {
 
     public static void destroyNearbyDisplays(Player player, String[] args) {
         // todo: MAX RADIUS
-        int maxCount = (int) Parsing.parseNumberFromArgs(args, 2, 0, 1, player, "Invalid max count"); // default max count to 1
-        double radius = Parsing.parseNumberFromArgs(args, 3, 0.0, 5.0, player, "Invalid radius"); // default radius to 5
+        int maxCount = (int) CommandParsing.parseNumberFromArgs(args, 2, 0, 1, player, "Invalid max count"); // default max count to 1
+        double radius = CommandParsing.parseNumberFromArgs(args, 3, 0.0, 5.0, player, "Invalid radius"); // default radius to 5
 
         if (maxCount <= 0 || radius <= 0.0) {
             return; // Invalid max count or radius, error message already sent in parsing functions

@@ -1,4 +1,4 @@
-package me.vivian.displayer;
+package me.vivian.displayerutils;
 
 import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Texts;
