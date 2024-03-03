@@ -1,14 +1,11 @@
 package me.vivian.displayer.config;
 
-import me.vivian.displayer.EventListeners;
 import me.vivian.displayer.commands.CommandHandler;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

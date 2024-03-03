@@ -1,6 +1,7 @@
 package me.vivian.displayer;
 
 import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.TransformMath;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -11,13 +12,16 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Transformation;
-import org.joml.Quaternionf;
+
+import java.util.Map;
 
 /**
  * Holds unused code in case I need to snag it for something else
  */
 public class Unused {
+    static Map<String, String> errMap = Texts.getErrors();
+    static Map<String, String> msgMap = Texts.getMessages();
+
     /**
      * constructor... why would you instantiate this?
      */

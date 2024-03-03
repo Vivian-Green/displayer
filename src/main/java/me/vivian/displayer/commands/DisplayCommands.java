@@ -1,21 +1,13 @@
 package me.vivian.displayer.commands;
 
-import com.Zrips.CMI.commands.list.list;
 import me.vivian.displayerutils.*;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

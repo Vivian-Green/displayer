@@ -1,6 +1,5 @@
 package me.vivian.displayerutils;
 
-import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Texts;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

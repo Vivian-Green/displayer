@@ -13,8 +13,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.util.EulerAngle;
-import org.bukkit.util.Vector;
 
 
 // todo: aliases in config

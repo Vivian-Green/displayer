@@ -6,7 +6,6 @@ import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
-import me.vivian.displayerutils.ItemManipulation;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandExecutor;
@@ -23,7 +22,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.joml.Vector2i;
 import org.joml.Vector3d;
 
 import java.util.HashMap;

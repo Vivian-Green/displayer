@@ -111,9 +111,11 @@ public class GUIHandler {
             }
 
             ItemStack button = new ItemStack(material);
-            button = itemManipulation.itemWithName(button, vivDisplay.display.getName());
+            String name = vivDisplay.display.getName();
+            button = itemManipulation.itemWithName(button, name);
 
             ItemMeta buttonMeta = button.getItemMeta();
+            if (buttonMeta == null) continue; // shouldn't happen but makes the yellow squiggle go away & feels more explicit than an assertion-
 
             PersistentDataContainer dataContainer = buttonMeta.getPersistentDataContainer();
             UUID displayUUID = vivDisplay.display.getUniqueId();
