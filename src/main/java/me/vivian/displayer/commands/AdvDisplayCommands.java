@@ -117,7 +117,7 @@ public class AdvDisplayCommands {
                 selectedVivDisplay.changeRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2], player) :
                 selectedVivDisplay.setRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2], player);
 
-        CommandHandler.sendPlayerAifBelseC(player, "Failed to apply rotation change.", !success); // todo: config this
+        CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayRotationFailed"), !success);
     }
 
     /**
@@ -147,7 +147,7 @@ public class AdvDisplayCommands {
                 selectedVivDisplay.changePosition(positionOffsets[0], positionOffsets[1], positionOffsets[2]) :
                 selectedVivDisplay.setPosition(positionOffsets[0], positionOffsets[1], positionOffsets[2], player);
 
-        CommandHandler.sendPlayerAifBelseC(player, "Failed to apply position", !success); // todo: config this
+        CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayPositionFailed"), !success);
     }
 
     /**

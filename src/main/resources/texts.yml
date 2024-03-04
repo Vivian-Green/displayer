@@ -17,13 +17,15 @@ errors:
 
   advDisplayUsage: 'Usage: /advdisplay select <index> | setrotation <yaw> <pitch> | changerotation <yawOffset> <pitchOffset> | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset> | rename <name>'
   advDisplaySetRotationUsage: 'Usage: /advdisplay setrotation <yaw> <pitch> [roll]'
+  advDisplayChangeRotationUsage: 'Usage: /advdisplay changerotation <yaw offset> <pitch offset> [roll offset]'
+  advDisplayRotationFailed: 'Failed to apply rotation.'
   advDisplayChangePositionUsage: 'Usage: /advdisplay changeposition <x offset> <y offset> <z offset>'
   advDisplaySetPositionUsage: 'Usage: /advdisplay setposition <x> <y> <z>'
+  advDisplayPositionFailed: 'Failed to apply position.'
   advDisplaySetSizeInvalid: 'Invalid size. Usage: /advdisplay setsize <size: number>'
   advDisplayChangeSizeInvalid: 'Invalid size offset. Usage: /advdisplay changesize <size offset: number>'
   advDisplayDestroyUsage: 'Usage: /display destroy [nearby [max count] [radius]]'
   advDisplayInvalidSubcommand: 'Invalid subcommand for /advdisplay. Try /advdisplay help'
-  advDisplayChangeRotationUsage: 'Usage: /advdisplay changerotation <yaw offset> <pitch offset> [roll offset]'
   advDisplayRenameUsage: 'Usage: /advdisplay rename <name>'
 
   displayGroupUsage: 'Usage: /displaygroup setparent <parentname>'
@@ -48,6 +50,8 @@ messages:
 
 displayGUITitle: 'display GUI'
 displayNearbyGUITitle: 'nearby displays'
+displayGroupShowGUITitle: 'display group view'
+
 displayGUIReplaceItemButtonDisplayName: 'drop an item here to change display item'
 displayGUIRenameButtonDisplayName: 'click to autofill rename command' # best I can do idk
 displayGUIMovePanelDisplayName: 'move'
@@ -57,6 +61,8 @@ displayGUIBackButtonDisplayName: 'nearby displays'
 
 displayGUIBookTitle: 'controls'
 displayGUIBookAuthor: 'displayer'
+
+
 displayGUIBookLore:
   - 'click blocks above to move your whatever around'
   - 'right click (take half): 0.1x speed'

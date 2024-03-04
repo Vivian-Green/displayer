@@ -16,6 +16,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class GUIHandler {
@@ -94,6 +95,35 @@ public class GUIHandler {
         return inventory;
     }
 
+    public static ItemStack makeDisplaySelectButton(VivDisplay vivDisplay) {
+        Material material;
+        if (vivDisplay.display instanceof BlockDisplay) {
+            material = ((BlockDisplay) vivDisplay.display).getBlock().getMaterial();
+        } else if (vivDisplay.display instanceof ItemDisplay) {
+            ItemStack itemStack = ((ItemDisplay) vivDisplay.display).getItemStack();
+            material = itemStack.getType();
+        } else {
+            material = Material.BARRIER;
+        }
+
+        ItemStack button = new ItemStack(material);
+        String name = vivDisplay.displayName;
+
+        button = itemManipulation.itemWithName(button, name);
+
+        ItemMeta buttonMeta = button.getItemMeta();
+        PersistentDataContainer dataContainer = buttonMeta.getPersistentDataContainer();
+        UUID displayUUID = vivDisplay.display.getUniqueId();
+        dataContainer.set(new NamespacedKey(CommandHandler.getPlugin(), "displayUUID"), PersistentDataType.STRING, displayUUID.toString());
+
+        button.setItemMeta(buttonMeta);
+
+        if (!name.isEmpty()){
+            return itemManipulation.addEnchantmentGlint(button);
+        }
+        return button;
+    }
+
     public static Inventory displayNearbyGUIBuilder(List<VivDisplay> nearbyVivDisplays) {
         if (itemManipulation == null) itemManipulation = new ItemManipulation();
 
@@ -102,42 +132,35 @@ public class GUIHandler {
         int maxDisplaysToShow = 10;
         int renamedCount = 0;
         for (int index = 0; index < maxDisplaysToShow && index < nearbyVivDisplays.size(); index++) {
-            Material material;
             VivDisplay vivDisplay = nearbyVivDisplays.get(index);
-            if (vivDisplay.display instanceof BlockDisplay) {
-                material = ((BlockDisplay) vivDisplay.display).getBlock().getMaterial();
-            } else if (vivDisplay.display instanceof ItemDisplay) {
-                ItemStack itemStack = ((ItemDisplay) vivDisplay.display).getItemStack();
-                assert itemStack != null;
-                material = itemStack.getType();
-            } else {
-                material = Material.BARRIER;
-            }
 
-            ItemStack button = new ItemStack(material);
-            String name = vivDisplay.displayName;
+            ItemStack button = makeDisplaySelectButton(vivDisplay);
 
-            button = itemManipulation.itemWithName(button, name);
-
-            ItemMeta buttonMeta = button.getItemMeta();
-            if (buttonMeta == null) continue; // shouldn't happen but makes the yellow squiggle go away & feels more explicit than an assertion-
-
-            PersistentDataContainer dataContainer = buttonMeta.getPersistentDataContainer();
-            UUID displayUUID = vivDisplay.display.getUniqueId();
-            dataContainer.set(new NamespacedKey(CommandHandler.getPlugin(), "displayUUID"), PersistentDataType.STRING, displayUUID.toString());
-
-            button.setItemMeta(buttonMeta);
-
-            if (!name.isEmpty() || vivDisplay.isParent) { // add renamed or parented displays at end, otherwise at begin
-                button = itemManipulation.addEnchantmentGlint(button);
+            if (!Objects.requireNonNull(button.getItemMeta()).getDisplayName().isEmpty() || vivDisplay.isParent) { // add renamed or parented displays at end, otherwise at begin
+                // todo: sort these alphabetically by name, left to right, and give them enough room to show them top to bottom-
+                //      or just add them like this but from z to a
                 inventory.setItem(53-renamedCount, button);
                 renamedCount++;
             } else {
                 inventory.setItem(index-renamedCount, button);
             }
-
         }
+        return inventory;
+    }
 
+    public static Inventory displayGroupShowGUIBuilder(List<VivDisplay> hierarchy) {
+        Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayGroupShowGUITitle"));
+        int parentCount = 0;
+        for (int i = 0; i < hierarchy.size(); i++) {
+            VivDisplay thisVivDisplay = hierarchy.get(i);
+            ItemStack button = makeDisplaySelectButton(thisVivDisplay);
+            if (thisVivDisplay.isParent) { // add parented displays at end, otherwise at begin
+                inventory.setItem(9+parentCount, button);
+                parentCount++;
+            } else {
+                inventory.setItem(18+i-parentCount, button);
+            }
+        }
         return inventory;
     }
 }

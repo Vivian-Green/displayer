@@ -178,7 +178,6 @@ public final class EventListeners extends JavaPlugin implements Listener {
         ItemMeta itemMeta = clickedItem.getItemMeta();
         if (itemMeta == null) return; // no metadata?
 
-
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
         Player player = (Player) event.getWhoClicked();
 
@@ -209,6 +208,10 @@ public final class EventListeners extends JavaPlugin implements Listener {
         if (event.getView().getTitle().equals(Texts.getText("displayNearbyGUITitle"))) {
             event.setCancelled(true);
             onDisplayNearbyGUIClick(event);
+        }
+        if(event.getView().getTitle().equals(Texts.getText("displayGroupShowGUITitle"))){
+            event.setCancelled(true);
+            onDisplayNearbyGUIClick(event); // todo: oop
         }
     }
 

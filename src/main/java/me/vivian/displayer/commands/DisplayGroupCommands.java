@@ -1,6 +1,7 @@
 package me.vivian.displayer.commands;
 
 import me.vivian.displayer.config.Texts;
+import me.vivian.displayerutils.GUIHandler;
 import me.vivian.displayerutils.ParticleHandler;
 import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.DisplayHandler;
@@ -9,8 +10,10 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.joml.Vector3d;
 
+import java.util.List;
 import java.util.Map;
 
 public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
@@ -179,12 +182,17 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
             return;
         }
 
-        // Spawn particles at every display in the hierarchy
-        Particle particle = null;
-        int particleCount = 5000;
-        ParticleHandler.spawnParticlesAtHierarchy(selectedVivDisplay, particle, particleCount);
+        List<VivDisplay> hierarchy = DisplayGroupHandler.getAllDisplaysInHierarchy(selectedVivDisplay);
+        if (hierarchy == null) {
+            System.out.println("hierarchy is null"); // todo: warn
+            return;
+        }
+
+        Inventory inventory = GUIHandler.displayGroupShowGUIBuilder(hierarchy);
+        player.openInventory(inventory);
 
         // Send a success message to the player
+        // todo: lel?
         CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayGroupShowSuccess"));
     }
 }

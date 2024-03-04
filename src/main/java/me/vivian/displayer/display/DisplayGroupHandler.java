@@ -126,7 +126,7 @@ public class DisplayGroupHandler {
     }
 
 
-    private static List<VivDisplay> getAllDescendants(VivDisplay parentVivDisplay){
+    public static List<VivDisplay> getAllDescendants(VivDisplay parentVivDisplay){
         return getAllDescendants(parentVivDisplay, 0);
     }
 

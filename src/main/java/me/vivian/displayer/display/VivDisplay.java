@@ -1,5 +1,6 @@
 package me.vivian.displayer.display;
 
+import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayerutils.NBTMagic;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
@@ -11,6 +12,7 @@ import org.joml.Quaternionf;
 import org.bukkit.Location;
 import org.joml.Vector3d;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -375,5 +377,9 @@ public class VivDisplay{
     public Vector3d getPosition() {
         Location location = display.getLocation();
         return new Vector3d(location.getX(), location.getY(), location.getZ());
+    }
+
+    public List<VivDisplay> getDescendants(){
+        return DisplayGroupHandler.getAllDescendants(this);
     }
 }
