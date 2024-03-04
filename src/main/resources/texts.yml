@@ -2,12 +2,13 @@
 # empty errors simply won't be sent
 errors:
   noSelectedDisplay: 'You need to select a display first!'
+  invalidBlockDisplayItem: 'this item ($itemName) can''t be used in a block display!'
+    # accepts $itemName placeholder
 
   displayUsage: 'Usage: /display create | nearby [radius] | destroy [nearby] [maxCount] [radius] | gui | help'
-  displayNearbyFoundUnknownItem: 'createHyperlink(): This boy ain''t right. Was I passed a text display?'
-  displayClosestNotFound_Begin: 'No nearby Displays found within '
+  displayClosestNotFound_Begin: 'No nearby Displays found within ' # todo: will still send if empty, use placeholder
   displayClosestNotFound_End: ' blocks.'
-  displayNearbyNotFound_Begin: 'No nearby Displays found within '
+  displayNearbyNotFound_Begin: 'No nearby Displays found within ' # todo: will still send if empty, use placeholder
   displayNearbyNotFound_End: ' blocks.'
   displayCreateEmptyHand: 'You need to hold an item first!'
   displayGroupDisabled: 'display groups are disabled'
@@ -27,7 +28,7 @@ errors:
 
   displayGroupUsage: 'Usage: /displaygroup setparent <parentname>'
   displayGroupSetParentUsage: 'Usage: /displaygroup setparent <parentname>'
-  displayGroupSetParentNoParent_Begin: 'No nearby display with the name "'
+  displayGroupSetParentNoParent_Begin: 'No nearby display with the name "' # todo: will still send if empty, use placeholder
   displayGroupSetParentNoParent_End:  '" found.'
   displayGroupRotateUsage: 'Usage: /displaygroup rotate <xRotation> <yRotation> <zRotation>'
   displayGroupInvalidRotation: 'Invalid rotation. Please provide valid numbers for xRotation, yRotation, and zRotation.'

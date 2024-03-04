@@ -8,9 +8,13 @@ import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.*;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +23,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.MaterialData;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -106,14 +111,24 @@ public final class EventListeners extends JavaPlugin implements Listener {
             VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
             if (selectedVivDisplay == null) {
                 CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
-                // case should not be possible with the gui open unless another player deletes the display?
-                // even then, that won't update selectedVivDisplays, and this will be a problem anyway?
-                // todo: check if display exists in getSelectedVivDisplay?
                 return;
             }
             // player has selected a display, and clicked on the replaceitem button in the display gui while holding an item
 
-            // todo: handle block display item is not block
+            // if BlockDisplay, return if item can't be a block
+            // todo: how does this handle block entities?
+            if (selectedVivDisplay.display instanceof BlockDisplay) {
+                Material material = cursorItem.getType();
+                BlockData blockData;
+                try {
+                    blockData = material.createBlockData();
+                } catch (Exception IllegalArgumentException){
+                    // failed to create a BlockData from cursorItem Material, so it can't be placed in a BlockDisplay
+                    String errStr = errMap.get("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
+                    CommandHandler.sendPlayerMsgIfMsg(player, errStr);
+                    return;
+                }
+            }
 
             // change item slot in gui
             ItemStack newItemStack = cursorItem.clone();
@@ -129,6 +144,8 @@ public final class EventListeners extends JavaPlugin implements Listener {
             selectedVivDisplay.replaceItem(newItemStack);
             return;
         }
+
+
 
         if (slot >= event.getInventory().getSize()) return; // normal button, ignore clicks outside gui
 
