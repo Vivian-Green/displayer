@@ -1,7 +1,6 @@
 package me.vivian.displayer.display;
 
 import me.vivian.displayerutils.NBTMagic;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
@@ -35,21 +34,17 @@ public class VivDisplay{
     public boolean isParent;
 
     public VivDisplay(Plugin thisPlugin, Display thisDisplay) {
-        // todo: handle null
-        plugin = thisPlugin;
         display = thisDisplay;
-        nbtm = new NBTMagic(plugin);
-
-        displayName = nbtm.getNBT(display, "VivDisplayName", String.class);
-        parentUUID = nbtm.getNBT(display, "VivDisplayParentUUID", String.class);
-        isChild = nbtm.getNBT(display, "VivDisplayIsChild", Boolean.class);
-        isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
+        init(thisPlugin);
     }
 
     public VivDisplay(Plugin thisPlugin, World world, Location location, EntityType entityType, Object displayData) {
-        // todo: handle null
-        plugin = thisPlugin;
         display = createDisplay(world, location, entityType, displayData);
+        init(thisPlugin);
+    }
+
+    public void init(Plugin thisPlugin){
+        plugin = thisPlugin;
         nbtm = new NBTMagic(plugin);
 
         displayName = nbtm.getNBT(display, "VivDisplayName", String.class);
@@ -95,7 +90,7 @@ public class VivDisplay{
     public void destroy(Player player, Map<String, VivDisplay> vivDisplays, Map<Player, VivDisplay> selectedVivDisplays) {
         if (display != null) {
             try {
-                player.getWorld().dropItemNaturally(display.getLocation(), getItemStackFromDisplay(display));
+                player.getWorld().dropItemNaturally(display.getLocation(), DisplayHandler.getItemStackFromDisplay(display));
             } catch (Exception e) {
                 System.out.println("destroyDisplay(): Failed to spawn item on display destroy. Is this an unsupported display type?");
                 System.out.println("destroyDisplay(): Destroying anyway after this stack trace:");
@@ -124,45 +119,23 @@ public class VivDisplay{
         }
     }
     public ItemStack getItemStack() {
-        return getItemStackFromDisplay(display);
+        return DisplayHandler.getItemStackFromDisplay(display);
     }
 
-    /**
-     * Retrieves an ItemStack from a (display).
-     *
-     * @param display The Display to get the ItemStack from.
-     * @return The ItemStack representing the Display, or null if unsupported.
-     */
-    public static ItemStack getItemStackFromDisplay(Display display) {
-        // todo: consider switch statement when adding TextDisplay
-        if (display instanceof ItemDisplay) {
-            // If ItemDisplay, return its ItemStack directly
-            ItemDisplay itemDisplay = (ItemDisplay) display;
-            return itemDisplay.getItemStack();
-        } else if (display instanceof BlockDisplay) {
-            // If BlockDisplay, create an ItemStack based on the block material
-            BlockDisplay blockDisplay = (BlockDisplay) display;
-            Material material = blockDisplay.getBlock().getMaterial();
-            return new ItemStack(material, 1);
-        } else {
-            System.out.println("getItemStackFromDisplay(): Unsupported display type");
-            return null;
-        }
-    }
-
-    public ItemStack replaceItem(ItemStack newItem){
-        ItemStack oldItem = getItemStackFromDisplay(display);
+    public void replaceItem(ItemStack newItem){
+        ItemStack oldItem = getItemStack();
+        newItem.setAmount(1);
 
         if (display instanceof ItemDisplay) {
             ItemDisplay itemDisplay = (ItemDisplay) display;
             itemDisplay.setItemStack(newItem);
-
         } else if (display instanceof BlockDisplay) {
             BlockDisplay blockDisplay = (BlockDisplay) display;
             BlockData blockData = newItem.getType().createBlockData();
             blockDisplay.setBlock(blockData);
         }
-        return oldItem;
+
+        display.getWorld().dropItem(display.getLocation(), oldItem);
     }
 
     /**

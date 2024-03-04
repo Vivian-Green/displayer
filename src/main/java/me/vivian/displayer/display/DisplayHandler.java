@@ -4,10 +4,9 @@ import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayer.config.Texts;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
@@ -178,5 +177,28 @@ public class DisplayHandler {
         }
 
         return selectedVivDisplay;
+    }
+
+    /**
+     * Retrieves an ItemStack from a (display).
+     *
+     * @param display The Display to get the ItemStack from.
+     * @return The ItemStack representing the Display, or null if unsupported.
+     */
+    public static ItemStack getItemStackFromDisplay(Display display) {
+        // todo: consider switch statement when adding TextDisplay
+        if (display instanceof ItemDisplay) {
+            // If ItemDisplay, return its ItemStack directly
+            ItemDisplay itemDisplay = (ItemDisplay) display;
+            return itemDisplay.getItemStack();
+        } else if (display instanceof BlockDisplay) {
+            // If BlockDisplay, create an ItemStack based on the block material
+            BlockDisplay blockDisplay = (BlockDisplay) display;
+            Material material = blockDisplay.getBlock().getMaterial();
+            return new ItemStack(material, 1);
+        } else {
+            System.out.println("getItemStackFromDisplay(): Unsupported display type");
+            return null;
+        }
     }
 }

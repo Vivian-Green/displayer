@@ -74,27 +74,62 @@ public final class EventListeners extends JavaPlugin implements Listener {
         int slot = event.getRawSlot();
 
         // ensure the clicked slot is gui (not player inv)
-        if (slot < 0 || slot >= event.getInventory().getSize()) {
-            return;
+        if (slot < 0) return;
+        if (slot < event.getInventory().getSize()) {
+            event.setCancelled(true);
         }
 
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
 
-        if (row == 5 && column == 7) {
-            // If the clicked slot is at row 5, column 7, close the GUI and autofill the command
+        // todo: switch?
+        if (slot == 52) { // row == 5 && column == 7
+            // If the clicked slot rename button, close the GUI and autofill the command
             player.closeInventory();
             String command = "/display rename ";
             String json = String.format("{\"text\":\"Click to rename this display\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"%s\"}}", command);
             player.performCommand("tellraw " + player.getName() + " " + json);
-
             return;
         }
 
-        if (slot == 0) {
+        if (slot == 0) { // row == 0 && column == 0
             player.closeInventory();
             player.performCommand("display nearby");
+            return;
         }
+
+        if (slot == 53) { // row == 5 && column == 8
+            // mise en place
+            ItemStack cursorItem = player.getItemOnCursor();
+            if (cursorItem.getType() == Material.AIR || cursorItem.getAmount() <= 0) return;
+
+            VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+            if (selectedVivDisplay == null) {
+                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+                // case should not be possible with the gui open unless another player deletes the display?
+                // even then, that won't update selectedVivDisplays, and this will be a problem anyway?
+                // todo: check if display exists in getSelectedVivDisplay?
+                return;
+            }
+            // player has selected a display, and clicked on the replaceitem button in the display gui while holding an item
+
+            // todo: handle block display item is not block
+
+            // change item slot in gui
+            ItemStack newItemStack = cursorItem.clone();
+            ItemMeta itemMeta = newItemStack.getItemMeta();
+            itemMeta.setDisplayName("change display item"); // todo: config this, ctrl+shift+f
+            newItemStack.setAmount(1);
+            event.getInventory().setItem(slot, newItemStack);
+
+            // replace item in display & drop old one
+            cursorItem.setAmount(cursorItem.getAmount() - 1);
+            player.setItemOnCursor(cursorItem);
+            selectedVivDisplay.replaceItem(newItemStack);
+            return;
+        }
+
+        if (slot >= event.getInventory().getSize()) return; // normal button, ignore clicks outside gui
 
         // Regular click: 1x
         // Shift click: 10x
@@ -152,7 +187,6 @@ public final class EventListeners extends JavaPlugin implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getView().getTitle().equals("display GUI")) { // todo: config this, ctrl+shift+f
-            event.setCancelled(true);
             onDisplayGUIClick(event);
         }
         if (event.getView().getTitle().equals("nearby displays")) { // todo: config this, ctrl+shift+f

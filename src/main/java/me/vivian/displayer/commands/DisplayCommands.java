@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 import java.util.Map;
@@ -164,10 +165,8 @@ public class DisplayCommands {
         }
 
         ItemStack newItem = player.getInventory().getItemInMainHand();
-        newItem.setAmount(1); // ensure no item duping-
 
-        ItemStack oldItem = selectedDisplay.replaceItem(newItem);
-        player.getWorld().dropItem(selectedDisplay.display.getLocation(), oldItem);
+        selectedDisplay.replaceItem(newItem);
 
         // todo: check for creative mode before taking shit, also whatever perms are good enough for that idk
         // todo: dry? since this check is needed twice now
@@ -219,6 +218,13 @@ public class DisplayCommands {
      */
     static void handleDisplayGUICommand(Player player) {
         Inventory inventory = GUIHandler.displayGUIBuilder();
+
+        ItemStack itemStack = CommandHandler.selectedVivDisplays.get(player).getItemStack();
+        itemStack.setAmount(1);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.setDisplayName("change display item"); // todo: config this, ctrl+shift+f
+        inventory.setItem(53, itemStack);
+
         player.openInventory(inventory);
     }
 }
