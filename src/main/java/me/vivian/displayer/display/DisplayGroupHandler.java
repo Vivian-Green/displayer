@@ -24,7 +24,12 @@ public class DisplayGroupHandler {
             return;
         }
         System.out.println(vivDisplay.displayName);
+
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
+        if (hierarchy == null) {
+            System.out.println("translateHierarchy: hierarchy is null"); // todo: warn
+            return;
+        }
 
         // Translate all VivDisplays in the hierarchy
         for (VivDisplay vivDisplayToTranslate : hierarchy) {
@@ -37,10 +42,15 @@ public class DisplayGroupHandler {
         // Get all displays in the hierarchy
         if (vivDisplay == null) {
             System.out.println("resizeHierarchy: vivDisplay is null");
-        } else {
-            System.out.println(vivDisplay.displayName);
+            return;
         }
+        System.out.println(vivDisplay.displayName);
+
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
+        if (hierarchy == null) {
+            System.out.println("resizeHierarchy: hierarchy is null"); // todo: warn
+            return;
+        }
 
         // Get the position of the highest parent
         Vector3d parentPosition = hierarchy.get(0).getPosition();
@@ -158,7 +168,12 @@ public class DisplayGroupHandler {
         }
 
         List<VivDisplay> hierarchy = getAllDescendants(topmostParent);
-        //hierarchy.add(vivDisplay); // todo: is this line necessary?
+        if (hierarchy == null) {
+            System.out.println("translateHierarchy: hierarchy is null"); // todo: warn
+            return null;
+        }
+
+        hierarchy.add(vivDisplay); // todo: is this line necessary?
         System.out.println(vivDisplay.displayName);
         return hierarchy;
     }
@@ -296,21 +311,29 @@ public class DisplayGroupHandler {
 
     // Function to rotate all displays in a hierarchy
     public static void rotateHierarchy(VivDisplay vivDisplay, Vector3d rotation) {
+        // mise en place
         if (vivDisplay == null) {
-            System.out.println("translateHierarchy: vivDisplay is null");
+            System.out.println("rotateHierarchy: vivDisplay is null");
         } else {
             System.out.println(vivDisplay.displayName);
             System.out.println("rotateHierarchy rot (euler): " + rotation.x + ", " + rotation.y + ", " + rotation.z);
         }
-        // Get all displays in the hierarchy
-        List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
 
-        // Get the highest VivDisplay in the hierarchy
+        List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
+        if (hierarchy == null) {
+            System.out.println("rotateHierarchy: hierarchy is null"); // todo: warn
+            return;
+        }
+
         VivDisplay highestVivDisplay = getHighestVivDisplay(vivDisplay);
+        if (highestVivDisplay == null) {
+            System.out.println("rotateHierarchy: highestVivDisplay is null"); // todo: warn
+            return;
+        }
 
         Location rotationCenter = highestVivDisplay.display.getLocation();
         Vector3d rotationCenterPos = new Vector3d(rotationCenter.getX(), rotationCenter.getY(), rotationCenter.getZ());
-        // Rotate all VivDisplays in the hierarchy
+
         for (VivDisplay vivDisplayToRotate: hierarchy) {
             rotateVivDisplayAroundPoint(vivDisplayToRotate, rotationCenterPos, rotation);
         }

@@ -84,8 +84,13 @@ public final class EventListeners extends JavaPlugin implements Listener {
         if (row == 5 && column == 7) {
             // If the clicked slot is at row 5, column 7, close the GUI and autofill the command
             player.closeInventory();
-            player.chat("/advdisplay rename ");
+            player.chat("/advdisplay rename "); // todo: this sends- lmao
             return;
+        }
+
+        if (slot == 0) {
+            player.closeInventory();
+            player.performCommand("display nearby");
         }
 
         // Regular click: 1x
@@ -130,7 +135,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         String UUIDStr = dataContainer.get(new NamespacedKey(CommandHandler.getPlugin(), "displayUUID"), PersistentDataType.STRING);
 
         // Perform your desired action with the display UUID
-        player.performCommand("/advdisplay select " + UUIDStr);
+        player.performCommand("advdisplay select " + UUIDStr);
     }
 
 
@@ -202,7 +207,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
 
         Material heldItemMaterial = player.getInventory().getItemInMainHand().getType();
-        if (!(heldItemMaterial == Material.LEAD || heldItemMaterial == Material.SPECTRAL_ARROW)) return;
+        if (!(heldItemMaterial == Material.LEAD || heldItemMaterial == Material.BLAZE_ROD)) return;
 
         Vector3d from = new Vector3d(event.getFrom().getX(), event.getFrom().getY(), event.getFrom().getZ());
         Vector3d to = new Vector3d(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ());
@@ -219,7 +224,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
             if (heldItemMaterial == Material.LEAD) {
                 DisplayGroupHandler.translateHierarchy(selectedVivDisplay, delta);
             }
-            if (heldItemMaterial == Material.SPECTRAL_ARROW) {
+            if (heldItemMaterial == Material.BLAZE_ROD) {
                 DisplayGroupHandler.resizeHierarchy(selectedVivDisplay, (float) ((delta.x+delta.y+delta.z)*0.1+1));
             }
 
@@ -227,7 +232,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
             if (heldItemMaterial == Material.LEAD) {
                 selectedVivDisplay.changePosition(delta);
             }
-            if (heldItemMaterial == Material.SPECTRAL_ARROW) {
+            if (heldItemMaterial == Material.BLAZE_ROD) {
                 selectedVivDisplay.changeScale((delta.x+delta.y+delta.z)*0.1, null);
             }
         }

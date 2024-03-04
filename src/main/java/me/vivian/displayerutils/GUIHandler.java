@@ -66,6 +66,7 @@ public class GUIHandler {
         Material posButtonMaterial = Material.ORANGE_CONCRETE;
         Material rotButtonMaterial = Material.LIME_CONCRETE;
         Material sizeButtonMaterial = Material.LIGHT_BLUE_CONCRETE;
+        Material backButtonMaterial = Material.REDSTONE_BLOCK;
 
         // buttons
         createPlusMinusButtonsAtXY(inventory, posButtonMaterial, "x", 1, 1); // pos // todo: config this
@@ -84,6 +85,8 @@ public class GUIHandler {
         createButtonAtXY(inventory, Material.BLAZE_ROD, "resize tool", 7, 3);
 
         createButtonAtXY(inventory, Material.WRITABLE_BOOK, "rename", 7, 5);
+
+        createButtonAtXY(inventory, backButtonMaterial, "nearby displays", 0, 0);
 
         // book
         itemManipulation.setInventoryItemXY(inventory, makeGUIBook(), 0, 5);
@@ -107,11 +110,15 @@ public class GUIHandler {
                 assert itemStack != null;
                 material = itemStack.getType();
             } else {
-                material = Material.AIR;
+                material = Material.BARRIER;
             }
 
             ItemStack button = new ItemStack(material);
-            String name = vivDisplay.display.getName();
+            String name = vivDisplay.displayName;
+            if (!name.isEmpty() || vivDisplay.isParent) {
+                button = itemManipulation.addEnchantmentGlint(button);
+            }
+
             button = itemManipulation.itemWithName(button, name);
 
             ItemMeta buttonMeta = button.getItemMeta();

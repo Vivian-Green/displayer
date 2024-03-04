@@ -15,6 +15,7 @@
 - display select wand
 - wand materials config?
 </br></br>
+- /displaygroup setparent gui
 - ensure no parent time travel alabama ouroborosing
 - display unselect command OR auto-unselect after time
 - move armor stand conversion to command or tool instead of on interact

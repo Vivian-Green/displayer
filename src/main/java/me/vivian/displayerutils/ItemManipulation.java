@@ -2,6 +2,7 @@ package me.vivian.displayerutils;
 
 import me.vivian.displayer.config.Texts;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -117,6 +118,13 @@ public class ItemManipulation {
         itemMeta.setLore(lore);
         itemStack.setItemMeta(itemMeta);
         return itemStack;
+    }
+
+    public ItemStack addEnchantmentGlint(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        meta.addEnchant(Enchantment.DURABILITY, 1, true);
+        item.setItemMeta(meta);
+        return item;
     }
 }
 
