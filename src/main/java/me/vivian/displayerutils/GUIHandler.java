@@ -61,7 +61,7 @@ public class GUIHandler {
         if (itemManipulation == null) itemManipulation = new ItemManipulation();
         // todo: move materials & names to config
 
-        Inventory inventory = Bukkit.createInventory(null, 54, "display GUI"); // todo: config this, ctrl+shift+f
+        Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayGUITitle"));
 
         Material posButtonMaterial = Material.ORANGE_CONCRETE;
         Material rotButtonMaterial = Material.LIME_CONCRETE;
@@ -69,7 +69,7 @@ public class GUIHandler {
         Material backButtonMaterial = Material.REDSTONE_BLOCK;
 
         // buttons
-        createPlusMinusButtonsAtXY(inventory, posButtonMaterial, "x", 1, 1); // pos // todo: config this
+        createPlusMinusButtonsAtXY(inventory, posButtonMaterial, "x", 1, 1); // pos // todo: config this?
         createPlusMinusButtonsAtXY(inventory, posButtonMaterial, "y", 2, 1);
         createPlusMinusButtonsAtXY(inventory, posButtonMaterial, "z", 3, 1);
 
@@ -80,13 +80,13 @@ public class GUIHandler {
         createPlusMinusButtonsAtXY(inventory, sizeButtonMaterial, "size", 7, 1); // size
 
         // tool displays
-        createButtonAtXY(inventory, Material.LEAD, "move tool", 2, 3); // todo: config this
-        createButtonAtXY(inventory, Material.SPECTRAL_ARROW, "rotate tool", 5, 3);
-        createButtonAtXY(inventory, Material.BLAZE_ROD, "resize tool", 7, 3);
+        createButtonAtXY(inventory, Material.LEAD, Texts.getText("displayGUIMovePanelDisplayName"), 2, 3);
+        createButtonAtXY(inventory, Material.SPECTRAL_ARROW, Texts.getText("displayGUIRotatePanelDisplayName"), 5, 3);
+        createButtonAtXY(inventory, Material.BLAZE_ROD, Texts.getText("displayGUIResizePanelDisplayName"), 7, 3);
 
-        createButtonAtXY(inventory, Material.WRITABLE_BOOK, "rename command", 7, 5);
+        createButtonAtXY(inventory, Material.WRITABLE_BOOK, Texts.getText("displayGUIRenameButtonDisplayName"), 7, 5);
 
-        createButtonAtXY(inventory, backButtonMaterial, "nearby displays", 0, 0);
+        createButtonAtXY(inventory, backButtonMaterial, Texts.getText("displayGUIBackButtonDisplayName"), 0, 0);
 
         // book
         itemManipulation.setInventoryItemXY(inventory, makeGUIBook(), 0, 5);
@@ -97,7 +97,7 @@ public class GUIHandler {
     public static Inventory displayNearbyGUIBuilder(List<VivDisplay> nearbyVivDisplays) {
         if (itemManipulation == null) itemManipulation = new ItemManipulation();
 
-        Inventory inventory = Bukkit.createInventory(null, 54, "nearby displays"); // todo: config this, ctrl+shift+f
+        Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayNearbyGUITitle"));
 
         int maxDisplaysToShow = 10;
         int renamedCount = 0;

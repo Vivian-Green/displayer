@@ -220,13 +220,19 @@ public class DisplayCommands {
         VivDisplay selectedDisplay = CommandHandler.selectedVivDisplays.get(player);
         if (selectedDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            // todo: 'try "/display create"'
+            //       'or "/display nearby"' hyperlinks? also, config that-
             return;
         }
-        
+
         ItemStack itemStack = selectedDisplay.getItemStack();
         itemStack.setAmount(1);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName("drop an item here to change display item"); // todo: config this, ctrl+shift+f
+        String name = Texts.getText("displayGUIReplaceItemButtonDisplayName");
+        if(name.isEmpty()){
+            name = "displayGUIReplaceItemButtonDisplayName";
+        }
+        itemMeta.setDisplayName(name);
         itemStack.setItemMeta(itemMeta);
 
         inventory.setItem(53, itemStack);

@@ -115,15 +115,14 @@ public final class EventListeners extends JavaPlugin implements Listener {
             }
             // player has selected a display, and clicked on the replaceitem button in the display gui while holding an item
 
-            // if BlockDisplay, return if item can't be a block
-            // todo: how does this handle block entities?
+            // if BlockDisplay, return if cursorItem Material can't be placed in a BlockDisplay
             if (selectedVivDisplay.display instanceof BlockDisplay) {
                 Material material = cursorItem.getType();
                 BlockData blockData;
                 try {
                     blockData = material.createBlockData();
                 } catch (Exception IllegalArgumentException){
-                    // failed to create a BlockData from cursorItem Material, so it can't be placed in a BlockDisplay
+                    // failed to create a BlockData
                     String errStr = errMap.get("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
                     CommandHandler.sendPlayerMsgIfMsg(player, errStr);
                     return;
@@ -133,7 +132,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
             // change item slot in gui
             ItemStack newItemStack = cursorItem.clone();
             ItemMeta itemMeta = newItemStack.getItemMeta();
-            itemMeta.setDisplayName("drop an item here to change display item"); // todo: config this, ctrl+shift+f
+            itemMeta.setDisplayName(Texts.getText("displayGUIReplaceItemButtonDisplayName"));
             newItemStack.setAmount(1);
             newItemStack.setItemMeta(itemMeta);
             event.getInventory().setItem(slot, newItemStack);
@@ -204,15 +203,13 @@ public final class EventListeners extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals("display GUI")) { // todo: config this, ctrl+shift+f
+        if (event.getView().getTitle().equals(Texts.getText("displayGUITitle"))) {
             onDisplayGUIClick(event);
         }
-        if (event.getView().getTitle().equals("nearby displays")) { // todo: config this, ctrl+shift+f
+        if (event.getView().getTitle().equals(Texts.getText("displayNearbyGUITitle"))) {
             event.setCancelled(true);
             onDisplayNearbyGUIClick(event);
         }
-
-
     }
 
     @EventHandler

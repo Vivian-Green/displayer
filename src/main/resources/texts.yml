@@ -46,6 +46,14 @@ messages:
   displayGroupTranslateSuccess: 'Successfully translated the selected display group.'
   displayGroupShowSuccess: 'Particles shown at every display in the group.'
 
+displayGUITitle: 'display GUI'
+displayNearbyGUITitle: 'nearby displays'
+displayGUIReplaceItemButtonDisplayName: 'drop an item here to change display item'
+displayGUIRenameButtonDisplayName: 'click to autofill rename command' # best I can do idk
+displayGUIMovePanelDisplayName: 'move'
+displayGUIRotatePanelDisplayName: 'rotate'
+displayGUIResizePanelDisplayName: 'resize'
+displayGUIBackButtonDisplayName: 'nearby displays'
 
 displayGUIBookTitle: 'controls'
 displayGUIBookAuthor: 'displayer'
