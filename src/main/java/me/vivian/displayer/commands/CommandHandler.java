@@ -109,6 +109,9 @@ public class CommandHandler implements CommandExecutor {
             case "replaceitem":
                 DisplayCommands.handleDisplayReplaceItemCommand(player);
                 break;
+            case "rename":
+                DisplayCommands.handleDisplayRenameCommand(player, args);
+                break;
             default:
                 CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayInvalidSubcommand"));
         }
@@ -138,9 +141,6 @@ public class CommandHandler implements CommandExecutor {
             case "setsize":
             case "changesize":
                 AdvDisplayCommands.handleAdvDisplaySizeCommand(player, args);
-                break;
-            case "rename":
-                AdvDisplayCommands.handleAdvDisplayRenameCommand(player, args);
                 break;
             case "details":
                 AdvDisplayCommands.handleAdvDisplayDetailsCommand(player);

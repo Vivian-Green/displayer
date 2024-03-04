@@ -1,5 +1,6 @@
 package me.vivian.displayer.commands;
 
+import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayerutils.ParticleHandler;
 import me.vivian.displayer.config.Texts;
@@ -8,6 +9,7 @@ import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.TransformMath;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 
@@ -16,7 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AdvDisplayCommands {
-
+    static FileConfiguration config = Config.getConfig();
     static Map<String, String> errMap = Texts.getErrors();
 
     /**
@@ -50,29 +52,6 @@ public class AdvDisplayCommands {
     }
 
     /**
-     * Handles the renaming of a (player)'s selected display by adding a custom NBT tag with a given arg name
-     *
-     * @param player The player who issued the command.
-     * @param args   Command arguments:
-     *               - /advdisplay rename <name>
-     */
-    static void handleAdvDisplayRenameCommand(Player player, String[] args) { // todo: move back to DisplayCommands
-        if (args.length < 2) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("advDisplayRenameUsage"));
-            return;
-        }
-        // Get the selected VivDisplay for the player
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
-        if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
-            return;
-        }
-
-        String name = args[1]; // Get the name to set
-        CommandHandler.sendPlayerMsgIfMsg(player, selectedVivDisplay.rename(name));
-    }
-
-    /**
      * Selects a display for the player given a UUID.
      *
      * @param player The player who issued the command.
@@ -93,7 +72,7 @@ public class AdvDisplayCommands {
             return;
         }
 
-        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, 5); // todo: config this-
+        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, config.getInt("maxSearchRadius"));
 
         // Find the VivDisplay with the specified UUID
         VivDisplay selectedVivDisplay = nearbyVivDisplays.stream()
@@ -101,13 +80,14 @@ public class AdvDisplayCommands {
                 .findFirst()
                 .orElse(null);
 
-        if (selectedVivDisplay != null) {
-            CommandHandler.selectedVivDisplays.put(player, selectedVivDisplay);
-            ParticleHandler.spawnParticle(selectedVivDisplay.display, null, null);
-
-            // open gui if selecting from here
-            player.performCommand("display gui");
+        if (selectedVivDisplay == null) {
+            return;
         }
+        CommandHandler.selectedVivDisplays.put(player, selectedVivDisplay);
+        ParticleHandler.spawnParticle(selectedVivDisplay.display, null, null);
+
+        // open gui if selecting from here
+        player.performCommand("display gui");
     }
 
 

@@ -122,6 +122,29 @@ public class DisplayCommands {
     }
 
     /**
+     * Handles the renaming of a (player)'s selected display by adding a custom NBT tag with a given arg name
+     *
+     * @param player The player who issued the command.
+     * @param args   Command arguments:
+     *               - /advdisplay rename <name>
+     */
+    static void handleDisplayRenameCommand(Player player, String[] args) { // todo: move back to DisplayCommands
+        if (args.length < 2) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("advDisplayRenameUsage"));
+            return;
+        }
+
+        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
+        if (selectedVivDisplay == null) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            return;
+        }
+
+        String name = args[1];
+        CommandHandler.sendPlayerMsgIfMsg(player, selectedVivDisplay.rename(name));
+    }
+
+    /**
      * /display replaceitem
      * If (player)'s held item is invalid or no selected display, warn (player)
      * Drops the display's old item at itself, taking 1 from the (player)'s held item

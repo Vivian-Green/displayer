@@ -100,6 +100,7 @@ public class GUIHandler {
         Inventory inventory = Bukkit.createInventory(null, 54, "nearby displays"); // todo: config this, ctrl+shift+f
 
         int maxDisplaysToShow = 10;
+        int renamedCount = 0;
         for (int index = 0; index < maxDisplaysToShow && index < nearbyVivDisplays.size(); index++) {
             Material material;
             VivDisplay vivDisplay = nearbyVivDisplays.get(index);
@@ -115,9 +116,6 @@ public class GUIHandler {
 
             ItemStack button = new ItemStack(material);
             String name = vivDisplay.displayName;
-            if (!name.isEmpty() || vivDisplay.isParent) {
-                button = itemManipulation.addEnchantmentGlint(button);
-            }
 
             button = itemManipulation.itemWithName(button, name);
 
@@ -130,7 +128,14 @@ public class GUIHandler {
 
             button.setItemMeta(buttonMeta);
 
-            inventory.setItem(index, button);
+            if (!name.isEmpty() || vivDisplay.isParent) { // add renamed or parented displays at end, otherwise at begin
+                button = itemManipulation.addEnchantmentGlint(button);
+                inventory.setItem(53-renamedCount, button);
+                renamedCount++;
+            } else {
+                inventory.setItem(index-renamedCount, button);
+            }
+
         }
 
         return inventory;

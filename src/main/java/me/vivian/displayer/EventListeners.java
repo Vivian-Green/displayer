@@ -84,7 +84,10 @@ public final class EventListeners extends JavaPlugin implements Listener {
         if (row == 5 && column == 7) {
             // If the clicked slot is at row 5, column 7, close the GUI and autofill the command
             player.closeInventory();
-            player.chat("/advdisplay rename "); // todo: this sends- lmao
+            String command = "/display rename ";
+            String json = String.format("{\"text\":\"Click to rename this display\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"%s\"}}", command);
+            player.performCommand("tellraw " + player.getName() + " " + json);
+
             return;
         }
 

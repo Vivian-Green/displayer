@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class AutoFill implements TabCompleter {
-    static final List<String> displaySubcommands = Arrays.asList("replaceitem", "create", "nearby", "closest", "destroy", "gui", "help");
-    static final List<String> advDisplaySubcommands = Arrays.asList("select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "rename", "details");
+    static final List<String> displaySubcommands = Arrays.asList("replaceitem", "create", "nearby", "closest", "destroy", "gui", "help", "rename");
+    static final List<String> advDisplaySubcommands = Arrays.asList("select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "details");
     static final List<String> displayGroupSubcommands = Arrays.asList("parent", "unparent", "copypaste", "show", "rotate", "translate");
 
     @Override
@@ -23,7 +23,7 @@ public class AutoFill implements TabCompleter {
 
         switch (lowerCaseCommandName) {
             case "display":
-                return handleDisplayerSubcommands(sender, args);
+                return handleDisplaySubcommands(sender, args);
             case "advdisplay":
                 return handleAdvDisplaySubcommands(sender, args);
             case "displaygroup":
@@ -34,7 +34,7 @@ public class AutoFill implements TabCompleter {
     }
 
 
-    private List<String> handleDisplayerSubcommands(CommandSender sender, String[] args) {
+    private List<String> handleDisplaySubcommands(CommandSender sender, String[] args) {
         if (args.length == 1) return displaySubcommands;
 
         List<String> completions = new ArrayList<> ();
