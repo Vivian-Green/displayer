@@ -40,10 +40,6 @@ errors:
 messages:
   displayNearbyHyperlinkText: '§9Click to select $DisplayTypeDisplayText $DisplayName holding $DisplayMaterial, $Distance blocks away' # $DisplayTypeDisplayText, $DisplayMaterial, $DisplayName, $Distance
   displayClosestSuccess: 'Closest Display selected.'
-  displayNearbyTitle: 'Nearby Displays:'
-  displayNearbyHyperlink_ItemDisplayDisplayText: 'Item Display'
-  displayNearbyHyperlink_BlockDisplayDisplayText: 'Block Display'
-  displayNearbyHyperlink_UnknownDisplayDisplayText: '[???]'
 
   displayGroupPasteSuccess: 'Successfully copied and pasted the selected Display''s hierarchy at your current location.'
   displayGroupRotateSuccess: 'Successfully rotated the selected Display''s hierarchy.'
@@ -51,11 +47,14 @@ messages:
   displayGroupShowSuccess: 'Particles shown at every display in the group.'
 
 
-displayGUIBookTitle: 'controls for /display gui'
+displayGUIBookTitle: 'controls'
 displayGUIBookAuthor: 'displayer'
 displayGUIBookLore:
   - 'click blocks above to move your whatever around'
   - 'right click (take half): 0.1x speed'
   - 'click: 1x speed'
   - 'shift click (take all): 10x speed'
+  - ' '
+  - '"/display gui" to reopen this menu'
+  - ' '
   - 'todo: rewrite this so the gui makes sense for bedrock players without being so long that it c'

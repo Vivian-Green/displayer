@@ -84,7 +84,7 @@ public class GUIHandler {
         createButtonAtXY(inventory, Material.SPECTRAL_ARROW, "rotate tool", 5, 3);
         createButtonAtXY(inventory, Material.BLAZE_ROD, "resize tool", 7, 3);
 
-        createButtonAtXY(inventory, Material.WRITABLE_BOOK, "rename", 7, 5);
+        createButtonAtXY(inventory, Material.WRITABLE_BOOK, "rename command", 7, 5);
 
         createButtonAtXY(inventory, backButtonMaterial, "nearby displays", 0, 0);
 

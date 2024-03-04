@@ -188,8 +188,6 @@ public class DisplayCommands {
 
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
-        CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayNearbyTitle"));
-
         Inventory inventory = GUIHandler.displayNearbyGUIBuilder(nearbyVivDisplays);
         player.openInventory(inventory);
     }
@@ -219,10 +217,16 @@ public class DisplayCommands {
     static void handleDisplayGUICommand(Player player) {
         Inventory inventory = GUIHandler.displayGUIBuilder();
 
-        ItemStack itemStack = CommandHandler.selectedVivDisplays.get(player).getItemStack();
+        VivDisplay selectedDisplay = CommandHandler.selectedVivDisplays.get(player);
+        if (selectedDisplay == null) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            return;
+        }
+        
+        ItemStack itemStack = selectedDisplay.getItemStack();
         itemStack.setAmount(1);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName("change display item"); // todo: config this, ctrl+shift+f
+        itemMeta.setDisplayName("drop an item here to change display item"); // todo: config this, ctrl+shift+f
         itemStack.setItemMeta(itemMeta);
 
         inventory.setItem(53, itemStack);

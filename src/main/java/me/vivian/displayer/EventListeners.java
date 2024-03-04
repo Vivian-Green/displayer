@@ -133,7 +133,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
             // change item slot in gui
             ItemStack newItemStack = cursorItem.clone();
             ItemMeta itemMeta = newItemStack.getItemMeta();
-            itemMeta.setDisplayName("change display item"); // todo: config this, ctrl+shift+f
+            itemMeta.setDisplayName("drop an item here to change display item"); // todo: config this, ctrl+shift+f
             newItemStack.setAmount(1);
             newItemStack.setItemMeta(itemMeta);
             event.getInventory().setItem(slot, newItemStack);
