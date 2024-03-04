@@ -120,6 +120,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
             ItemMeta itemMeta = newItemStack.getItemMeta();
             itemMeta.setDisplayName("change display item"); // todo: config this, ctrl+shift+f
             newItemStack.setAmount(1);
+            newItemStack.setItemMeta(itemMeta);
             event.getInventory().setItem(slot, newItemStack);
 
             // replace item in display & drop old one

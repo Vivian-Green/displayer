@@ -223,6 +223,8 @@ public class DisplayCommands {
         itemStack.setAmount(1);
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.setDisplayName("change display item"); // todo: config this, ctrl+shift+f
+        itemStack.setItemMeta(itemMeta);
+
         inventory.setItem(53, itemStack);
 
         player.openInventory(inventory);
