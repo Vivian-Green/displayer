@@ -209,7 +209,9 @@ public class AdvDisplayCommands {
 
         double newScale = isChange ? (currentSize + sizeArg) : sizeArg;
 
-        if (newScale > 0.0) {
+        newScale = Math.min(newScale, config.getInt("maxDisplaySize"));
+
+        if (newScale > 0.01) {
             transformation.getScale().set(newScale);
             selectedVivDisplay.display.setTransformation(transformation);
         } else {

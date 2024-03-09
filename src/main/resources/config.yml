@@ -2,6 +2,8 @@
 # allow display group commands (default: false)
 doDisplayGroups: false
 
+maxDisplaySize: 20
+
 # furthest distance to search when looking for nearby displays (default: 16)
 # high values might affect performance in large areas with a lot of displays
 maxSearchRadius: 16
