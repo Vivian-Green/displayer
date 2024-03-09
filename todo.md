@@ -1,6 +1,4 @@
 # display todos:
-- VivDisplay.getMaterial()
-- move /advdisplay rename to /display rename
 - remove tape from display GUI; call command funcs directly
 -
 - land claim integration

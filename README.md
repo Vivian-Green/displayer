@@ -79,11 +79,11 @@ Once the display is created, use the following items to manipulate it: (these wi
 - **/advdisplay changesize \<sizeOffset>**: Change the size for the selected display.
   - Example: `/advdisplay changesize -0.5`
 
-- **/advdisplay rename \<name>**: Set the name for a given display.
-  - Example: `/advdisplay rename DisplayeyMcDisplayFace`
+- **/display rename \<name>**: Set the name for a given display.
+  - Example: `/display rename DisplayeyMcDisplayFace`
 
 - **/advdisplay details**: Get details about the selected display.
-  - Example: `/advdisplay details`
+  - Example: `/display details`
 
 ### Display Group Commands:
 

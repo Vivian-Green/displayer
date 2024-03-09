@@ -127,7 +127,7 @@ public class DisplayCommands {
      *
      * @param player The player who issued the command.
      * @param args   Command arguments:
-     *               - /advdisplay rename <name>
+     *               - /display rename <name>
      */
     static void handleDisplayRenameCommand(Player player, String[] args) { // todo: move back to DisplayCommands
         if (args.length < 2) {

@@ -26,7 +26,7 @@ errors:
   advDisplayChangeSizeInvalid: 'Invalid size offset. Usage: /advdisplay changesize <size offset: number>'
   advDisplayDestroyUsage: 'Usage: /display destroy [nearby [max count] [radius]]'
   advDisplayInvalidSubcommand: 'Invalid subcommand for /advdisplay. Try /advdisplay help'
-  advDisplayRenameUsage: 'Usage: /advdisplay rename <name>'
+  advDisplayRenameUsage: 'Usage: /display rename <name>'
 
   displayGroupUsage: 'Usage: /displaygroup setparent <parentname>'
   displayGroupSetParentUsage: 'Usage: /displaygroup setparent <parentname>'

@@ -56,7 +56,7 @@ commands:
         usage: /advdisplay changesize <sizeOffset>
       rename:
         description: Set the name for a given display
-        usage: /advdisplay rename <name>
+        usage: /display rename <name>
       details:
         description: gives you the details of your selected display
         usage: /advdisplay details
