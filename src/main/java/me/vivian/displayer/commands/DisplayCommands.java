@@ -1,5 +1,8 @@
 package me.vivian.displayer.commands;
 
+import com.sk89q.worldedit.command.util.CreatureButcher;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.Flags;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.*;
 import me.vivian.displayer.config.Texts;
@@ -96,6 +99,14 @@ public class DisplayCommands {
      *               - /display create <name> [block/item] [atselected]
      */
     static void handleDisplayCreateCommand(Player player, String[] args) {
+        WorldGuardIntegration worldGuardIntegration = new WorldGuardIntegration();
+
+        if(!WorldGuardIntegration.canEditDisplay(player)) {
+            // todo: warn can't build here
+            System.out.println("can't build here idiot");
+            return;
+        }
+
         boolean isBlock = args.length >= 2 && Objects.equals(args[1], "block");
         boolean atSelected = args.length >= 3 && args[2].equalsIgnoreCase("atselected");
 
@@ -153,20 +164,27 @@ public class DisplayCommands {
      * @param player The player executing the command.
      */
     static void handleDisplayReplaceItemCommand(Player player) {
+
         if (!ItemManipulation.isHeldItemValid(player)) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateEmptyHand")); // todo: generic this name or use different label
             return;
         }
 
-        VivDisplay selectedDisplay = CommandHandler.selectedVivDisplays.get(player);
-        if (selectedDisplay == null) {
+        VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
+        if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            return;
+        }
+
+        if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
+            // todo: warn can't build here
+            System.out.println("can't build here idiot");
             return;
         }
 
         ItemStack newItem = player.getInventory().getItemInMainHand();
 
-        selectedDisplay.replaceItem(newItem);
+        selectedVivDisplay.replaceItem(newItem);
 
         // todo: check for creative mode before taking shit, also whatever perms are good enough for that idk
         // todo: dry? since this check is needed twice now
@@ -204,6 +222,13 @@ public class DisplayCommands {
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
         VivDisplay closestVivDisplay = nearbyVivDisplays.get(0);
+
+        if(!WorldGuardIntegration.canEditThisDisplay(player, closestVivDisplay)) {
+            // return on closest display can't be edited
+            // todo: warn player that they can't edit the closest display to them
+            return;
+        }
+
         CommandHandler.selectedVivDisplays.put(player, closestVivDisplay);
         ParticleHandler.spawnParticle(closestVivDisplay.display, null, null);
         CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayClosestSuccess"));

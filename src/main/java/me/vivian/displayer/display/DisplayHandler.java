@@ -3,6 +3,7 @@ package me.vivian.displayer.display;
 import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayer.config.Texts;
+import me.vivian.displayerutils.WorldGuardIntegration;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -63,6 +64,12 @@ public class DisplayHandler {
         // Destroy nearby displays up to the specified max count
         int destroyedCount = 0;
         for (VivDisplay vivDisplay: nearbyVivDisplays) {
+            if(!WorldGuardIntegration.canEditThisDisplay(player, vivDisplay)) {
+                // todo: warn can't build here
+                System.out.println("can't build here idiot");
+                continue;
+            }
+
             vivDisplay.destroy(player, CommandHandler.vivDisplays, CommandHandler.selectedVivDisplays);
             destroyedCount++;
 
@@ -111,6 +118,9 @@ public class DisplayHandler {
             if (!CommandHandler.vivDisplays.containsKey(displayUUID)) {
                 // Instantiate a new VivDisplay and add it to the list
                 VivDisplay vivDisplay = new VivDisplay(plugin, display);
+
+                if(!WorldGuardIntegration.canEditThisDisplay(player, vivDisplay)) continue; // ignore displays that can't be edited by this player
+
                 nearbyVivDisplays.add(vivDisplay);
 
                 // Add the newly created VivDisplay to the map with its UUID as the key
@@ -133,6 +143,12 @@ public class DisplayHandler {
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
         } else {
+            if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
+                // todo: warn can't build here
+                System.out.println("can't build here idiot");
+                return;
+            }
+
             selectedVivDisplay.destroy(player, CommandHandler.vivDisplays, CommandHandler.selectedVivDisplays);
         }
     }

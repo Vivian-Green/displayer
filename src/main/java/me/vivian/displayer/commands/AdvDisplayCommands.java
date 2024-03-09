@@ -7,6 +7,7 @@ import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.TransformMath;
+import me.vivian.displayerutils.WorldGuardIntegration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -29,7 +30,13 @@ public class AdvDisplayCommands {
     static void handleAdvDisplayDetailsCommand(Player player) { // todo: EW AAAAA GROSS EW NO
         // Get the selected VivDisplay for the player
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
-        if (selectedVivDisplay == null) {return;}
+
+        if (selectedVivDisplay == null) return;
+        if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
+            // todo: warn can't build here
+            System.out.println("can't build here idiot");
+            return;
+        }
 
         // Get display information directly from the selected VivDisplay
         Location displayLocation = TransformMath.locationRoundedTo(selectedVivDisplay.display.getLocation(), 2);
@@ -83,6 +90,13 @@ public class AdvDisplayCommands {
         if (selectedVivDisplay == null) {
             return;
         }
+
+        if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
+            // todo: warn can't build here
+            System.out.println("can't build here idiot");
+            return;
+        }
+
         CommandHandler.selectedVivDisplays.put(player, selectedVivDisplay);
         ParticleHandler.spawnParticle(selectedVivDisplay.display, null, null);
 
@@ -108,10 +122,16 @@ public class AdvDisplayCommands {
         }
 
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
-        if (selectedVivDisplay == null) {return;}
+        if (selectedVivDisplay == null) return;
+
+        if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
+            // todo: warn can't build here
+            System.out.println("can't build here idiot");
+            return;
+        }
 
         float[] rotationOffsets = CommandParsing.parseRotationOffsets(player, args);
-        if (rotationOffsets == null) {return;}
+        if (rotationOffsets == null) return;
 
         boolean success = isChange ?
                 selectedVivDisplay.changeRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2], player) :
@@ -143,6 +163,12 @@ public class AdvDisplayCommands {
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
         if (selectedVivDisplay == null) return;
 
+        if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
+            // todo: warn can't build here
+            System.out.println("can't build here idiot");
+            return;
+        }
+
         boolean success = isChange ?
                 selectedVivDisplay.changePosition(positionOffsets[0], positionOffsets[1], positionOffsets[2]) :
                 selectedVivDisplay.setPosition(positionOffsets[0], positionOffsets[1], positionOffsets[2], player);
@@ -167,6 +193,12 @@ public class AdvDisplayCommands {
 
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
         if (selectedVivDisplay == null) return; // todo: warn?
+
+        if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
+            // todo: warn can't build here
+            System.out.println("can't build here idiot");
+            return;
+        }
 
         Transformation transformation = selectedVivDisplay.display.getTransformation();
         double currentSize = transformation.getScale().x;

@@ -89,7 +89,7 @@ public class VivDisplay{
      * @param player      The player initiating the destruction.
      * @param vivDisplays The map of VivDisplays where the VivDisplay should be removed from.
      */
-    public void destroy(Player player, Map<String, VivDisplay> vivDisplays, Map<Player, VivDisplay> selectedVivDisplays) {
+    public void destroy(Player player, Map<String, VivDisplay> vivDisplays, Map<Player, VivDisplay> selectedVivDisplays) { // todo: unused??
         if (display != null) {
             try {
                 player.getWorld().dropItemNaturally(display.getLocation(), DisplayHandler.getItemStackFromDisplay(display));

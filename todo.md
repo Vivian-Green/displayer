@@ -1,6 +1,6 @@
 # display todos:
 - remove tape from display GUI; call command funcs directly
--
+
 - land claim integration
 - item frame (map) functionality
 - text display functionality
