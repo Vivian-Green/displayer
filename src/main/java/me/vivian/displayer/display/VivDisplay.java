@@ -55,7 +55,7 @@ public class VivDisplay{
         isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
     }
 
-    public Boolean isThisParent() {
+    public Boolean isParentDisplay() {
         isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
         return isParent;
     }
@@ -84,42 +84,44 @@ public class VivDisplay{
     }
 
     /**
-     * Destroys and removes the specified VivDisplay for the given player.
+     * Destroys this display by dropping its item stack and removing it from the cache.
      *
-     * @param player      The player initiating the destruction.
-     * @param vivDisplays The map of VivDisplays where the VivDisplay should be removed from.
+     * @param player              The player performing the display destruction.
      */
-    public void destroy(Player player, Map<String, VivDisplay> vivDisplays, Map<Player, VivDisplay> selectedVivDisplays) { // todo: unused??
-        if (display != null) {
+    public void destroy(Player player) { // todo: handle case player is null
+        Map<Player, VivDisplay> selectedVivDisplays = CommandHandler.selectedVivDisplays;
+
+        if (display!= null) {
             try {
-                player.getWorld().dropItemNaturally(display.getLocation(), DisplayHandler.getItemStackFromDisplay(display));
+                if (display instanceof BlockDisplay || display instanceof ItemDisplay) {
+                    display.getWorld().dropItemNaturally(display.getLocation(), DisplayHandler.getItemStackFromDisplay(display));
+                }
             } catch (Exception e) {
-                System.out.println("destroyDisplay(): Failed to spawn item on display destroy. Is this an unsupported display type?");
-                System.out.println("destroyDisplay(): Destroying anyway after this stack trace:");
-                e.printStackTrace();
-            } finally {
-                // Get the UUID of the display
-                String displayUUID = display.getUniqueId().toString();
-
-                display.remove();
-                player.sendMessage("Display destroyed.");
-
-                if (vivDisplays.containsKey(displayUUID)) {
-                    vivDisplays.remove(displayUUID);
-                } else {
-                    System.out.println("destroyDisplay(): Display not found in vivDisplays map.");
-                }
-                if (selectedVivDisplays.containsKey(player)) {
-                    selectedVivDisplays.remove(player);
-                } else {
-                    System.out.println("destroyDisplay(): Display not found in selectedVivDisplays map.");
-                }
+                System.out.println("Failed to drop item on display destruction: " + e.getMessage());
+            }
+            if (player != null) {
+                selectedVivDisplays.remove(player);
             }
         } else {
-            System.out.println("destroyDisplay(): tried to destroy a display that was null");
-            player.sendMessage("You must first select a Display");
+            /* this REALLY should not be an accessible path
+             considering it requires this, the VivDisplay calling it, to contain a null Display
+             and creating a VivDisplay requires a display entity
+             and destroying a display is impossible without a plugin (EG THIS METHOD) or commands*/
+
+            // Print a warning if the display was null
+            System.out.println("Tried to destroy a null display");
+            if (player != null) {
+                player.sendMessage("You must first select a display to destroy it.");
+            }
         }
+
+        display.remove();
     }
+
+    public void destroy(){
+        destroy(null);
+    }
+
     public ItemStack getItemStack() {
         return DisplayHandler.getItemStackFromDisplay(display);
     }

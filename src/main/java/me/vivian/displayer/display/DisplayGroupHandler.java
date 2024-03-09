@@ -116,9 +116,6 @@ public class DisplayGroupHandler {
             );
 
             copy.setPosition(newPosition.x, newPosition.y, newPosition.z, null);
-            // copy.setRotation(newLocation.getYaw(), newLocation.getPitch());
-            // Add the copy to the vivDisplays map
-            CommandHandler.vivDisplays.put(copy.display.getUniqueId().toString(), copy);
         }
 
         // Set the player's selected display back to what it was before copying
@@ -135,7 +132,9 @@ public class DisplayGroupHandler {
         if (depth >= config.getInt("maxSearchDepth")) return null;
 
         List<VivDisplay> descendants = new ArrayList<>();
-        for (VivDisplay vivDisplay: CommandHandler.vivDisplays.values()) {
+        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(parentVivDisplay.display.getLocation(), config.getInt("maxSearchRadius"), null);
+
+        for (VivDisplay vivDisplay: nearbyVivDisplays) {
             if (vivDisplay.parentUUID != null && vivDisplay.parentUUID.equals(parentVivDisplay.display.getUniqueId().toString())) {
                 // descendants.add(vivDisplay); // unnecessary yea?
 
@@ -178,29 +177,44 @@ public class DisplayGroupHandler {
         return hierarchy;
     }
 
-    public static VivDisplay getHighestVivDisplay(VivDisplay vivDisplay) {
+    public static VivDisplay getHighestVivDisplay(VivDisplay vivDisplay) { // todo: replace while loop with recursive calls
         if (vivDisplay == null) {
-            System.out.println("getHighestVivDisplay: vivDisplay is null"); // todo: warn
+            System.out.println("getHighestVivDisplay: vivDisplay is null"); // todo: warn?
             return null;
         } else {
             System.out.println(vivDisplay.displayName);
         }
 
+        ArrayList<String> parentChainUUIDs = null;
+
         int depthLeft = config.getInt("maxSearchDepth");
         while (depthLeft > 0 && vivDisplay.parentUUID != null) {
-            // todo: check for recursive trees
-            VivDisplay thisVivDisplay = CommandHandler.vivDisplays.get(vivDisplay.parentUUID);
-            if (thisVivDisplay == null) break;
+            // you have a dad somewhere
+
+            List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(vivDisplay.display.getLocation(), config.getInt("maxSearchRadius"), null);
+
+            for (VivDisplay nearbyVivDisplay: nearbyVivDisplays) {
+                // ask everyone nearby if they're your dad
+
+                if (nearbyVivDisplay.display.getUniqueId().toString().equals(vivDisplay.parentUUID)) {
+                    if (parentChainUUIDs.contains(nearbyVivDisplay.display.getUniqueId().toString())) {
+                        // this is your dad, but you're also his dad, so you have to come back with the milk
+                        return vivDisplay;
+                        // todo: err on creating this?
+                    }
+
+                    // you didn't make your dad
+                    vivDisplay = nearbyVivDisplay; // but now you are your dad
+                    parentChainUUIDs.add(nearbyVivDisplay.display.getUniqueId().toString());
+                    break; // so stop looking for him.. maybe he had a dad? Does he have the milk?
+                }
+            }
 
             depthLeft--;
-            vivDisplay = thisVivDisplay;
         }
-        return vivDisplay;
 
-        /*if (maxDepth < 1) {                    // leaving this here commented out bc- lmao-
-            // handle recursive group
-            return vivDisplay;
-        }*/
+        // fatherless
+        return vivDisplay;
     }
 
 
@@ -210,7 +224,7 @@ public class DisplayGroupHandler {
         VivDisplay copy = new VivDisplay(original.plugin, original.display);
         copy.displayName = original.displayName;
         copy.isChild = original.isChild;
-        copy.isParent = original.isThisParent();
+        copy.isParent = original.isParentDisplay();
         // Don't copy the parentUUID, because we'll set it when we paste the copy
         return copy;
     }

@@ -55,7 +55,7 @@ public class AdvDisplayCommands {
         // Send NBT data related to parent and child
         CommandHandler.sendPlayerAifBelseC(player, "Parent UUID: " + selectedVivDisplay.parentUUID, selectedVivDisplay.isChild);
 
-        player.sendMessage("Is Parent: " + selectedVivDisplay.isThisParent());
+        player.sendMessage("Is Parent: " + selectedVivDisplay.isParentDisplay());
     }
 
     /**
@@ -79,7 +79,7 @@ public class AdvDisplayCommands {
             return;
         }
 
-        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, config.getInt("maxSearchRadius"));
+        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player.getLocation(), config.getInt("maxSearchRadius"), player);
 
         // Find the VivDisplay with the specified UUID
         VivDisplay selectedVivDisplay = nearbyVivDisplays.stream()

@@ -202,7 +202,7 @@ public class DisplayCommands {
     static void handleDisplayNearbyCommand(Player player, String[] args) {
         double radius = CommandParsing.parseNumberFromArgs(args, 1, 1, 5, player, "Invalid radius specified.");
 
-        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, (int) radius);
+        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player.getLocation(), (int) radius, player);
 
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
@@ -217,7 +217,7 @@ public class DisplayCommands {
      */
     static void handleDisplayClosestCommand(Player player) {
         int radius = config.getInt("maxSearchRadius");
-        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player, radius);
+        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player.getLocation(), radius, player);
 
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
 

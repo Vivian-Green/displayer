@@ -46,7 +46,6 @@ public class DisplayHandler {
             vivDisplay.display.setRotation(player.getEyeLocation().getYaw(), player.getEyeLocation().getPitch());
         }
 
-        CommandHandler.vivDisplays.put(vivDisplay.display.getUniqueId().toString(), vivDisplay);
         CommandHandler.selectedVivDisplays.put(player, vivDisplay);
     }
 
@@ -59,7 +58,7 @@ public class DisplayHandler {
             return; // Invalid max count or radius, error message already sent in parsing functions
         }
 
-        List<VivDisplay> nearbyVivDisplays = getNearbyVivDisplays(player, (int) radius);
+        List<VivDisplay> nearbyVivDisplays = getNearbyVivDisplays(player.getLocation(), (int) radius, player);
 
         // Destroy nearby displays up to the specified max count
         int destroyedCount = 0;
@@ -70,7 +69,7 @@ public class DisplayHandler {
                 continue;
             }
 
-            vivDisplay.destroy(player, CommandHandler.vivDisplays, CommandHandler.selectedVivDisplays);
+            vivDisplay.destroy(player);
             destroyedCount++;
 
             if (destroyedCount >= maxCount) {
@@ -80,24 +79,23 @@ public class DisplayHandler {
     }
 
     // Gets Displays near a (player) within in a given (radius)
-    public static List<Display> getNearbyDisplays(Player player, double radius) {
+    public static List<Display> getNearbyDisplays(Location location, double radius) {
         // todo: MAX RADIUS
         double maxTaxicabDistance = Math.sqrt(3) * radius; // maximum taxicab distance
-        Location playerLocation = player.getLocation();
 
-        List<Display> allDisplays = (List<Display>) player.getWorld().getEntitiesByClass(Display.class);
+        List<Display> allDisplays = (List<Display>) location.getWorld().getEntitiesByClass(Display.class);
         List<Display> nearbyDisplays = new ArrayList<>();
         for (Display display: allDisplays) {
             Location displayLocation = display.getLocation();
 
-            double xDistance = Math.abs(playerLocation.getX() - displayLocation.getX());
-            double yDistance = Math.abs(playerLocation.getY() - displayLocation.getY());
-            double zDistance = Math.abs(playerLocation.getZ() - displayLocation.getZ());
+            double xDistance = Math.abs(location.getX() - displayLocation.getX());
+            double yDistance = Math.abs(location.getY() - displayLocation.getY());
+            double zDistance = Math.abs(location.getZ() - displayLocation.getZ());
 
             double totalDistance = xDistance + yDistance + zDistance;
 
             // do pythagorean after passing taxicab
-            if (totalDistance <= maxTaxicabDistance && playerLocation.distance(displayLocation) <= radius) {
+            if (totalDistance <= maxTaxicabDistance && location.distance(displayLocation) <= radius) {
                 nearbyDisplays.add(display);
             }
         }
@@ -105,34 +103,20 @@ public class DisplayHandler {
     }
 
     // Gets VivDisplay objects near the (player) within a given (radius), sorted by distance
-    public static List<VivDisplay> getNearbyVivDisplays(Player player, int radius) {
+    public static List<VivDisplay> getNearbyVivDisplays(Location location, int radius, Player player) {
         // todo: MAX RADIUS
         List<VivDisplay> nearbyVivDisplays = new ArrayList<>();
-        List<Display> nearbyDisplays = getNearbyDisplays(player, radius);
+        List<Display> nearbyDisplays = getNearbyDisplays(location, radius);
 
         for (Display display: nearbyDisplays) {
-            // Get the UUID of the display
-            String displayUUID = String.valueOf(display.getUniqueId());
-
-            // Check if it exists in the VivDisplays map
-            if (!CommandHandler.vivDisplays.containsKey(displayUUID)) {
-                // Instantiate a new VivDisplay and add it to the list
-                VivDisplay vivDisplay = new VivDisplay(plugin, display);
-
-                if(!WorldGuardIntegration.canEditThisDisplay(player, vivDisplay)) continue; // ignore displays that can't be edited by this player
-
-                nearbyVivDisplays.add(vivDisplay);
-
-                // Add the newly created VivDisplay to the map with its UUID as the key
-                CommandHandler.vivDisplays.put(displayUUID, vivDisplay);
-            } else {
-                nearbyVivDisplays.add(CommandHandler.vivDisplays.get(displayUUID));
-            }
+            nearbyVivDisplays.add(new VivDisplay(plugin, display));
         }
         nearbyVivDisplays.sort(Comparator.comparingDouble(vivDisplay -> vivDisplay.display.getLocation().distance(player.getLocation())));
 
         if (nearbyVivDisplays.isEmpty()) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayNearbyNotFound_Begin") + radius + errMap.get("displayNearbyNotFound_End"));
+            if (player != null) {
+                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayNearbyNotFound_Begin") + radius + errMap.get("displayNearbyNotFound_End"));
+            }
         }
 
         return nearbyVivDisplays;
@@ -149,7 +133,7 @@ public class DisplayHandler {
                 return;
             }
 
-            selectedVivDisplay.destroy(player, CommandHandler.vivDisplays, CommandHandler.selectedVivDisplays);
+            selectedVivDisplay.destroy(player);
         }
     }
 
@@ -171,7 +155,7 @@ public class DisplayHandler {
      */
     public static Display getVivDisplayByName(Player player, String displayName) { //todo: is this supposed to return a display & not a VivDisplay?
         // Get the nearby displays within a radius of 5 blocks
-        List<Display> nearbyDisplays = getNearbyDisplays(player, 5);
+        List<Display> nearbyDisplays = getNearbyDisplays(player.getLocation(), 5);
 
         // Find the first display with the specified "VivDisplayName" NBT tag equal to displayName
         for (Display display: nearbyDisplays) {

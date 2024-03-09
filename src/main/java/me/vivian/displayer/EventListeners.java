@@ -8,8 +8,6 @@ import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.*;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
@@ -23,7 +21,6 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -238,7 +235,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
             return;
         }
 
-        if (selectedVivDisplay.isThisParent()) {
+        if (selectedVivDisplay.isParentDisplay()) {
             if (heldItemMaterial == Material.LEAD){
                 System.out.println("-deltaYaw: " + -deltaYaw);
                 DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(0, 0, -deltaYaw));
@@ -275,7 +272,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
             return;
         }
 
-        if (selectedVivDisplay.isThisParent()) {
+        if (selectedVivDisplay.isParentDisplay()) {
             if (heldItemMaterial == Material.LEAD) {
                 DisplayGroupHandler.translateHierarchy(selectedVivDisplay, delta);
             }

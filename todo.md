@@ -5,10 +5,6 @@
 - text display functionality
 - import armorstand data from cmi
 </br></br>
-- max display size config
-- replace item in display GUI
-  </br></br>
-- display nearby GUI
 - display select wand
 - wand materials config?
 </br></br>
