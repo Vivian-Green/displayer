@@ -48,7 +48,7 @@ public class ItemManipulation {
      * @param invSize The size of the inventory.
      * @return        True if the slot index is out of bounds, otherwise false.
      */
-    public boolean isSlotOOB(Integer index, Integer invSize) {
+    public static boolean isSlotOOB(Integer index, Integer invSize) {
         if (index > invSize - 1) {
             System.out.println("Addressing out-of-bounds slot " + index + " of max " + (invSize - 1));
             return true;
@@ -64,7 +64,7 @@ public class ItemManipulation {
      * @param X          The X coordinate of the slot.
      * @param Y          The Y coordinate of the slot.
      */
-    public void setInventoryItemXY(Inventory inventory, ItemStack itemStack, Integer X, Integer Y) {
+    public static void setInventoryItemXY(Inventory inventory, ItemStack itemStack, Integer X, Integer Y) {
         // TODO URGENT: Ensure slot is empty first! This can delete shit!
 
         int index = Y * 9 + X;
@@ -97,7 +97,7 @@ public class ItemManipulation {
      * @param name  The new display name.
      * @return      The modified ItemStack.
      */
-    public ItemStack itemWithName(ItemStack itemStack, String name) {
+    public static ItemStack itemWithName(ItemStack itemStack, String name) {
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         if (!name.isEmpty()) itemMeta.setDisplayName(name);
@@ -120,7 +120,7 @@ public class ItemManipulation {
         return itemStack;
     }
 
-    public ItemStack addEnchantmentGlint(ItemStack item) {
+    public static ItemStack addEnchantmentGlint(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
         meta.addEnchant(Enchantment.DURABILITY, 1, true);
         item.setItemMeta(meta);

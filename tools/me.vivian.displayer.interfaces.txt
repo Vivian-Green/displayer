@@ -1,0 +1,257 @@
+public class GUIHandler {
+    public static ItemStack makeGUIBook() {}
+
+
+
+
+
+public class ItemManipulation {
+    public ItemManipulation() {}
+    public static void takeFromHeldItem(Player player) {}
+    public static boolean isHeldItemValid(Player player) {}
+    public boolean isSlotOOB(Integer index, Integer invSize) {}
+    public void setInventoryItemXY(Inventory inventory, ItemStack itemStack, Integer X, Integer Y) {}
+    public ItemStack getInventoryItemXY(Inventory inventory, Integer X, Integer Y) {}
+    public ItemStack itemWithName(ItemStack itemStack, String name) {}
+    public ItemStack itemWithLore(ItemStack itemStack, ArrayList<String> lore) {}
+    public ItemStack addEnchantmentGlint(ItemStack item) {}
+
+
+
+
+
+public class NBTMagic {
+    public NBTMagic(Plugin thisPlugin) {}
+}    private NamespacedKey getNamespacedKey(String key) {}
+    public PersistentDataContainer getNBTHolder(Entity entity) {}
+public <T> T getNBT(Entity entity, String key, Class<T> dataType) {
+    public <T> T getNBT(Entity entity, String key, Class<T> dataType) {}
+    public Boolean isBoolNBTNull(Entity entity, String key) {}
+    private void setNBTInner(Entity entity, String key, String value) {}
+    private void setNBTInner(Entity entity, String key, Integer value) {}
+    private void setNBTInner(Entity entity, String key, Double value) {}
+    private void setNBTInner(Entity entity, String key, Boolean value) {}
+    public <T> void setNBT(Entity entity, String key, T value) {}
+}    private void logNullValues(Entity entity, String key, Object value) {}
+
+
+
+
+
+public class ParticleHandler {
+    public static void spawnParticle(Display display, Particle particle, Integer count) {}
+    public static void spawnParticlesAtHierarchy(VivDisplay vivDisplay, Particle particle, int particleCount) {}
+    public static void drawParticleLine(Location loc1, Location loc2, Particle particle, Integer count) {}
+
+
+
+
+
+public class Texts {
+    public static void loadTexts() {}
+    public static FileConfiguration getTextsConfig() {}
+    public static String getText(String key) {}
+    public static List<String> getTexts(String key) {}
+    public static Map<String, String> loadMessages(String section) {}
+    public static Map<String, String> getErrors() {}
+    public static Map<String, String> getMessages() {}
+
+
+
+
+
+public class TransformMath {
+    public static float getTransRoll(Transformation transformation) {}
+    public static Quaternionf eulerToQuaternion(float yaw, float pitch, float roll) {}
+    public static float[] quaternionToEuler(Quaternionf quaternion) {}
+    public static double roundTo(double num, int places) {}
+    public static float roundTo(float num, int places) {}
+    public static Location locationRoundedTo(Location location, int places) {}
+
+
+
+
+
+public class Unused {
+    public Unused() {}
+    private boolean isWithinRadius(Location loc1, Location loc2, int radius) {}
+    public static void createHyperlink(Player player, VivDisplay vivDisplay) {}
+}
+
+
+
+
+public class VivDisplay{
+    public VivDisplay(Plugin thisPlugin, Display thisDisplay) {}
+    public VivDisplay(Plugin thisPlugin, World world, Location location, EntityType entityType, Object displayData) {}
+    public void init(Plugin thisPlugin){}
+}    public Boolean isThisParent() {}
+}    private Display createDisplay(World world, Location location, EntityType entityType, Object displayData) {}
+    public void destroy(Player player, Map<String, VivDisplay> vivDisplays, Map<Player, VivDisplay> selectedVivDisplays) {}
+    public ItemStack getItemStack() {}
+    public void replaceItem(ItemStack newItem){}
+    public String rename(String newName) {}
+    public String  setParent(Display parentDisplay) {}
+    public String unsetParent() {}
+}    public boolean changeScale(double sizeOffset, Player player) {}
+    public boolean setScale(double newSize, Player player) {}
+    public float getScale() {}
+    public boolean changeRotation(float yawOffset, float pitchOffset, float rollOffset, Player player) {}
+    public boolean setRotation(float yawOffset, float pitchOffset, float rollOffset, Player player) {}
+    public boolean changePosition(double xOffset, double yOffset, double zOffset) {}
+    public boolean changePosition(Vector3d offset) {}
+    public boolean setPosition(double x, double y, double z, Player player) {}
+    public Vector3d getPosition() {}
+    public List<VivDisplay> getDescendants(){}
+
+
+
+
+
+public class AdvDisplayCommands {
+    static void handleAdvDisplayDetailsCommand(Player player) {}
+        static void handleAdvDisplaySelectCommand(Player player, String[] args) {}
+        static void handleAdvDisplayRotationCommand(Player player, String[] args) {}
+                static void handleAdvDisplayPositionCommand(Player player, String[] args) {}
+                static void handleAdvDisplaySizeCommand(Player player, String[] args) {}
+
+
+
+
+
+public class ArmorStandClickHandler extends JavaPlugin implements Listener {
+    public static void onInteractWithArmorStand(PlayerInteractAtEntityEvent event) {}
+    public static Location getItemLocation(ArmorStand armorStand, boolean isLeftArm) {}
+    public static Location getArmTip(ArmorStand as, boolean isLeftArm) {}
+    public static Vector rotateVectorAroundY(Vector v, double yaw) {}
+    public static EulerAngle getArmRotation(ArmorStand armorStand, boolean isLeftArm) {}
+    public static Vector getArmDirection(ArmorStand armorStand, boolean isLeftArm) {}
+    public static Vector getDirection(double yaw, double pitch, double roll) {}
+    public static Vector eulerAngleToDirectionVector(EulerAngle eulerAngle) {}
+    public static Vector rotateVector(Vector v, Vector rotation) {}
+    public static void spawnDisplayEntity(Location itemLocation, ItemStack itemStack, double scale) {}
+
+
+
+
+
+public class AutoFill implements TabCompleter {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {}
+    private List<String> handleDisplaySubcommands(CommandSender sender, String[] args) {}
+    private List<String> handleAdvDisplaySubcommands(CommandSender sender, String[] args) {}
+    private List<String> handleDisplayGroupSubcommands(CommandSender sender, String[] args) {}
+
+
+
+
+
+public class CommandHandler implements CommandExecutor {
+    public CommandHandler(Plugin thisPlugin) {}
+    public static Plugin getPlugin() {}
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {}
+    public boolean onPlayerCommand(Player player, Command command, String label, String[] args) {}
+    public boolean onConsoleCommand(CommandSender sender, Command command, String label, String[] args) {}
+    public boolean onPlayerDisplayCommand(Player player, String[] args) {}
+    public boolean onPlayerAdvDisplayCommand(Player player, String[] args) {}
+    public boolean onPlayerDisplayGroupCommand(Player player, String[] args) {}
+    public static boolean sendPlayerMsgIfMsg(Player player, String message) {}
+    static boolean sendPlayerAifBelseC(Player player, String message, Boolean condition) {}
+    static boolean sendPlayerAifBelseC(Player player, String message, Boolean condition, String messageOnFalse) {}
+    static void handleDebugCommand(Player player) {}
+
+
+
+
+
+public class CommandParsing {
+    public static double parseNumberFromArgs(String[] args, int index, double minValue, double defaultValue, Player player, String errorMessage) {}
+    public static float[] parseRotationOffsets(Player player, String[] args) {}
+    public static double[] parsePositionOffsets(String[] args, Player player) {}
+
+
+
+
+
+public class Config {
+    public static void loadConfig() {}
+    public static FileConfiguration getConfig() {}
+
+
+
+
+
+public class DisplayCommands {
+    static void handleDisplayHelpCommand(Player player) {}
+    static void handleDisplayDestroyCommand(Player player, String[] args) {}
+    static void handleDisplayCreateCommand(Player player, String[] args) {}
+    static void handleDisplayRenameCommand(Player player, String[] args) {}
+    static void handleDisplayReplaceItemCommand(Player player) {}
+    static void handleDisplayNearbyCommand(Player player, String[] args) {}
+    static void handleDisplayClosestCommand(Player player) {}
+    static void handleDisplayGUICommand(Player player) {}
+
+
+
+
+
+public class DisplayGroupCommands {
+    public static void handleDisplayGroupCopyPasteCommand(Player player, String[] args) {}
+    public static void handleDisplayGroupSetParentCommand(Player player, String[] args) {}
+    static void handleDisplayGroupUnparentCommand(Player player) {}
+    public static void handleDisplayGroupRotateCommand(Player player, String[] args) {}
+    public static void handleDisplayGroupTranslateCommand(Player player, String[] args) {}
+    public static void handleDisplayGroupShowCommand(Player player, String[] args) {}
+
+
+
+
+
+public class DisplayGroupHandler {
+    public static void translateHierarchy(VivDisplay vivDisplay, Vector3d translation) {}
+    public static void resizeHierarchy(VivDisplay vivDisplay, float size) {}
+    public static void copyAndPasteHierarchy(VivDisplay vivDisplay, Player player, Location newLocation) {}
+    public static List<VivDisplay> getAllDescendants(VivDisplay parentVivDisplay){}
+    private static List<VivDisplay> getAllDescendants(VivDisplay parentVivDisplay, int depth) {}
+    public static List<VivDisplay> getAllDisplaysInHierarchy(VivDisplay vivDisplay) {}
+    public static VivDisplay getHighestVivDisplay(VivDisplay vivDisplay) {}
+    public static VivDisplay copyVivDisplay(VivDisplay original) {}
+    public static void rotateVivDisplayAroundPoint(VivDisplay vivDisplay, Vector3d point, Vector3d rotationDegrees) {}
+    public static void rotateHierarchy(VivDisplay vivDisplay, Vector3d rotation) {}
+
+
+
+
+
+public class DisplayHandler {
+    public static void createBlockDisplay(Player player, String[] args) {}
+    public static void createItemDisplay(Player player, String[] args) {}
+    public static void updateDisplay(Player player, VivDisplay vivDisplay, String[] args) {}
+    public static void destroyNearbyDisplays(Player player, String[] args) {}
+    public static List<Display> getNearbyDisplays(Player player, double radius) {}
+}    public static List<VivDisplay> getNearbyVivDisplays(Player player, int radius) {}
+    public static void destroySelectedDisplay(Player player) {}
+    public static VivDisplay getSelectedVivDisplay(Player player) {}
+    public static Display getVivDisplayByName(Player player, String displayName) {}
+}    public static VivDisplay getSelectedDisplayIfExists(Player player) {}
+    public static ItemStack getItemStackFromDisplay(Display display) {}
+
+
+
+
+
+public final class EventListeners extends JavaPlugin implements Listener {
+    public EventListeners() {}
+    public void registerCommand(CommandExecutor commandExecutor, TabCompleter subCommandExecutor, String commandName) {}
+    public void onEnable() {}
+    public void onDisplayGUIClick(InventoryClickEvent event){}
+        public void onDisplayNearbyGUIClick(InventoryClickEvent event) {}
+        public void onInventoryClick(InventoryClickEvent event) {}
+        public void onPlayerRotate(PlayerMoveEvent event) {}
+        public void onPlayerMove(PlayerMoveEvent event) {}
+        public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {}
+        private static HashMap<String, String> getCommandMap(double multiplier, double positionScale, double rotationScale, double sizeScale, double brightnessScale) {}
+
+
+
+
+

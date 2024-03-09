@@ -20,37 +20,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class GUIHandler {
-    public static ItemManipulation itemManipulation;
-    public static ItemStack makeGUIBook() {
-        // Create a new book
-        ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
-        BookMeta meta = (BookMeta) book.getItemMeta();
-
-        // Set the title and author
-        meta.setTitle(Texts.getText("displayGUIBookTitle"));
-        meta.setAuthor(Texts.getText("displayGUIBookAuthor"));
-
-
-
-        /*        // Determine the multiplier based on shift-click & right click
-        // Regular click: 1
-        // Shift click: 10
-        // Right click OR shift right click: 0.1*/
-
-        meta.setLore(Texts.getTexts("displayGUIBookLore"));
-
-        // Apply the book meta to the book
-        book.setItemMeta(meta);
-        return book;
-    }
 
     // Creates an ItemStack in the (inventory) with the specified (material) and (displayName) at the given (x, y) coordinates.
     public static void createButtonAtXY(Inventory inventory, Material material, String displayName, int x, int y) {
-        if (itemManipulation == null) itemManipulation = new ItemManipulation();
-
         ItemStack button = new ItemStack(material);
-        button = itemManipulation.itemWithName(button, displayName);
-        itemManipulation.setInventoryItemXY(inventory, button, x, y);
+        button = ItemManipulation.itemWithName(button, displayName);
+        ItemManipulation.setInventoryItemXY(inventory, button, x, y);
     }
 
     public static void createPlusMinusButtonsAtXY(Inventory inventory, Material material, String displayName, int x, int y) {
@@ -59,7 +34,6 @@ public class GUIHandler {
     }
 
     public static Inventory displayGUIBuilder() {
-        if (itemManipulation == null) itemManipulation = new ItemManipulation();
         // todo: move materials & names to config
 
         Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayGUITitle"));
@@ -90,43 +64,13 @@ public class GUIHandler {
         createButtonAtXY(inventory, backButtonMaterial, Texts.getText("displayGUIBackButtonDisplayName"), 0, 0);
 
         // book
-        itemManipulation.setInventoryItemXY(inventory, makeGUIBook(), 0, 5);
+        ItemManipulation.setInventoryItemXY(inventory, ItemBuilder.makeGUIBook(), 0, 5);
 
         return inventory;
     }
 
-    public static ItemStack makeDisplaySelectButton(VivDisplay vivDisplay) {
-        Material material;
-        if (vivDisplay.display instanceof BlockDisplay) {
-            material = ((BlockDisplay) vivDisplay.display).getBlock().getMaterial();
-        } else if (vivDisplay.display instanceof ItemDisplay) {
-            ItemStack itemStack = ((ItemDisplay) vivDisplay.display).getItemStack();
-            material = itemStack.getType();
-        } else {
-            material = Material.BARRIER;
-        }
-
-        ItemStack button = new ItemStack(material);
-        String name = vivDisplay.displayName;
-
-        button = itemManipulation.itemWithName(button, name);
-
-        ItemMeta buttonMeta = button.getItemMeta();
-        PersistentDataContainer dataContainer = buttonMeta.getPersistentDataContainer();
-        UUID displayUUID = vivDisplay.display.getUniqueId();
-        dataContainer.set(new NamespacedKey(CommandHandler.getPlugin(), "displayUUID"), PersistentDataType.STRING, displayUUID.toString());
-
-        button.setItemMeta(buttonMeta);
-
-        if (!name.isEmpty()){
-            return itemManipulation.addEnchantmentGlint(button);
-        }
-        return button;
-    }
 
     public static Inventory displayNearbyGUIBuilder(List<VivDisplay> nearbyVivDisplays) {
-        if (itemManipulation == null) itemManipulation = new ItemManipulation();
-
         Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayNearbyGUITitle"));
 
         int maxDisplaysToShow = 10;
@@ -134,7 +78,7 @@ public class GUIHandler {
         for (int index = 0; index < maxDisplaysToShow && index < nearbyVivDisplays.size(); index++) {
             VivDisplay vivDisplay = nearbyVivDisplays.get(index);
 
-            ItemStack button = makeDisplaySelectButton(vivDisplay);
+            ItemStack button = ItemBuilder.makeDisplaySelectButton(vivDisplay);
 
             if (!Objects.requireNonNull(button.getItemMeta()).getDisplayName().isEmpty() || vivDisplay.isParent) { // add renamed or parented displays at end, otherwise at begin
                 // todo: sort these alphabetically by name, left to right, and give them enough room to show them top to bottom-
@@ -153,7 +97,7 @@ public class GUIHandler {
         int parentCount = 0;
         for (int i = 0; i < hierarchy.size(); i++) {
             VivDisplay thisVivDisplay = hierarchy.get(i);
-            ItemStack button = makeDisplaySelectButton(thisVivDisplay);
+            ItemStack button = ItemBuilder.makeDisplaySelectButton(thisVivDisplay);
             if (thisVivDisplay.isParent) { // add parented displays at end, otherwise at begin
                 inventory.setItem(9+parentCount, button);
                 parentCount++;

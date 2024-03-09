@@ -1,5 +1,8 @@
 import sys
 import re
+import os
+
+package_name = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
 def remove_comments_and_strings_from_content(content):
     new_content = ""
@@ -29,6 +32,13 @@ def remove_comments_and_strings_from_content(content):
                 else:
                     stripped_line = ""
 
+        if ("if (" in stripped_line or "if(" in stripped_line):
+            if "{" in stripped_line:
+                if ("} else" in stripped_line):
+                    stripped_line = "}{"
+                else:
+                    stripped_line = "{"
+
         # Remove strings
         stripped_line = re.sub(r"\".*?\"", "", stripped_line)
         stripped_line = re.sub(r"\'.*?\'", "", stripped_line)
@@ -41,6 +51,7 @@ def remove_comments_and_strings_from_content(content):
 
 def is_start_of_java_declaration(line):
     stripped_line = line.strip()
+
     # will catch most of 'em
     if (stripped_line.startswith("public ") or stripped_line.startswith("private ") or stripped_line.startswith("protected ") or "static" in stripped_line) and "(" in stripped_line:
         #print("AAAAA: "+stripped_line)
@@ -56,6 +67,8 @@ def is_end_of_java_declaration(line):
     return -1
 
 def print_java_declarations(path):
+    global package_name
+
     print("\n\n")
     try:
         with open(path, 'r') as file:
@@ -79,6 +92,10 @@ def print_java_declarations(path):
     newLines = []
 
     for line in lines:
+        if "package" in line.lower() and len(package_name) > len(line[8:-1]):
+            package_name = line[8:-1]
+
+
         if "class" in line.lower():
             classEntryNesting = nesting
             if "{" in line:
@@ -116,14 +133,37 @@ def print_java_declarations(path):
 
     print("\n\n")
 
+    return path.replace('.java', '.interface.txt')
+
 
 if __name__ == "__main__":
     #print_java_declarations("ArmorStand.java")
+    #sys.argv = ["e", "GUIHandler.java", "NBTMagic.java"]
+
+    interfacePaths = []
 
     if len(sys.argv) < 2:
         print("Please drag and drop a file onto this script.")
+        holdMe = input("\n\npress enter to exit")
+        exit()
     else:
-        file_path = sys.argv[1]
-        print_java_declarations(file_path)
+        for i in range(len(sys.argv)-1):
+            file_path = sys.argv[i+1]
+            interfacePaths.append(print_java_declarations(file_path))
+
+    interfacesStr = ""
+
+    for path in interfacePaths:
+        with open(path, 'r') as file:
+            content = file.read()
+
+            interfacesStr += content + "\n\n\n\n\n"
+        os.remove(path)
+
+
+    if len(sys.argv) > 2:
+        with open(package_name + ".interfaces.txt", 'w') as file:
+            file.writelines(interfacesStr)
 
     holdMe = input("\n\npress enter to exit")
+    exit()
