@@ -82,24 +82,17 @@ public class GUIHandler {
 
         ItemStack off = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemStack on = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
-        if (textDisplay.getAlignment() == TextDisplay.TextAlignment.LEFT) {
-            ItemManipulation.setInventoryItemXY(inventory, on, 0, 5);
-        } else {
-            ItemManipulation.setInventoryItemXY(inventory, off, 0, 5);
-        }
-        if (textDisplay.getAlignment() == TextDisplay.TextAlignment.CENTER) {
-            ItemManipulation.setInventoryItemXY(inventory, on, 1, 5);
-        } else {
-            ItemManipulation.setInventoryItemXY(inventory, off, 1, 5);
-        }
-        if (textDisplay.getAlignment() == TextDisplay.TextAlignment.RIGHT) {
-            ItemManipulation.setInventoryItemXY(inventory, on, 2, 5);
-        } else {
-            ItemManipulation.setInventoryItemXY(inventory, off, 2, 5);
+
+        TextDisplay.TextAlignment[] alignments = TextDisplay.TextAlignment.values();
+        for (int i = 0; i < 3; i++) {
+            TextDisplay.TextAlignment alignment = alignments[i];
+            ItemStack pane = (textDisplay.getAlignment() == alignment) ? on : off;
+            ItemManipulation.setInventoryItemXY(inventory, pane, i, 5);
         }
 
         return inventory;
     }
+
 
     public static Inventory displaySelectorGUIBuilder(List<VivDisplay> vivDisplays, String titleKey, boolean isNearby) {
         Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText(titleKey));
