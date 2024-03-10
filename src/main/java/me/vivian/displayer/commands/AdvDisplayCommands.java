@@ -35,8 +35,7 @@ public class AdvDisplayCommands {
 
         if (selectedVivDisplay == null) return;
         if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
-            // todo: warn can't build here
-            System.out.println("can't build here idiot");
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
 
@@ -100,8 +99,7 @@ public class AdvDisplayCommands {
         }
 
         if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
-            // todo: warn can't build here
-            System.out.println("can't build here idiot");
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
 
@@ -133,8 +131,7 @@ public class AdvDisplayCommands {
         if (selectedVivDisplay == null) return;
 
         if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
-            // todo: warn can't build here
-            System.out.println("can't build here idiot");
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
 
@@ -172,8 +169,7 @@ public class AdvDisplayCommands {
         if (selectedVivDisplay == null) return;
 
         if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
-            // todo: warn can't build here
-            System.out.println("can't build here idiot");
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
 
@@ -200,20 +196,26 @@ public class AdvDisplayCommands {
                 errMap.get("advDisplaySetSizeInvalid");
 
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
-        if (selectedVivDisplay == null) return; // todo: warn?
-
+        if (selectedVivDisplay == null) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            return;
+        }
         if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
-            // todo: warn can't build here
-            System.out.println("can't build here idiot");
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
 
         Transformation transformation = selectedVivDisplay.display.getTransformation();
         double currentSize = transformation.getScale().x;
-        double minSize = isChange ? -currentSize : 0.0;
+        double minSize = isChange ? -currentSize+0.01 : 0.01; // todo: config minSize
         double sizeArg = CommandParsing.parseNumberFromArgs(args, 1, minSize, minSize + 1, player, errorMessage);
 
-        if (sizeArg < minSize) return; // todo: warn?
+        if (sizeArg < minSize) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displaySizeTooSmall").replace("$minsize", String.valueOf(minSize)));
+            return; // todo: warn?
+        }
+
+
 
         double newScale = isChange ? (currentSize + sizeArg) : sizeArg;
 

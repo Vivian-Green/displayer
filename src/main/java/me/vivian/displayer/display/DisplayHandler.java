@@ -1,6 +1,7 @@
 package me.vivian.displayer.display;
 
 import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayerutils.WorldGuardIntegration;
@@ -168,9 +169,8 @@ public class DisplayHandler {
      * @param displayName The name of the display to search for.
      * @return The found Display object, or null if no display with the given name is found.
      */
-    public static Display getVivDisplayByName(Player player, String displayName) { //todo: is this supposed to return a display & not a VivDisplay?
-        // Get the nearby displays within a radius of 5 blocks
-        List<Display> nearbyDisplays = getNearbyDisplays(player.getLocation(), 5);
+    public static Display getDisplayByName(Player player, String displayName) {
+        List<Display> nearbyDisplays = getNearbyDisplays(player.getLocation(), Config.getConfig().getInt("maxSearchRadius")); // todo: config this
 
         // Find the first display with the specified "VivDisplayName" NBT tag equal to displayName
         for (Display display: nearbyDisplays) {

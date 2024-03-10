@@ -6,6 +6,7 @@ import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.BlockData;
@@ -85,55 +86,52 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
         if (selectedVivDisplay instanceof ItemDisplay || selectedVivDisplay instanceof BlockDisplay) {
 
-            // todo: switch?
-            if (slot == 52) { // row == 5 && column == 7
-                // If the clicked slot rename button, close the GUI and autofill the command
-                player.closeInventory();
-                String command = "/display rename ";
-                String json = String.format("{\"text\":\"Click to rename this display\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"%s\"}}", command);
-                player.performCommand("tellraw " + player.getName() + " " + json);
-                return;
-            }
+            switch (slot) {
+                case 0:
+                    // close button clicked
+                    player.closeInventory();
+                    player.performCommand("display nearby");
+                    return;
+                case 52:
+                    // If the clicked slot rename button, close the GUI and autofill the command
+                    player.closeInventory();
+                    String command = "/display rename ";
+                    String json = String.format("{\"text\":\"Click to rename this display\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"%s\"}}", command);
+                    player.performCommand("tellraw " + player.getName() + " " + json);
+                    return;
+                case 53:
+                    // mise en place
+                    ItemStack cursorItem = player.getItemOnCursor();
+                    if (cursorItem.getType() == Material.AIR || cursorItem.getAmount() <= 0) return;
 
-            if (slot == 0) { // row == 0 && column == 0
-                player.closeInventory();
-                player.performCommand("display nearby");
-                return;
-            }
+                    // player has clicked on the replaceitem button in the display gui while holding an item
 
-            if (slot == 53) { // row == 5 && column == 8
-                // mise en place
-                ItemStack cursorItem = player.getItemOnCursor();
-                if (cursorItem.getType() == Material.AIR || cursorItem.getAmount() <= 0) return;
-
-                // player has clicked on the replaceitem button in the display gui while holding an item
-
-                // if BlockDisplay, return if cursorItem Material can't be placed in a BlockDisplay
-                if (selectedVivDisplay.display instanceof BlockDisplay) {
-                    Material material = cursorItem.getType();
-                    try {
-                        BlockData blockData = material.createBlockData(); // just a test
-                    } catch (Exception IllegalArgumentException){
-                        // failed to create a BlockData
-                        String errStr = errMap.get("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
-                        CommandHandler.sendPlayerMsgIfMsg(player, errStr);
-                        return;
+                    // if BlockDisplay, return if cursorItem Material can't be placed in a BlockDisplay
+                    if (selectedVivDisplay.display instanceof BlockDisplay) {
+                        Material material = cursorItem.getType();
+                        try {
+                            BlockData blockData = material.createBlockData(); // just a test
+                        } catch (Exception IllegalArgumentException){
+                            // failed to create a BlockData
+                            String errStr = errMap.get("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
+                            CommandHandler.sendPlayerMsgIfMsg(player, errStr);
+                            return;
+                        }
                     }
-                }
 
-                // change item slot in gui
-                ItemStack newItemStack = cursorItem.clone();
-                ItemMeta itemMeta = newItemStack.getItemMeta();
-                itemMeta.setDisplayName(Texts.getText("displayGUIReplaceItemButtonDisplayName"));
-                newItemStack.setAmount(1);
-                newItemStack.setItemMeta(itemMeta);
-                inventory.setItem(slot, newItemStack);
+                    // change item slot in gui
+                    ItemStack newItemStack = cursorItem.clone();
+                    ItemMeta itemMeta = newItemStack.getItemMeta();
+                    itemMeta.setDisplayName(Texts.getText("displayGUIReplaceItemButtonDisplayName"));
+                    newItemStack.setAmount(1);
+                    newItemStack.setItemMeta(itemMeta);
+                    inventory.setItem(slot, newItemStack);
 
-                // replace item in display & drop old one
-                cursorItem.setAmount(cursorItem.getAmount() - 1);
-                player.setItemOnCursor(cursorItem);
-                selectedVivDisplay.replaceItem(newItemStack);
-                return;
+                    // replace item in display & drop old one
+                    cursorItem.setAmount(cursorItem.getAmount() - 1);
+                    player.setItemOnCursor(cursorItem);
+                    selectedVivDisplay.replaceItem(newItemStack);
+                    return;
             }
 
             if (slot >= inventory.getSize()) return; // normal button, ignore clicks outside gui
@@ -183,6 +181,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
                 }
                 return;
             }
+
             if(column == 7 && (row == 1 || row == 2)) {
                 double multiplier = event.isShiftClick() ? multiplierFastValue : 1.0;
                 multiplier = multiplier / (event.isRightClick() ? (multiplierFastValue * multiplier) : 1.0);
@@ -193,7 +192,6 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
                 player.performCommand("advdisplay changesize " + (sizeScale * multiplier));
             }
-
         }
     }
 
@@ -223,8 +221,9 @@ public final class EventListeners extends JavaPlugin implements Listener {
         player.performCommand("advdisplay select " + UUIDStr);
     }
 
-
-
+    public void onDisplayGroupGUIClick(InventoryClickEvent event){
+        // todo: oop- write this function lmao
+    }
 
     /**
      * Handles inventory click events, for display GUIs
@@ -242,14 +241,15 @@ public final class EventListeners extends JavaPlugin implements Listener {
         }
         if(event.getView().getTitle().equals(Texts.getText("displayGroupShowGUITitle"))){
             event.setCancelled(true);
-            onDisplayNearbyGUIClick(event); // todo: oop
+            onDisplayGroupGUIClick(event);
         }
     }
+
 
     @EventHandler
     public void onPlayerRotate(PlayerMoveEvent event) {
         // todo: toggle this with a perm or command? performance go brrrrrrr
-        // todo: if player is sneaking, multiply any movement by 0.1
+        Bukkit.getScheduler().runTaskAsynchronously(CommandHandler.getPlugin(), () -> {};
 
         Player player = event.getPlayer();
 
@@ -259,8 +259,11 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
         float deltaYaw = (event.getTo().getYaw() - event.getFrom().getYaw()) % 360;
         float deltaPitch = (event.getTo().getPitch() - event.getFrom().getPitch()) % 360;
-        System.out.println("deltaYaw: " + deltaYaw);
-        System.out.println("deltaPitch: " + deltaPitch);
+
+        if(player.isSneaking()){
+            deltaPitch *= 0.1F;
+            deltaYaw *= 0.1F;
+        }
 
         // ensure selected display
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);

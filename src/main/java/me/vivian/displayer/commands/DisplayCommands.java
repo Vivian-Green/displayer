@@ -105,8 +105,7 @@ public class DisplayCommands {
         WorldGuardIntegration worldGuardIntegration = new WorldGuardIntegration();
 
         if(!WorldGuardIntegration.canEditDisplay(player)) {
-            // todo: warn can't build here
-            System.out.println("can't build here idiot");
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
 
@@ -152,7 +151,7 @@ public class DisplayCommands {
      * @param args   Command arguments:
      *               - /display rename <name>
      */
-    static void handleDisplayRenameCommand(Player player, String[] args) { // todo: move back to DisplayCommands
+    static void handleDisplayRenameCommand(Player player, String[] args) {
         if (args.length < 2) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("advDisplayRenameUsage"));
             return;
@@ -177,7 +176,7 @@ public class DisplayCommands {
      */
     static void handleDisplayReplaceItemCommand(Player player) {
         if (!ItemManipulation.isHeldItemValid(player)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateEmptyHand")); // todo: generic this name or use different label
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayEmptyHand")); // todo: generic this name or use different label
             return;
         }
 
@@ -192,8 +191,7 @@ public class DisplayCommands {
         }
 
         if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
-            // todo: warn can't build here
-            System.out.println("can't build here idiot");
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
 
@@ -240,7 +238,7 @@ public class DisplayCommands {
 
         if(!WorldGuardIntegration.canEditThisDisplay(player, closestVivDisplay)) {
             // return on closest display can't be edited
-            // todo: warn player that they can't edit the closest display to them
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
 

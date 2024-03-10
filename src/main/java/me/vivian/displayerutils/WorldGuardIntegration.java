@@ -10,6 +10,7 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.config.Config;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -75,14 +76,12 @@ public class WorldGuardIntegration {
         if(!(plugin instanceof WorldGuardPlugin)) {
             return null;
         }
-
+        loadFlagFromConfig();
         return (WorldGuardPlugin) plugin;
     }
 
-    private void loadFlagFromConfig() {
-        File configFile = new File(CommandHandler.getPlugin().getDataFolder(), "config.yml");
-        FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
-        String flagName = config.getString("worldguardFlag");
+    private static void loadFlagFromConfig() {
+        String flagName = Config.getConfig().getString("worldguardFlag");
         assert flagName != null;
         displayEditingFlag = (StateFlag) Flags.fuzzyMatchFlag(WorldGuard.getInstance().getFlagRegistry(), flagName);
     }

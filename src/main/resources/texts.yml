@@ -3,15 +3,16 @@
 # empty errors simply won't be sent
 errors:
   noSelectedDisplay: 'You need to select a display first!'
-  invalidBlockDisplayItem: 'this item ($itemName) can''t be used in a block display!'
-    # accepts $itemName placeholder
+  invalidBlockDisplayItem: 'This item ($itemName) can''t be used in a block display!' # accepts $itemName placeholder
+  cantEditDisplayHere: 'You can''t edit displays here!'
+  displayEmptyHand: 'You need to hold an item first!'
+  displaySizeTooSmall: 'Size is too small! Smallest size: $minsize' # accepts #minsize placeholder
 
   displayUsage: 'Usage: /display create | nearby [radius] | destroy [nearby] [maxCount] [radius] | gui | help'
   displayClosestNotFound_Begin: 'No nearby Displays found within ' # todo: will still send if empty, use placeholder
   displayClosestNotFound_End: ' blocks.'
   displayNearbyNotFound_Begin: 'No nearby Displays found within ' # todo: will still send if empty, use placeholder
   displayNearbyNotFound_End: ' blocks.'
-  displayCreateEmptyHand: 'You need to hold an item first!'
   displayGroupDisabled: 'display groups are disabled'
   displayCreateUsage: 'Usage: /display create <block/item> [atSelected]'
   displayInvalidSubcommand: 'Invalid subcommand. Try /display help'
@@ -43,8 +44,7 @@ errors:
 
   displayCreateTextNoText: 'you have to write text for the display!'
   displayTextNotTextDisplay: 'this isn''t a text display!'
-
-  textDisplayUsage: 'todo: write this err ---------------------------------------------------------------------------'
+  textDisplayUsage: 'Usage: /textdisplay arg arg arg arg arg arg arg' # todo: write this err lmao ---------------------------------------------------------------------------
 
 messages:
   displayClosestSuccess: 'Closest Display selected.'

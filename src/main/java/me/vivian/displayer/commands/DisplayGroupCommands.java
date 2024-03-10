@@ -2,12 +2,10 @@ package me.vivian.displayer.commands;
 
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayerutils.GUIHandler;
-import me.vivian.displayerutils.ParticleHandler;
 import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -60,7 +58,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
 
         // Find the parent display by name
-        Display parentDisplay = DisplayHandler.getVivDisplayByName(player, parentName);
+        Display parentDisplay = DisplayHandler.getDisplayByName(player, parentName);
         if (parentDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupSetParentNoParent_Begin") + parentName + errMap.get("displayGroupSetParentNoParent_End"));
             return;
