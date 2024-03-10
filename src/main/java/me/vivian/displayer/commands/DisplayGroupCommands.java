@@ -188,7 +188,7 @@ public class DisplayGroupCommands {
             return;
         }
 
-        Inventory inventory = GUIHandler.displayGroupShowGUIBuilder(hierarchy);
+        Inventory inventory = GUIHandler.displaySelectorGUIBuilder(hierarchy, Texts.getText("displayGroupShowGUITitle"), false);
         player.openInventory(inventory);
 
         // Send a success message to the player

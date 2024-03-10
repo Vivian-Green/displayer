@@ -101,20 +101,11 @@ public class GUIHandler {
         return inventory;
     }
 
-
-    public static Inventory displayNearbyGUIBuilder(List<VivDisplay> vivDisplays) {
-        return displaySelectorGUIBuilder(vivDisplays, Texts.getText("displayNearbyGUITitle"), true);
-    }
-
-    public static Inventory displayGroupShowGUIBuilder(List<VivDisplay> vivDisplays) {
-        return displaySelectorGUIBuilder(vivDisplays, Texts.getText("displayGroupShowGUITitle"), false);
-    }
-
     public static Inventory displaySelectorGUIBuilder(List<VivDisplay> vivDisplays, String titleKey, boolean isNearby) {
         Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText(titleKey));
 
         int maxDisplaysToShow = 10;
-        int count = 0;
+        int specialCount = 0;
 
         vivDisplays.sort(Comparator.comparing(vivDisplay -> vivDisplay.displayName));
 
@@ -123,9 +114,9 @@ public class GUIHandler {
             ItemStack button = ItemBuilder.makeDisplaySelectButton(vivDisplay);
 
             if (isNearby) {
-                count = placeButtonAndGetRenamedCount(button, vivDisplay, inventory, count, i);
+                specialCount = placeButtonAndGetRenamedCount(button, vivDisplay, inventory, specialCount, i);
             } else {
-                count = placeButtonAndGetParentCount(vivDisplay, inventory, count, button, i);
+                specialCount = placeButtonAndGetParentCount(vivDisplay, inventory, specialCount, button, i);
             }
         }
         return inventory;

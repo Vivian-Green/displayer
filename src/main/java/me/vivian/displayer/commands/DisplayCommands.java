@@ -219,7 +219,7 @@ public class DisplayCommands {
 
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
-        Inventory inventory = GUIHandler.displayNearbyGUIBuilder(nearbyVivDisplays);
+        Inventory inventory = GUIHandler.displaySelectorGUIBuilder(nearbyVivDisplays, Texts.getText("displayNearbyGUITitle"), true);
         player.openInventory(inventory);
     }
 
