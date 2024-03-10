@@ -10,10 +10,13 @@ import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.w3c.dom.Text;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -109,6 +112,16 @@ public class DisplayCommands {
 
         boolean isBlock = args.length >= 2 && Objects.equals(args[1], "block");
         boolean atSelected = args.length >= 3 && args[2].equalsIgnoreCase("atselected");
+        boolean isText = args.length >= 3 && args[2].equalsIgnoreCase("text");
+
+        if (isText) {
+            if (args.length < 4) {
+                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateTextNoText"));
+                return;
+            }
+
+            DisplayHandler.createTextDisplay(player, args);
+        }
 
         // todo: where put this when it just kinda figured itself out on errs? CommandHandler.sendPlayerMessageIfExists(player, )(errMap.get("displayCreateUsage"));
 
@@ -116,7 +129,6 @@ public class DisplayCommands {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateEmptyHand"));
             return;
         }
-
         if (atSelected && CommandHandler.selectedVivDisplays.get(player) == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
@@ -164,7 +176,6 @@ public class DisplayCommands {
      * @param player The player executing the command.
      */
     static void handleDisplayReplaceItemCommand(Player player) {
-
         if (!ItemManipulation.isHeldItemValid(player)) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateEmptyHand")); // todo: generic this name or use different label
             return;
@@ -173,6 +184,10 @@ public class DisplayCommands {
         VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            return;
+        }
+        if (selectedVivDisplay instanceof TextDisplay) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayReplaceItemTextDisplay"));
             return;
         }
 
@@ -193,7 +208,7 @@ public class DisplayCommands {
 
     /**
      * finds nearby VivDisplay objects within a given radius,
-     * sends messages to the (player) with hyperlinks to each
+     * opens nearby gui
      *
      * @param player The player who issued the command.
      * @param args   Command arguments:
@@ -240,7 +255,7 @@ public class DisplayCommands {
      * @param player The player performing the command.
      */
     static void handleDisplayGUICommand(Player player) {
-        Inventory inventory = GUIHandler.displayGUIBuilder();
+        Inventory inventory = GUIHandler.displayGUIBuilder(player);
 
         VivDisplay selectedDisplay = CommandHandler.selectedVivDisplays.get(player);
         if (selectedDisplay == null) {

@@ -3,23 +3,22 @@
 
 - item frame (map) functionality
 - text display functionality
-- import armorstand data from cmi
+
 </br></br>
 - display select wand
 - wand materials config?
 </br></br>
 - /displaygroup setparent gui
-- ensure no parent time travel alabama ouroborosing
+- ensure no parent time travel alabama ouroborosing - checking for it currently
 - display unselect command OR auto-unselect after time
-- move armor stand conversion to command or tool instead of on interact
 </br></br></br></br>
+- import armorstand data from cmi - WIP
+- move armor stand conversion to command or tool instead of on interact
 - add heads to armor stand conversion
 - different translation offsets for how different items are held, not just sprites
 </br></br>
 - displaygroup prefabs (creative mode, maybe require items in inv in survival?)
 - displaygroup cut/paste
-- parent list of children
-- make display parent and unparent update parent's list of children
 - displaygroup tree GUI (only show 1 layer in gui-)
 - displaygroup editing GUI
 - bones?

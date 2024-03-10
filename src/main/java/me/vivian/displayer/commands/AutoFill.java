@@ -17,6 +17,9 @@ public class AutoFill implements TabCompleter {
     static final List<String> advDisplaySubcommands = Arrays.asList("select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "details");
     static final List<String> displayGroupSubcommands = Arrays.asList("parent", "unparent", "copypaste", "show", "rotate", "translate");
 
+    static final List<String> textDisplaySubcommands = Arrays.asList("set", "togglebackground");
+    static final List<String> textDisplaySetSubcommands = Arrays.asList("text", "backgroundcolor");
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         String lowerCaseCommandName = command.getName().toLowerCase();
@@ -28,9 +31,32 @@ public class AutoFill implements TabCompleter {
                 return handleAdvDisplaySubcommands(sender, args);
             case "displaygroup":
                 return handleDisplayGroupSubcommands(sender, args);
+            case "textdisplay":
+                return handleTextDisplaySubcommands(sender, args);
         }
 
         return Collections.emptyList();
+    }
+
+    private List<String> handleTextDisplaySubcommands(CommandSender sender, String[] args) {
+        if (args.length == 1) return textDisplaySubcommands;
+
+        List<String> completions = new ArrayList<> ();
+        String currentSubcommand = args[0].toLowerCase();
+        switch (currentSubcommand) {
+            case "set":
+                if (args.length == 2) return textDisplaySetSubcommands;
+                currentSubcommand = args[1].toLowerCase();
+                switch (currentSubcommand) {
+                    case "text":
+                        completions.add("something");
+                    case "opacity":
+                        completions.addAll(Arrays.asList("0.25", "0.5", "0.75", "1"));
+                }
+                break;
+        }
+
+        return completions;
     }
 
 

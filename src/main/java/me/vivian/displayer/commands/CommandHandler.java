@@ -59,6 +59,8 @@ public class CommandHandler implements CommandExecutor {
             return onPlayerAdvDisplayCommand(player, args);
         } else if (label.equalsIgnoreCase("displaygroup")) {
             return onPlayerDisplayGroupCommand(player, args);
+        } else if (label.equalsIgnoreCase("textdisplay")) {
+            return onPlayerTextDisplayCommand(player, args);
         }
         return true;
     }
@@ -76,6 +78,22 @@ public class CommandHandler implements CommandExecutor {
             }
         }
 
+        return true;
+    }
+
+    public boolean onPlayerTextDisplayCommand(Player player, String[] args) {
+        if (args.length < 1) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("textDisplayUsage"));
+            return false;
+        }
+
+        String subCommand = args[0].toLowerCase();
+
+        switch (subCommand) {
+            case "settext":
+                TextDisplayCommands.handleTextDisplayCommand(player, args);
+                break;
+        }
         return true;
     }
 

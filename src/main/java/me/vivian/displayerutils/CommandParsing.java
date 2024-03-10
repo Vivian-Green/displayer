@@ -78,4 +78,28 @@ public class CommandParsing {
 
         return new double[] {x, y, z};
     }
+
+    public static byte parseByteFromArg(String opacityArg) {
+        if (opacityArg.equals("1")) { // oh no you have to input 0.005 to set an opacity of 1/255 which you just shouldn't anyway
+            return (byte) 255;
+        } else {
+            float opacityFloat;
+            int opacityInt;
+            try {
+                opacityFloat = Float.parseFloat(opacityArg);
+                if (opacityFloat < 1) {
+                    opacityFloat *= 255;
+                }
+                opacityInt = (int) opacityFloat + 128;
+                if (0 > opacityInt || opacityInt > 255) {
+                    return 0;
+                }
+
+                return (byte) opacityInt; // can cast direct from float but that feels WRONG and I don't know how it handles that anyway
+            } catch (NumberFormatException e) {
+                // todo: warn invalid opacity
+                return 0;
+            }
+        }
+    }
 }

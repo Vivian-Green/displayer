@@ -76,6 +76,8 @@ public class VivDisplay{
             ((BlockDisplay) display).setBlock((BlockData) displayData);
         } else if (display instanceof ItemDisplay && displayData instanceof ItemStack) {
             ((ItemDisplay) display).setItemStack((ItemStack) displayData);
+        } else if (display instanceof TextDisplay && displayData instanceof String) {
+            ((TextDisplay) display).setText((String) displayData);
         } else {
             System.out.println("createDisplay: Unhandled display type or display data mismatch.");
         }
@@ -111,7 +113,7 @@ public class VivDisplay{
             // Print a warning if the display was null
             System.out.println("Tried to destroy a null display");
             if (player != null) {
-                player.sendMessage("You must first select a display to destroy it.");
+                player.sendMessage("Tried to destroy a null display?"); // todo: config this
             }
         }
 
@@ -127,6 +129,11 @@ public class VivDisplay{
     }
 
     public void replaceItem(ItemStack newItem){
+        if (display instanceof TextDisplay) { // todo: warn
+            System.out.println("Tried to replace a TextDisplay's item... glwt?");
+            return;
+        }
+
         ItemStack oldItem = getItemStack();
         newItem.setAmount(1);
 
@@ -152,7 +159,8 @@ public class VivDisplay{
         try {
             nbtm.setNBT(display, "VivDisplayName", newName);
             displayName = newName;
-            return "The display is now called " + newName;
+
+            return "The display is now called " + newName; // todo: config this
         } catch (Exception e) {
             System.out.println("renameDisplay(): Failed to rename display. Error: " + e.getMessage());
             return "Failed to rename the display. Please try again later.";

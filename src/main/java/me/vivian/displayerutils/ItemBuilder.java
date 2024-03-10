@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -41,28 +42,36 @@ public class ItemBuilder {
 
     public static ItemStack makeDisplaySelectButton(VivDisplay vivDisplay) {
         Material material;
+        ItemStack button;
+        ItemMeta buttonMeta = null;
         if (vivDisplay.display instanceof BlockDisplay) {
             material = ((BlockDisplay) vivDisplay.display).getBlock().getMaterial();
+            button = new ItemStack(material);
+            buttonMeta = button.getItemMeta();
+            buttonMeta.setDisplayName(vivDisplay.displayName);
         } else if (vivDisplay.display instanceof ItemDisplay) {
-            ItemStack itemStack = ((ItemDisplay) vivDisplay.display).getItemStack();
-            material = itemStack.getType();
+            button = ((ItemDisplay) vivDisplay.display).getItemStack();
+            buttonMeta = button.getItemMeta();
+            buttonMeta.setDisplayName(vivDisplay.displayName);
+        } else if(vivDisplay instanceof TextDisplay) {
+            TextDisplay textDisplay = (TextDisplay) vivDisplay.display;
+            button = new ItemStack(Material.NAME_TAG);
+
+            buttonMeta = button.getItemMeta();
+            buttonMeta.setDisplayName(textDisplay.getText());
         } else {
-            material = Material.BARRIER;
+            button = new ItemStack(Material.BARRIER);
+            buttonMeta = button.getItemMeta();
+            buttonMeta.setDisplayName("unexpected/invalid display type named: " + vivDisplay.displayName);
         }
 
-        ItemStack button = new ItemStack(material);
-        String name = vivDisplay.displayName;
-
-        button = ItemManipulation.itemWithName(button, name);
-
-        ItemMeta buttonMeta = button.getItemMeta();
         PersistentDataContainer dataContainer = buttonMeta.getPersistentDataContainer();
         UUID displayUUID = vivDisplay.display.getUniqueId();
         dataContainer.set(new NamespacedKey(CommandHandler.getPlugin(), "displayUUID"), PersistentDataType.STRING, displayUUID.toString());
 
         button.setItemMeta(buttonMeta);
 
-        if (!name.isEmpty()){
+        if (!vivDisplay.displayName.isEmpty()){
             return ItemManipulation.addEnchantmentGlint(button);
         }
         return button;

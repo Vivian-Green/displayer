@@ -2,10 +2,25 @@
 # allow display group commands (default: false)
 doDisplayGroups: false
 
+# world guard flag to check against for editing displays. default: BUILD
+worldguardFlag: 'BUILD'
+
+
+
 maxDisplaySize: 20
+
+
+
+# text display config
+minTextDisplayOpacity: 0.1
+
+
+
+
 
 # furthest distance to search when looking for nearby displays (default: 16)
 # high values might affect performance in large areas with a lot of displays
 maxSearchRadius: 16
+
 # how deep to search for descendants in display group trees before giving up?
 maxSearchDepth: 10

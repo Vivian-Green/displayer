@@ -11,6 +11,8 @@ import me.vivian.displayerutils.WorldGuardIntegration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 
@@ -46,10 +48,16 @@ public class AdvDisplayCommands {
 
         // Send the details to the player
         player.sendMessage("Display Name: " + selectedVivDisplay.displayName);
-        player.sendMessage("Display Material: " + selectedVivDisplay.getItemStack().getType());
+
+        if (selectedVivDisplay.display instanceof ItemDisplay || selectedVivDisplay.display instanceof BlockDisplay) {
+            player.sendMessage("Display Material: " + selectedVivDisplay.getItemStack().getType());
+            player.sendMessage("Display Size: " + TransformMath.roundTo(selectedVivDisplay.display.getTransformation().getScale().x, 2));
+        }
+
         player.sendMessage("Display Position: X=" + displayLocation.getX() + " Y=" + displayLocation.getY() + " Z=" + displayLocation.getZ());
         player.sendMessage("Display Rotation: Yaw=" + currentYaw + " Pitch=" + currentPitch + " Roll=" + currentRoll);
-        player.sendMessage("Display Size: " + TransformMath.roundTo(selectedVivDisplay.display.getTransformation().getScale().x, 2));
+
+
         player.sendMessage("Distance to Display: " + TransformMath.roundTo(player.getLocation().distance(displayLocation), 2));
 
         // Send NBT data related to parent and child

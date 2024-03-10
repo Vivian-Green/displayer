@@ -11,29 +11,43 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.display.VivDisplay;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class WorldGuardIntegration {
+    public static StateFlag displayEditingFlag = null;
     public static WorldGuardPlugin worldGuardPlugin;
 
     public WorldGuardIntegration() {
         worldGuardPlugin = getWorldGuard();
     }
 
-    private ArrayList<Player> entered = new ArrayList<>();
-    private ArrayList<Player> left = new ArrayList<>();
+
 
     public static boolean playerCanFlagHere(Player player, StateFlag flag, Vector position){ // Flags.BUILD
+        if(worldGuardPlugin == null || displayEditingFlag == null){
+            System.out.println("displayer: worldguard is null or display editing flag is null");
+            return true;
+        }
+
         LocalPlayer localPlayer = worldGuardPlugin.wrapPlayer(player);
 
         BlockVector3 thisBlockVec3 = BlockVector3.at(position.getX(), position.getY() + 1, position.getZ()); // +1 to Y coordinate for head location
 
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionManager regionManager = container.get(localPlayer.getWorld());
+
+        if (regionManager == null) {
+            System.out.println("displayer: worldguard region manager is null");
+            return true;
+        }
+
         ApplicableRegionSet applicableRegionSet = regionManager.getApplicableRegions(thisBlockVec3);
 
         return applicableRegionSet.testState(localPlayer, flag);
@@ -44,23 +58,16 @@ public class WorldGuardIntegration {
     }
 
     public static boolean canEditDisplayHere(Player player, Vector position) {
-        // todo: change perms required here permissions worldguard luckperms luckpermissions lp config
-        //      alternatively: config perms required here-
-        return playerCanFlagHere(player, Flags.BUILD, position);
+        return playerCanFlagHere(player, displayEditingFlag, position);
     }
 
     public static boolean canEditDisplay(Player player) {
-        // todo: change perms required here permissions worldguard luckperms luckpermissions lp config
-        //      alternatively: config perms required here-
-        return playerCanFlagHere(player, Flags.BUILD, player.getLocation().toVector());
+        return playerCanFlagHere(player, displayEditingFlag, player.getLocation().toVector());
     }
 
     public static boolean canEditThisDisplay(Player player, VivDisplay vivDisplay) {
-        // todo: change perms required here permissions worldguard luckperms luckpermissions lp config
-        //      alternatively: config perms required here-
-        return playerCanFlagHere(player, Flags.BUILD, vivDisplay.display.getLocation().toVector());
+        return playerCanFlagHere(player, displayEditingFlag, vivDisplay.display.getLocation().toVector());
     }
-
 
     public static WorldGuardPlugin getWorldGuard(){
         Plugin plugin = CommandHandler.getPlugin().getServer().getPluginManager().getPlugin("WorldGuard");
@@ -70,5 +77,13 @@ public class WorldGuardIntegration {
         }
 
         return (WorldGuardPlugin) plugin;
+    }
+
+    private void loadFlagFromConfig() {
+        File configFile = new File(CommandHandler.getPlugin().getDataFolder(), "config.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+        String flagName = config.getString("worldguardFlag");
+        assert flagName != null;
+        displayEditingFlag = (StateFlag) Flags.fuzzyMatchFlag(WorldGuard.getInstance().getFlagRegistry(), flagName);
     }
 }

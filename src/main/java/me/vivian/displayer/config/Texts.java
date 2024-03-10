@@ -39,7 +39,7 @@ public class Texts {
 
         for (Map.Entry<String, Object> entry : messagesAsObjects.entrySet()) {
             if (entry.getValue() instanceof String) {
-                messages.put(entry.getKey(), (String) entry.getValue());
+                messages.put(entry.getKey(), ((String) entry.getValue()).replace("&&", "§"));
             } else {
                 System.out.println("Error loading messages on key " + entry.getKey());
             }

@@ -11,21 +11,22 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.joml.Vector2d;
 import org.joml.Vector3d;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,6 +64,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         registerCommand(mainCommandExecutor, subCommandExecutor, "display");
         registerCommand(mainCommandExecutor, subCommandExecutor, "advdisplay");
         registerCommand(mainCommandExecutor, subCommandExecutor, "displaygroup");
+        registerCommand(mainCommandExecutor, subCommandExecutor, "textdisplay");
 
         // Register event listeners
         getServer().getPluginManager().registerEvents(this, this);
@@ -70,97 +72,129 @@ public final class EventListeners extends JavaPlugin implements Listener {
         errMap = Texts.getErrors();
     }
 
-    public void onDisplayGUIClick(InventoryClickEvent event){
+    public void onDisplayGUIClick(InventoryClickEvent event){ // todo: oh god it's so big
         Player player = (Player) event.getWhoClicked();
+        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        Inventory inventory = event.getInventory();
+        if (selectedVivDisplay == null) return; // player doesn't have a display selected, so don't do anything on gui click-
 
         int slot = event.getRawSlot();
-
-        // ensure the clicked slot is gui (not player inv)
-        if (slot < 0) return;
-        if (slot < event.getInventory().getSize()) {
-            event.setCancelled(true);
-        }
 
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
 
-        // todo: switch?
-        if (slot == 52) { // row == 5 && column == 7
-            // If the clicked slot rename button, close the GUI and autofill the command
-            player.closeInventory();
-            String command = "/display rename ";
-            String json = String.format("{\"text\":\"Click to rename this display\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"%s\"}}", command);
-            player.performCommand("tellraw " + player.getName() + " " + json);
-            return;
-        }
+        if (selectedVivDisplay instanceof ItemDisplay || selectedVivDisplay instanceof BlockDisplay) {
 
-        if (slot == 0) { // row == 0 && column == 0
-            player.closeInventory();
-            player.performCommand("display nearby");
-            return;
-        }
-
-        if (slot == 53) { // row == 5 && column == 8
-            // mise en place
-            ItemStack cursorItem = player.getItemOnCursor();
-            if (cursorItem.getType() == Material.AIR || cursorItem.getAmount() <= 0) return;
-
-            VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
-            if (selectedVivDisplay == null) {
-                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            // todo: switch?
+            if (slot == 52) { // row == 5 && column == 7
+                // If the clicked slot rename button, close the GUI and autofill the command
+                player.closeInventory();
+                String command = "/display rename ";
+                String json = String.format("{\"text\":\"Click to rename this display\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"%s\"}}", command);
+                player.performCommand("tellraw " + player.getName() + " " + json);
                 return;
             }
-            // player has selected a display, and clicked on the replaceitem button in the display gui while holding an item
 
-            // if BlockDisplay, return if cursorItem Material can't be placed in a BlockDisplay
-            if (selectedVivDisplay.display instanceof BlockDisplay) {
-                Material material = cursorItem.getType();
-                BlockData blockData;
-                try {
-                    blockData = material.createBlockData();
-                } catch (Exception IllegalArgumentException){
-                    // failed to create a BlockData
-                    String errStr = errMap.get("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
-                    CommandHandler.sendPlayerMsgIfMsg(player, errStr);
-                    return;
-                }
+            if (slot == 0) { // row == 0 && column == 0
+                player.closeInventory();
+                player.performCommand("display nearby");
+                return;
             }
 
-            // change item slot in gui
-            ItemStack newItemStack = cursorItem.clone();
-            ItemMeta itemMeta = newItemStack.getItemMeta();
-            itemMeta.setDisplayName(Texts.getText("displayGUIReplaceItemButtonDisplayName"));
-            newItemStack.setAmount(1);
-            newItemStack.setItemMeta(itemMeta);
-            event.getInventory().setItem(slot, newItemStack);
+            if (slot == 53) { // row == 5 && column == 8
+                // mise en place
+                ItemStack cursorItem = player.getItemOnCursor();
+                if (cursorItem.getType() == Material.AIR || cursorItem.getAmount() <= 0) return;
 
-            // replace item in display & drop old one
-            cursorItem.setAmount(cursorItem.getAmount() - 1);
-            player.setItemOnCursor(cursorItem);
-            selectedVivDisplay.replaceItem(newItemStack);
-            return;
+                // player has clicked on the replaceitem button in the display gui while holding an item
+
+                // if BlockDisplay, return if cursorItem Material can't be placed in a BlockDisplay
+                if (selectedVivDisplay.display instanceof BlockDisplay) {
+                    Material material = cursorItem.getType();
+                    try {
+                        BlockData blockData = material.createBlockData(); // just a test
+                    } catch (Exception IllegalArgumentException){
+                        // failed to create a BlockData
+                        String errStr = errMap.get("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
+                        CommandHandler.sendPlayerMsgIfMsg(player, errStr);
+                        return;
+                    }
+                }
+
+                // change item slot in gui
+                ItemStack newItemStack = cursorItem.clone();
+                ItemMeta itemMeta = newItemStack.getItemMeta();
+                itemMeta.setDisplayName(Texts.getText("displayGUIReplaceItemButtonDisplayName"));
+                newItemStack.setAmount(1);
+                newItemStack.setItemMeta(itemMeta);
+                inventory.setItem(slot, newItemStack);
+
+                // replace item in display & drop old one
+                cursorItem.setAmount(cursorItem.getAmount() - 1);
+                player.setItemOnCursor(cursorItem);
+                selectedVivDisplay.replaceItem(newItemStack);
+                return;
+            }
+
+            if (slot >= inventory.getSize()) return; // normal button, ignore clicks outside gui
+
+            // Regular click: 1x
+            // Shift click: 10x
+            // Right click OR shift right click: 0.1x
+            double multiplier = event.isShiftClick() ? multiplierFastValue : 1.0;
+            multiplier = multiplier / (event.isRightClick() ? (multiplierFastValue * multiplier) : 1.0);
+
+
+            HashMap<String, String> commandMap = getCommandMap(multiplier, positionScale, rotationScale, sizeScale, brightnessScale);
+
+            String command = commandMap.getOrDefault(column + "," + row, null);
+            if (command == null) {return;}
+
+            // todo: call functions directly instead of using tape I mean commands-
+            player.performCommand(command);
+        } else if (selectedVivDisplay instanceof TextDisplay){
+            TextDisplay textDisplay = (TextDisplay) selectedVivDisplay.display;
+            if (slot >= inventory.getSize()) return; // ignore any clicks outside gui for text displays -
+
+            Vector2d switchPosition = new Vector2d(0, 5);
+            int switchStartSlot = (int) (switchPosition.y*9+switchPosition.x);
+            if (switchStartSlot <= slot && slot <= switchStartSlot+2) { // bottom left 3 slots 3-state switch
+
+                // todo: when dragging over one of these slots it needs a tactile click this is necessary
+                Material off = Material.BLACK_STAINED_GLASS_PANE;
+                Material on = Material.WHITE_STAINED_GLASS_PANE;
+                Material[] slotMaterials = {off, off, off}; // can define a length of 3 and then fill for an arbitrary length switch but FUCK you I am not writing a goddamn multi-state switch class and binding functions and and and and
+                slotMaterials[column-(int)switchPosition.x] = on;
+
+                inventory.setItem(switchStartSlot+0, new ItemStack(slotMaterials[0]));
+                inventory.setItem(switchStartSlot+1, new ItemStack(slotMaterials[1]));
+                inventory.setItem(switchStartSlot+2, new ItemStack(slotMaterials[2]));
+
+                switch (column){
+                    case 0:
+                        textDisplay.setAlignment(TextDisplay.TextAlignment.LEFT);
+                        break;
+                    case 1:
+                        textDisplay.setAlignment(TextDisplay.TextAlignment.CENTER);
+                        break;
+                    case 2:
+                        textDisplay.setAlignment(TextDisplay.TextAlignment.RIGHT);
+                        break;
+                }
+                return;
+            }
+            if(column == 7 && (row == 1 || row == 2)) {
+                double multiplier = event.isShiftClick() ? multiplierFastValue : 1.0;
+                multiplier = multiplier / (event.isRightClick() ? (multiplierFastValue * multiplier) : 1.0);
+
+                if (row == 2) {
+                    multiplier *= -1;
+                }
+
+                player.performCommand("advdisplay changesize " + (sizeScale * multiplier));
+            }
+
         }
-
-
-
-        if (slot >= event.getInventory().getSize()) return; // normal button, ignore clicks outside gui
-
-        // Regular click: 1x
-        // Shift click: 10x
-        // Right click OR shift right click: 0.1x
-        double multiplier = event.isShiftClick() ? multiplierFastValue : 1.0;
-        multiplier = multiplier / (event.isRightClick() ? (multiplierFastValue * multiplier) : 1.0);
-
-
-        HashMap<String, String> commandMap = getCommandMap(multiplier, positionScale, rotationScale, sizeScale, brightnessScale);
-
-        String command = commandMap.getOrDefault(column + "," + row, null);
-        //System.out.println("clicked button command:");
-        //System.out.println(command);
-        if (command == null) {return;}
-
-        // todo: call functions directly instead of using tape I mean commands-
-        player.performCommand(command);
     }
 
     public void onDisplayNearbyGUIClick(InventoryClickEvent event) {

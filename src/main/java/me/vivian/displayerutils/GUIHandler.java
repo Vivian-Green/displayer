@@ -8,6 +8,8 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -33,9 +35,7 @@ public class GUIHandler {
         createButtonAtXY(inventory, material, "-" + displayName, x, y + 1);
     }
 
-    public static Inventory displayGUIBuilder() {
-        // todo: move materials & names to config
-
+    public static Inventory standardDisplayGUIBuilder(){
         Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayGUITitle"));
 
         Material posButtonMaterial = Material.ORANGE_CONCRETE;
@@ -67,6 +67,48 @@ public class GUIHandler {
         ItemManipulation.setInventoryItemXY(inventory, ItemBuilder.makeGUIBook(), 0, 5);
 
         return inventory;
+    }
+
+    private static Inventory textDisplayGUIBuilder(TextDisplay textDisplay) {
+        Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayGUITitle"));
+
+        ItemStack off = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemStack on = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
+        if (textDisplay.getAlignment() == TextDisplay.TextAlignment.LEFT) {
+            ItemManipulation.setInventoryItemXY(inventory, on, 0, 5); // todo: does this need to be dryer? //setInventoryItemXYAifBElseC is a LONG function name
+        } else {
+            ItemManipulation.setInventoryItemXY(inventory, off, 0, 5);
+        }
+        if (textDisplay.getAlignment() == TextDisplay.TextAlignment.CENTER) {
+            ItemManipulation.setInventoryItemXY(inventory, on, 1, 5);
+        } else {
+            ItemManipulation.setInventoryItemXY(inventory, off, 1, 5);
+        }
+        if (textDisplay.getAlignment() == TextDisplay.TextAlignment.RIGHT) {
+            ItemManipulation.setInventoryItemXY(inventory, on, 2, 5);
+        } else {
+            ItemManipulation.setInventoryItemXY(inventory, off, 2, 5);
+        }
+
+        Material sizeButtonMaterial = Material.LIGHT_BLUE_CONCRETE;
+        createPlusMinusButtonsAtXY(inventory, sizeButtonMaterial, "size", 7, 1); // size
+
+        // book
+        //ItemManipulation.setInventoryItemXY(inventory, ItemBuilder.makeGUIBook(), 0, 5);  // todo: do this, but with a new book
+
+        return inventory;
+    }
+
+    public static Inventory displayGUIBuilder(Player player) {
+        // todo: move materials & names to config
+
+        VivDisplay selectedDisplay = CommandHandler.selectedVivDisplays.get(player);
+        if (selectedDisplay.display instanceof ItemDisplay || selectedDisplay.display instanceof BlockDisplay) {
+            return standardDisplayGUIBuilder();
+        } else if (selectedDisplay.display instanceof TextDisplay) {
+            return textDisplayGUIBuilder((TextDisplay) selectedDisplay);
+        }
+        return null;
     }
 
 

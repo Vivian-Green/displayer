@@ -1,3 +1,4 @@
+# errors and messages all support replacement of && with § for formatting codes, eg: &&r
 
 # empty errors simply won't be sent
 errors:
@@ -14,6 +15,7 @@ errors:
   displayGroupDisabled: 'display groups are disabled'
   displayCreateUsage: 'Usage: /display create <block/item> [atSelected]'
   displayInvalidSubcommand: 'Invalid subcommand. Try /display help'
+  displayReplaceItemTextDisplay: 'This is a text display, which can''t hold items!'
 
   advDisplayUsage: 'Usage: /advdisplay select <index> | setrotation <yaw> <pitch> | changerotation <yawOffset> <pitchOffset> | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset> | rename <name>'
   advDisplaySetRotationUsage: 'Usage: /advdisplay setrotation <yaw> <pitch> [roll]'
@@ -39,14 +41,20 @@ errors:
   displayGroupShowUsage: 'Usage: /displaygroup show'
   displayGroupInvalidSubcommand: 'Invalid subcommand for /displaygroup. Try /displaygroup help'
 
+  displayCreateTextNoText: 'you have to write text for the display!'
+  displayTextNotTextDisplay: 'this isn''t a text display!'
+
+  textDisplayUsage: 'todo: write this err ---------------------------------------------------------------------------'
+
 messages:
-  displayNearbyHyperlinkText: '§9Click to select $DisplayTypeDisplayText $DisplayName holding $DisplayMaterial, $Distance blocks away' # $DisplayTypeDisplayText, $DisplayMaterial, $DisplayName, $Distance
   displayClosestSuccess: 'Closest Display selected.'
 
   displayGroupPasteSuccess: 'Successfully copied and pasted the selected Display''s hierarchy at your current location.'
   displayGroupRotateSuccess: 'Successfully rotated the selected Display''s hierarchy.'
   displayGroupTranslateSuccess: 'Successfully translated the selected display group.'
   displayGroupShowSuccess: 'Particles shown at every display in the group.'
+
+  displayCreateText: 'creating a text display with the text: '
 
 displayGUITitle: 'display GUI'
 displayNearbyGUITitle: 'nearby displays'

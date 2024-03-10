@@ -11,14 +11,13 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DisplayHandler {
 
     static Map<String, String> errMap = Texts.getErrors();
+    static Map<String, String> msgMap = Texts.getMessages();
+
     private static final Plugin plugin = CommandHandler.getPlugin();
     public static void createBlockDisplay(Player player, String[] args) {
         if (!player.getInventory().getItemInMainHand().getType().isBlock()) {
@@ -36,6 +35,22 @@ public class DisplayHandler {
         VivDisplay vivDisplay = new VivDisplay(plugin, player.getWorld(), player.getEyeLocation(), EntityType.ITEM_DISPLAY, displayItem);
         updateDisplay(player, vivDisplay, args);
     }
+
+    public static void createTextDisplay(Player player, String[] args) { // todo: filter
+        String text = String.join(" ", Arrays.copyOfRange(args, 3, args.length-1)).trim();
+
+        if (text.isEmpty()) { // case text is only whitespace, which is trimmed
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateTextNoText"));
+            return;
+        }
+
+        CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayCreateText") + text);
+
+        VivDisplay vivDisplay = new VivDisplay(plugin, player.getWorld(), player.getEyeLocation(), EntityType.TEXT_DISPLAY, text);
+        updateDisplay(player, vivDisplay, args);
+    }
+
+
 
     public static void updateDisplay(Player player, VivDisplay vivDisplay, String[] args) {
         boolean atSelected = (args.length >= 3 && args[2].equalsIgnoreCase("atselected"));
