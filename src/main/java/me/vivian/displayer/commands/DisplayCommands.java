@@ -1,8 +1,5 @@
 package me.vivian.displayer.commands;
 
-import com.sk89q.worldedit.command.util.CreatureButcher;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.flags.Flags;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.*;
 import me.vivian.displayer.config.Texts;
@@ -14,9 +11,7 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.w3c.dom.Text;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -219,7 +214,7 @@ public class DisplayCommands {
 
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
-        Inventory inventory = GUIHandler.displaySelectorGUIBuilder(nearbyVivDisplays, Texts.getText("displayNearbyGUITitle"), true);
+        Inventory inventory = GUIBuilder.displaySelectorGUIBuilder(nearbyVivDisplays, Texts.getText("displayNearbyGUITitle"), true);
         player.openInventory(inventory);
     }
 
@@ -253,7 +248,7 @@ public class DisplayCommands {
      * @param player The player performing the command.
      */
     static void handleDisplayGUICommand(Player player) {
-        Inventory inventory = GUIHandler.displayGUIBuilder(player);
+        Inventory inventory = GUIBuilder.displayGUIBuilder(player);
 
         VivDisplay selectedDisplay = CommandHandler.selectedVivDisplays.get(player);
         if (selectedDisplay == null) {

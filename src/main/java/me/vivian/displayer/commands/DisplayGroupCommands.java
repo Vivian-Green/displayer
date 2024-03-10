@@ -1,7 +1,7 @@
 package me.vivian.displayer.commands;
 
 import me.vivian.displayer.config.Texts;
-import me.vivian.displayerutils.GUIHandler;
+import me.vivian.displayerutils.GUIBuilder;
 import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
@@ -188,7 +188,7 @@ public class DisplayGroupCommands {
             return;
         }
 
-        Inventory inventory = GUIHandler.displaySelectorGUIBuilder(hierarchy, Texts.getText("displayGroupShowGUITitle"), false);
+        Inventory inventory = GUIBuilder.displaySelectorGUIBuilder(hierarchy, Texts.getText("displayGroupShowGUITitle"), false);
         player.openInventory(inventory);
 
         // Send a success message to the player

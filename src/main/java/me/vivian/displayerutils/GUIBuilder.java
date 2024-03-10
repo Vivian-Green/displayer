@@ -14,9 +14,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
-public class GUIHandler {
+public class GUIBuilder {
     static Material posButtonMaterial = Material.ORANGE_CONCRETE;
     static Material rotButtonMaterial = Material.LIME_CONCRETE;
     static Material sizeButtonMaterial = Material.LIGHT_BLUE_CONCRETE;
