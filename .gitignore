@@ -3,3 +3,5 @@ target/
 docs/
 *.class
 *.bak
+*.interfaces.txt
+*.interface.txt
