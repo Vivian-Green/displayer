@@ -207,7 +207,9 @@ public class AdvDisplayCommands {
 
         Transformation transformation = selectedVivDisplay.display.getTransformation();
         double currentSize = transformation.getScale().x;
-        double minSize = isChange ? -currentSize+0.01 : 0.01; // todo: config minSize
+        double minSize = config.getDouble("maxDisplaySize");
+        minSize = isChange ? -currentSize+minSize : minSize;
+
         double sizeArg = CommandParsing.parseNumberFromArgs(args, 1, minSize, minSize + 1, player, errorMessage);
 
         if (sizeArg < minSize) {
@@ -219,7 +221,7 @@ public class AdvDisplayCommands {
 
         double newScale = isChange ? (currentSize + sizeArg) : sizeArg;
 
-        newScale = Math.min(newScale, config.getInt("maxDisplaySize"));
+        newScale = Math.min(newScale, config.getDouble("maxDisplaySize"));
 
         if (newScale > 0.01) {
             transformation.getScale().set(newScale);

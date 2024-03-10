@@ -6,12 +6,12 @@ errors:
   invalidBlockDisplayItem: 'This item ($itemName) can''t be used in a block display!' # accepts $itemName placeholder
   cantEditDisplayHere: 'You can''t edit displays here!'
   displayEmptyHand: 'You need to hold an item first!'
-  displaySizeTooSmall: 'Size is too small! Smallest size: $minsize' # accepts #minsize placeholder
+  displaySizeTooSmall: 'Size is too small! Smallest size: $minsize' # accepts $minsize placeholder
+  hierarchyIsNull: 'hierarchy is null'
+  invalidColor: 'invalid color format! proper format is <r> <g> <b> [a] eg "1 0 0.5" or "255 0 128 192"'
 
   displayUsage: 'Usage: /display create | nearby [radius] | destroy [nearby] [maxCount] [radius] | gui | help'
-  displayClosestNotFound_Begin: 'No nearby Displays found within ' # todo: will still send if empty, use placeholder
-  displayClosestNotFound_End: ' blocks.'
-  displayNearbyNotFound_Begin: 'No nearby Displays found within ' # todo: will still send if empty, use placeholder
+  displayNearbyNotFound_Begin: 'No nearby Displays found within '
   displayNearbyNotFound_End: ' blocks.'
   displayGroupDisabled: 'display groups are disabled'
   displayCreateUsage: 'Usage: /display create <block/item> [atSelected]'
@@ -33,7 +33,7 @@ errors:
 
   displayGroupUsage: 'Usage: /displaygroup setparent <parentname>'
   displayGroupSetParentUsage: 'Usage: /displaygroup setparent <parentname>'
-  displayGroupSetParentNoParent_Begin: 'No nearby display with the name "' # todo: will still send if empty, use placeholder
+  displayGroupSetParentNoParent_Begin: 'No nearby display with the name "'
   displayGroupSetParentNoParent_End:  '" found.'
   displayGroupRotateUsage: 'Usage: /displaygroup rotate <xRotation> <yRotation> <zRotation>'
   displayGroupInvalidRotation: 'Invalid rotation. Please provide valid numbers for xRotation, yRotation, and zRotation.'
@@ -45,6 +45,8 @@ errors:
   displayCreateTextNoText: 'you have to write text for the display!'
   displayTextNotTextDisplay: 'this isn''t a text display!'
   textDisplayUsage: 'Usage: /textdisplay arg arg arg arg arg arg arg' # todo: write this err lmao ---------------------------------------------------------------------------
+  textDisplaySetOpacityNoOpacity: 'you need to provide an opacity!'
+  textDisplaySetOpacityLowOpacity: 'opacity value too small! min value: $minopacity'
 
 messages:
   displayClosestSuccess: 'Closest Display selected.'

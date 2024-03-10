@@ -2,6 +2,7 @@ package me.vivian.displayer;
 
 import me.vivian.displayer.commands.AutoFill;
 import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.DisplayHandler;
@@ -38,12 +39,13 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
     public EventListeners() {}
 
-    // todo: move scale values to config
     double positionScale = 0.01;
     double rotationScale = 1;
     double sizeScale = 0.01;
     double brightnessScale = 0.01;
-    double multiplierFastValue = 10.0;
+    double multiplierFastSpeed = 10.0;
+
+    double multiplierSlowSpeed = 0.1;
 
     Map<String, String> errMap;
 
@@ -71,6 +73,13 @@ public final class EventListeners extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
 
         errMap = Texts.getErrors();
+
+        positionScale = Config.getConfig().getInt("positionScale");
+        rotationScale = Config.getConfig().getInt("rotationScale");
+        sizeScale = Config.getConfig().getInt("sizeScale");
+        brightnessScale = Config.getConfig().getInt("brightnessScale");
+        multiplierFastSpeed = Config.getConfig().getInt("multiplierFastSpeed");
+        multiplierSlowSpeed = Config.getConfig().getInt("multiplierSlowSpeed");
     }
 
     public void onDisplayGUIClick(InventoryClickEvent event){ // todo: oh god it's so big
@@ -139,8 +148,15 @@ public final class EventListeners extends JavaPlugin implements Listener {
             // Regular click: 1x
             // Shift click: 10x
             // Right click OR shift right click: 0.1x
-            double multiplier = event.isShiftClick() ? multiplierFastValue : 1.0;
-            multiplier = multiplier / (event.isRightClick() ? (multiplierFastValue * multiplier) : 1.0);
+            double multiplier = 1;
+            if (event.isShiftClick()){
+                multiplier = multiplierFastSpeed;
+            }
+            if (event.isRightClick()) {
+                multiplier = multiplierSlowSpeed;
+            }
+
+
 
 
             HashMap<String, String> commandMap = getCommandMap(multiplier, positionScale, rotationScale, sizeScale, brightnessScale);
@@ -183,9 +199,13 @@ public final class EventListeners extends JavaPlugin implements Listener {
             }
 
             if(column == 7 && (row == 1 || row == 2)) {
-                double multiplier = event.isShiftClick() ? multiplierFastValue : 1.0;
-                multiplier = multiplier / (event.isRightClick() ? (multiplierFastValue * multiplier) : 1.0);
-
+                double multiplier = 1;
+                if (event.isShiftClick()){
+                    multiplier = multiplierFastSpeed;
+                }
+                if (event.isRightClick()) {
+                    multiplier = multiplierSlowSpeed;
+                }
                 if (row == 2) {
                     multiplier *= -1;
                 }
@@ -249,8 +269,6 @@ public final class EventListeners extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerRotate(PlayerMoveEvent event) {
         // todo: toggle this with a perm or command? performance go brrrrrrr
-        Bukkit.getScheduler().runTaskAsynchronously(CommandHandler.getPlugin(), () -> {};
-
         Player player = event.getPlayer();
 
         Material heldItemMaterial = player.getInventory().getItemInMainHand().getType();

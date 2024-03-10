@@ -51,11 +51,9 @@ public class TextDisplayCommands {
      */
     public static void handleTextDisplaySetBackgroundColorCommand(Player player, String[] args, TextDisplay textDisplay) {
         if (args.length < 6) {
-            // todo: warn about not enough args
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("invalidColor"));
             return;
         }
-
-        // todo: case handle 6th arg exists and is alpha
 
         // Extract RGB from args 3-5
         int red = Integer.parseInt(args[3]);
@@ -64,8 +62,7 @@ public class TextDisplayCommands {
 
         // ensure that's a color
         if (!(red >= 0 && red <= 255) || !(green >= 0 && green <= 255) || !(blue >= 0 && blue <= 255)) {
-            // todo: warn about invalid color values
-            //      for each
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("invalidColor"));
             return;
         }
 
@@ -80,8 +77,7 @@ public class TextDisplayCommands {
             alpha = CommandParsing.parseByteFromArg(args[6]);
             if (!(alpha >= 0 && alpha <= 255)) {
                 setVivDisplayOpacity(textDisplay, alpha);
-                // todo: warn about invalid alpha value
-                return;
+                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("invalidColor"));
             }
         }
     }
@@ -89,7 +85,7 @@ public class TextDisplayCommands {
 
     public static void handleTextDisplaySetOpacityCommand(Player player, String[] args, TextDisplay textDisplay) {
         if (args.length < 4) {
-            // todo: warn no opacity
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("textDisplaySetOpacityNoOpacity"));
             return;
         }
 
@@ -97,7 +93,7 @@ public class TextDisplayCommands {
 
         byte opacityByte = CommandParsing.parseByteFromArg(opacityArg);
         if ((int) opacityByte + 128 < minOpacityInt) {
-            // todo: warn opacity too low
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("textDisplaySetOpacityLowOpacity").replace("$minopacity", (int) (minOpacity * 10) + "%"));
             return;
         }
 

@@ -6,7 +6,7 @@
 
     <groupId>me.vivian</groupId>
     <artifactId>displayer</artifactId>
-    <version>1.5.0-dev</version>
+    <version>1.5.1-dev</version>
     <packaging>jar</packaging>
 
     <name>displayer</name>
@@ -83,7 +83,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- WorldEdit dependency -->
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
@@ -97,12 +96,12 @@
             <version>1.20.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/javax.vecmath/vecmath -->
         <dependency>
             <groupId>javax.vecmath</groupId>
             <artifactId>vecmath</artifactId>
             <version>1.5.2</version>
         </dependency>
-
     </dependencies>
 </project>

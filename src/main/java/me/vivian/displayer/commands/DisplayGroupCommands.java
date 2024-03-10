@@ -14,7 +14,7 @@ import org.joml.Vector3d;
 import java.util.List;
 import java.util.Map;
 
-public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
+public class DisplayGroupCommands {
     static Map<String, String> errMap = Texts.getErrors();
     static Map<String, String> msgMap = Texts.getMessages();
 
@@ -60,7 +60,9 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
         // Find the parent display by name
         Display parentDisplay = DisplayHandler.getDisplayByName(player, parentName);
         if (parentDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupSetParentNoParent_Begin") + parentName + errMap.get("displayGroupSetParentNoParent_End"));
+            if (!errMap.get("displayGroupSetParentNoParent_Begin").isEmpty() || !errMap.get("displayGroupSetParentNoParent_End").isEmpty()) {
+                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupSetParentNoParent_Begin") + parentName + errMap.get("displayGroupSetParentNoParent_End"));
+            }
             return;
         }
 
@@ -182,7 +184,7 @@ public class DisplayGroupCommands { // todo: move errs to texts.yml[errors]
 
         List<VivDisplay> hierarchy = DisplayGroupHandler.getAllDisplaysInHierarchy(selectedVivDisplay);
         if (hierarchy == null) {
-            System.out.println("hierarchy is null"); // todo: warn
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("hierarchyIsNull"));
             return;
         }
 

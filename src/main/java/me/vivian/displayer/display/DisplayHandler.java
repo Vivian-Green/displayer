@@ -131,7 +131,9 @@ public class DisplayHandler {
 
         if (nearbyVivDisplays.isEmpty()) {
             if (player != null) {
-                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayNearbyNotFound_Begin") + radius + errMap.get("displayNearbyNotFound_End"));
+                if (!errMap.get("displayNearbyNotFound_Begin").isEmpty() || !errMap.get("displayNearbyNotFound_End").isEmpty()){
+                    CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayNearbyNotFound_Begin") + radius + errMap.get("displayNearbyNotFound_End"));
+                }
             }
         }
 

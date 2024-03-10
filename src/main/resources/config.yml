@@ -7,11 +7,18 @@ worldguardFlag: 'BUILD'
 
 
 
-maxDisplaySize: 20
+# base scales for transforms
+positionScale: 0.01
+rotationScale:  1.0
+sizeScale: 0.01
+brightnessScale: 0.01
+multiplierFastSpeed: 10.0
+multiplierSlowSpeed: 0.1
 
+maxDisplaySize: 20.0
+minDisplaySize: 0.01
 
-
-# text display config
+# text displays
 minTextDisplayOpacity: 0.1
 
 

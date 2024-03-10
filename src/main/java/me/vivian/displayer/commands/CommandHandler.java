@@ -34,6 +34,8 @@ public class CommandHandler implements CommandExecutor {
         Texts.loadTexts();
 
         errMap = Texts.getErrors();
+
+        TextDisplayCommands.init();
     }
 
     public static Plugin getPlugin() {
