@@ -142,7 +142,7 @@ public class GUIHandler {
     }
 
     private static int placeButtonAndGetRenamedCount(ItemStack button, VivDisplay vivDisplay, Inventory inventory, int renamedCount, int i) {
-        if (!Objects.requireNonNull(button.getItemMeta()).getDisplayName().isEmpty() || vivDisplay.isParent) { // add renamed or parented displays at end, otherwise at begin
+        if (!button.getItemMeta().getDisplayName().isEmpty() || vivDisplay.isParent) { // add renamed or parented displays at end, otherwise at begin
             inventory.setItem(53- renamedCount, button);
             renamedCount++;
         } else {
