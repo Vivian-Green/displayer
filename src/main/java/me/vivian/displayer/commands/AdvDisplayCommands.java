@@ -32,7 +32,7 @@ public class AdvDisplayCommands {
      */
     static void handleAdvDisplayDetailsCommand(Player player) { // todo: EW AAAAA GROSS EW NO
         // Get the selected VivDisplay for the player
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
 
         if (selectedVivDisplay == null) return;
         if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
@@ -128,7 +128,7 @@ public class AdvDisplayCommands {
             return;
         }
 
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) return;
 
         if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
@@ -156,17 +156,17 @@ public class AdvDisplayCommands {
      *               - For setting the position: /display setposition <x> <y> <z>
      */
     static void handleAdvDisplayPositionCommand(Player player, String[] args) {
+        // get relevant invalid position err
         boolean isChange = args.length > 0 && "changeposition".equalsIgnoreCase(args[0]);
-
         if (args.length != 4) {
             CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayChangePositionUsage"), isChange, errMap.get("advDisplaySetPositionUsage"));
             return;
         }
 
         double[] positionOffsets = CommandParsing.parsePositionOffsets(args, player);
-        if (positionOffsets == null) return;
+        if (positionOffsets == null) return; // shouldn't err unless the player calls it, which, they fukin shouldn't
 
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) return;
 
         if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
@@ -197,7 +197,7 @@ public class AdvDisplayCommands {
                 errMap.get("advDisplaySetSizeInvalid");
 
         // ensure selectedDisplay that can be edited by this player
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;

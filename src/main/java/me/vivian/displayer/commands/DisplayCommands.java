@@ -117,8 +117,6 @@ public class DisplayCommands {
             DisplayHandler.createTextDisplay(player, args);
         }
 
-        // todo: where put this when it just kinda figured itself out on errs? CommandHandler.sendPlayerMessageIfExists(player, )(errMap.get("displayCreateUsage"));
-
         if (!ItemManipulation.isHeldItemValid(player)) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateEmptyHand"));
             return;
@@ -135,7 +133,9 @@ public class DisplayCommands {
             DisplayHandler.createItemDisplay(player, args);
         }
 
-        // todo: check for creative mode before taking shit, also whatever perms are good enough for that idk
+        // todo: check for creative mode before taking shit, also whatever perms are good enough for that idk luckperms permission permissions
+        // todo: dry? since this check is needed twice now? ctrl+f
+
         ItemManipulation.takeFromHeldItem(player);
     }
 
@@ -152,7 +152,7 @@ public class DisplayCommands {
             return;
         }
 
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
@@ -171,7 +171,7 @@ public class DisplayCommands {
      */
     static void handleDisplayReplaceItemCommand(Player player) {
         if (!ItemManipulation.isHeldItemValid(player)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayEmptyHand")); // todo: generic this name or use different label
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayEmptyHand"));
             return;
         }
 
@@ -194,8 +194,9 @@ public class DisplayCommands {
 
         selectedVivDisplay.replaceItem(newItem);
 
-        // todo: check for creative mode before taking shit, also whatever perms are good enough for that idk
-        // todo: dry? since this check is needed twice now
+        // todo: check for creative mode before taking shit, also whatever perms are good enough for that idk luckperms permission permissions
+        // todo: dry? since this check is needed twice now? ctrl+f
+
         ItemManipulation.takeFromHeldItem(player);
     }
 

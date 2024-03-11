@@ -1,6 +1,7 @@
 # display todos:
+- luckperms integration
 - remove tape from display GUI; call command funcs directly
-
+  - get advdisplay adjposition, adjrotation, adjsize subcommands results more directly 
 - item frame (map) functionality
 - text display functionality
 

@@ -16,9 +16,9 @@ public class AutoFill implements TabCompleter {
     static final List<String> displaySubcommands = Arrays.asList("replaceitem", "create", "nearby", "closest", "destroy", "gui", "help", "rename");
     static final List<String> advDisplaySubcommands = Arrays.asList("select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "details");
     static final List<String> displayGroupSubcommands = Arrays.asList("parent", "unparent", "copypaste", "show", "rotate", "translate");
-
     static final List<String> textDisplaySubcommands = Arrays.asList("set", "togglebackground");
-    static final List<String> textDisplaySetSubcommands = Arrays.asList("text", "backgroundcolor");
+
+    static final List<String> textDisplaySetSubcommands = Arrays.asList("text", "backgroundcolor", "opacity");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -69,8 +69,7 @@ public class AutoFill implements TabCompleter {
             case "create":
                 switch (args.length) {
                     case 2:
-                        completions.add("item");
-                        completions.add("block");
+                        completions.addAll(Arrays.asList("item", "block"));
                         break;
                     case 3:
                         completions.add("atSelected");

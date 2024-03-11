@@ -106,23 +106,9 @@ public class ItemManipulation {
         return itemStack;
     }
 
-    /**
-     * Sets the (lore) of an (itemStack).
-     *
-     * @param itemStack  The ItemStack to modify.
-     * @param lore  The new lore.
-     * @return      The modified ItemStack.
-     */
-    public static ItemStack itemWithLore(ItemStack itemStack, ArrayList<String> lore) {
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setLore(lore);
-        itemStack.setItemMeta(itemMeta);
-        return itemStack;
-    }
-
     public static ItemStack addEnchantmentGlint(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
-        meta.addEnchant(Enchantment.DURABILITY, 1, true);
+        meta.addEnchant(Enchantment.LURE, 1, true); // todo: there's definitely a better way to do this - least useful thing I could think of in case of somehow accidentally whoopsie daisy
         item.setItemMeta(meta);
         return item;
     }

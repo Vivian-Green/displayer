@@ -185,17 +185,6 @@ public class DisplayHandler {
         return null; // No display found with the given name
     }
 
-    public static VivDisplay getSelectedDisplayIfExists(Player player) {
-        VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
-
-        if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
-            return null;
-        }
-
-        return selectedVivDisplay;
-    }
-
     /**
      * Retrieves an ItemStack from a (display).
      *
