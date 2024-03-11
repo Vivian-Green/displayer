@@ -16,6 +16,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -189,12 +190,13 @@ public class AdvDisplayCommands {
      *               - For setting the size: /display setsize <size: x y x>
      */
     static void handleAdvDisplaySizeCommand(Player player, String[] args) {
+        // get relevant invalid size err
         boolean isChange = args.length > 0 && "changesize".equalsIgnoreCase(args[0]);
-
         String errorMessage = isChange ?
                 errMap.get("advDisplayChangeSizeInvalid") :
                 errMap.get("advDisplaySetSizeInvalid");
 
+        // ensure selectedDisplay that can be edited by this player
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedDisplayIfExists(player);
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
@@ -205,28 +207,22 @@ public class AdvDisplayCommands {
             return;
         }
 
+        // get size clamped to range
         Transformation transformation = selectedVivDisplay.display.getTransformation();
         double currentSize = transformation.getScale().x;
-        double minSize = config.getDouble("maxDisplaySize");
-        minSize = isChange ? -currentSize+minSize : minSize;
+        double minSize = config.getDouble("minDisplaySize");
+        double maxSize = config.getDouble("maxDisplaySize");
+        minSize = isChange ? -currentSize+minSize : minSize; // offset -current size for change size
 
-        double sizeArg = CommandParsing.parseNumberFromArgs(args, 1, minSize, minSize + 1, player, errorMessage);
+        double sizeArg = CommandParsing.parseNumberFromArgs(args, 1, minSize, minSize, player, errorMessage); // clamps low values
+        double newScale = isChange ? (currentSize + sizeArg) : sizeArg; // offset +current size for change size
+        newScale = Math.min(newScale, maxSize); // clamp high values
 
-        if (sizeArg < minSize) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displaySizeTooSmall").replace("$minsize", String.valueOf(minSize)));
-            return; // todo: warn?
-        }
-
-
-
-        double newScale = isChange ? (currentSize + sizeArg) : sizeArg;
-
-        newScale = Math.min(newScale, config.getDouble("maxDisplaySize"));
-
-        if (newScale > 0.01) {
+        if (newScale >= minSize && newScale <= maxSize) { // sanity check
             transformation.getScale().set(newScale);
             selectedVivDisplay.display.setTransformation(transformation);
         } else {
+            System.out.println("this path shouldn't be accessible!" + Arrays.toString(args));
             player.sendMessage(errorMessage);
         }
     }
