@@ -103,7 +103,7 @@ public class GUIBuilder {
 
         for (int i = 0; i < maxDisplaysToShow && i < vivDisplays.size(); i++) {
             VivDisplay vivDisplay = vivDisplays.get(i);
-            ItemStack button = ItemBuilder.makeDisplaySelectButton(vivDisplay);
+            ItemStack button = ItemBuilder.buildDisplaySelectButton(vivDisplay);
 
             if (isNearby) {
                 specialCount = placeButtonAndGetRenamedCount(button, vivDisplay, inventory, specialCount, i);

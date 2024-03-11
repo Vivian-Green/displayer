@@ -113,7 +113,7 @@ public class ItemManipulation {
      * @param lore  The new lore.
      * @return      The modified ItemStack.
      */
-    public ItemStack itemWithLore(ItemStack itemStack, ArrayList<String> lore) {
+    public static ItemStack itemWithLore(ItemStack itemStack, ArrayList<String> lore) {
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.setLore(lore);
         itemStack.setItemMeta(itemMeta);

@@ -49,7 +49,7 @@ public class AdvDisplayCommands {
         player.sendMessage("Display Name: " + selectedVivDisplay.displayName);
 
         if (selectedVivDisplay.display instanceof ItemDisplay || selectedVivDisplay.display instanceof BlockDisplay) {
-            player.sendMessage("Display Material: " + selectedVivDisplay.getItemStack().getType());
+            player.sendMessage("Display Material: " + selectedVivDisplay.getMaterial());
             player.sendMessage("Display Size: " + TransformMath.roundTo(selectedVivDisplay.display.getTransformation().getScale().x, 2));
         }
 

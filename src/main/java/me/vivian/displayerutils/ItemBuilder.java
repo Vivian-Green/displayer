@@ -5,7 +5,6 @@ import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.TextDisplay;
@@ -15,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class ItemBuilder {
@@ -33,34 +33,47 @@ public class ItemBuilder {
         return book;
     }
 
-    public static ItemStack makeDisplaySelectButton(VivDisplay vivDisplay) {
+    public static ItemStack buildDisplaySelectButton(VivDisplay vivDisplay) {
+        // get mateiral & name
         Material material = Material.BARRIER;
-        String displayName = "unexpected/invalid display type named: " + vivDisplay.displayName;
+        String displayName = vivDisplay.displayName;
 
-        if (vivDisplay.display instanceof BlockDisplay) {
-            material = ((BlockDisplay) vivDisplay.display).getBlock().getMaterial();
-            displayName = vivDisplay.displayName;
-        } else if (vivDisplay.display instanceof ItemDisplay) {
-            material = ((ItemDisplay) vivDisplay.display).getItemStack().getType();
-            displayName = vivDisplay.displayName;
+        if (vivDisplay.display instanceof BlockDisplay || vivDisplay.display instanceof ItemDisplay) {
+            material = vivDisplay.getMaterial();
         } else if (vivDisplay.display instanceof TextDisplay) {
             material = Material.NAME_TAG;
-            displayName = ((TextDisplay) vivDisplay.display).getText();
         }
 
+        if (displayName.isEmpty()) { // unnamed vivDisplay, use default name
+            displayName = material == Material.NAME_TAG ? "Text" : material + " Display";
+        }
+
+        // return button with material & name
+        return buildSelectButtonItem(vivDisplay, material, displayName);
+    }
+
+    private static ItemStack buildSelectButtonItem(VivDisplay vivDisplay, Material material, String displayName) {
+        // build button
         ItemStack button = new ItemStack(material);
         ItemMeta buttonMeta = button.getItemMeta();
         buttonMeta.setDisplayName(displayName);
+        if (vivDisplay.display instanceof TextDisplay){
+            // set lore to TextDisplay text
+            ArrayList<String> lore = new ArrayList<>();
+            lore.add(((TextDisplay) vivDisplay.display).getText());
+            buttonMeta.setLore(lore);
+        }
+        button.setItemMeta(buttonMeta);
 
+        // bind UUID to button nbt
         PersistentDataContainer dataContainer = buttonMeta.getPersistentDataContainer();
         UUID displayUUID = vivDisplay.display.getUniqueId();
         dataContainer.set(new NamespacedKey(CommandHandler.getPlugin(), "displayUUID"), PersistentDataType.STRING, displayUUID.toString());
 
-        button.setItemMeta(buttonMeta);
-
-        if (!vivDisplay.displayName.isEmpty()){
-            return ItemManipulation.addEnchantmentGlint(button);
+        // add enchantment glint to named Displays
+        if (vivDisplay.displayName.isEmpty()){
+            return button;
         }
-        return button;
+        return ItemManipulation.addEnchantmentGlint(button);
     }
 }

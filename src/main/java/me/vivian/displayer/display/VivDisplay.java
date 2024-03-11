@@ -2,6 +2,7 @@ package me.vivian.displayer.display;
 
 import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayerutils.NBTMagic;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
@@ -126,6 +127,9 @@ public class VivDisplay{
 
     public ItemStack getItemStack() {
         return DisplayHandler.getItemStackFromDisplay(display);
+    }
+    public Material getMaterial() {
+        return getItemStack().getType();
     }
 
     public void replaceItem(ItemStack newItem){
