@@ -16,7 +16,7 @@ public class AutoFill implements TabCompleter {
     static final List<String> displaySubcommands = Arrays.asList("replaceitem", "create", "nearby", "closest", "destroy", "gui", "help", "rename");
     static final List<String> advDisplaySubcommands = Arrays.asList("select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "details");
     static final List<String> displayGroupSubcommands = Arrays.asList("parent", "unparent", "copypaste", "show", "rotate", "translate");
-    static final List<String> textDisplaySubcommands = Arrays.asList("set", "togglebackground");
+    static final List<String> textDisplaySubcommands = Arrays.asList("set", "togglebackground", "toggleshadow");
 
     static final List<String> textDisplaySetSubcommands = Arrays.asList("text", "backgroundcolor", "opacity");
 

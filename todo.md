@@ -4,6 +4,10 @@
   - get advdisplay adjposition, adjrotation, adjsize subcommands results more directly 
 - item frame (map) functionality
 - text display functionality
+  - setDisplayHeight 
+  - setDisplayWidth
+  - setGlowColorOverride
+- handle case empty display- other plugins might make one
 
 </br></br>
 - display select wand

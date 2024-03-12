@@ -137,11 +137,17 @@ public class TextDisplayCommands {
                         handleTextDisplaySetBackgroundColorCommand(player, args, textDisplay);
                 }
             case "togglebackground":
-                handleTextDisplayToggleBackgroundCommand(player, args, textDisplay);
+                handleTextDisplayToggleBackgroundCommand(textDisplay);
+            case "toggleshadow":
+                handleTextDisplayToggleShadowCommand(textDisplay);
         }
     }
 
-    private static void handleTextDisplayToggleBackgroundCommand(Player player, String[] args, TextDisplay textDisplay) {
+    private static void handleTextDisplayToggleBackgroundCommand(TextDisplay textDisplay) {
         textDisplay.setDefaultBackground(!textDisplay.isDefaultBackground());
+    }
+
+    private static void handleTextDisplayToggleShadowCommand(TextDisplay textDisplay) {
+        textDisplay.setShadowed(!textDisplay.isShadowed());
     }
 }
