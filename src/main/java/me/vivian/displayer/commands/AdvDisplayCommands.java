@@ -120,7 +120,7 @@ public class AdvDisplayCommands {
      *               - For changing the rotation: /display changerotation <yawOffset> <pitchOffset> [rollOffset]
      *               - For setting the rotation: /display setrotation <yawOffset> <pitchOffset> [rollOffset]
      */
-    static void handleAdvDisplayRotationCommand(Player player, String[] args) {
+    public static void handleAdvDisplayRotationCommand(Player player, String[] args) {
         boolean isChange = args.length > 0 && "changerotation".equalsIgnoreCase(args[0]);
 
         if (args.length < 4) {
@@ -137,10 +137,11 @@ public class AdvDisplayCommands {
         }
 
         float[] rotationOffsets = CommandParsing.parseRotationOffsets(player, args);
+
         if (rotationOffsets == null) return;
 
         boolean success = isChange ?
-                selectedVivDisplay.changeRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2], player) :
+                selectedVivDisplay.changeRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2]) :
                 selectedVivDisplay.setRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2], player);
 
         CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayRotationFailed"), !success);
@@ -155,7 +156,7 @@ public class AdvDisplayCommands {
      *               - For changing the position: /display changeposition <xOffset> <yOffset> <zOffset>
      *               - For setting the position: /display setposition <x> <y> <z>
      */
-    static void handleAdvDisplayPositionCommand(Player player, String[] args) {
+    public static void handleAdvDisplayPositionCommand(Player player, String[] args) {
         // get relevant invalid position err
         boolean isChange = args.length > 0 && "changeposition".equalsIgnoreCase(args[0]);
         if (args.length != 4) {
@@ -163,7 +164,7 @@ public class AdvDisplayCommands {
             return;
         }
 
-        double[] positionOffsets = CommandParsing.parsePositionOffsets(args, player);
+        float[] positionOffsets = CommandParsing.parsePositionOffsets(args, player);
         if (positionOffsets == null) return; // shouldn't err unless the player calls it, which, they fukin shouldn't
 
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
@@ -189,7 +190,7 @@ public class AdvDisplayCommands {
      *               - For changing the size: /display changesize <size offset: x y z>
      *               - For setting the size: /display setsize <size: x y x>
      */
-    static void handleAdvDisplaySizeCommand(Player player, String[] args) {
+    public static void handleAdvDisplaySizeCommand(Player player, String[] args) {
         // get relevant invalid size err
         boolean isChange = args.length > 0 && "changesize".equalsIgnoreCase(args[0]);
         String errorMessage = isChange ?

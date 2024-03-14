@@ -226,7 +226,7 @@ public class VivDisplay{
      * @param player     The player performing the scale change.
      * @return True if the scale change was successful, false otherwise.
      */
-    public boolean changeScale(double sizeOffset, Player player) {
+    public boolean changeSize(double sizeOffset, Player player) {
         Transformation transformation = display.getTransformation();
         double currentScale = transformation.getScale().x;
         double newScale = currentScale + sizeOffset;
@@ -277,10 +277,9 @@ public class VivDisplay{
      * @param yawOffset   The yaw offset to add to the current rotation (in degrees).
      * @param pitchOffset The pitch offset to add to the current rotation (in degrees).
      * @param rollOffset  The roll offset to add to the current rotation (in degrees).
-     * @param player      The player performing the rotation change.
      * @return True if the rotation change was successful, false otherwise.
      */
-    public boolean changeRotation(float yawOffset, float pitchOffset, float rollOffset, Player player) {
+    public boolean changeRotation(float yawOffset, float pitchOffset, float rollOffset) {
         // Convert offsets from degrees to radians
         yawOffset = (float) Math.toRadians(yawOffset);
         pitchOffset = (float) Math.toRadians(pitchOffset);

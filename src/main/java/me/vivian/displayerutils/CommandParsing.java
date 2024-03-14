@@ -64,7 +64,7 @@ public class CommandParsing {
         return new float[] {yawOffset, pitchOffset, rollOffset};
     }
 
-    public static double[] parsePositionOffsets(String[] args, Player player) {
+    public static float[] parsePositionOffsets(String[] args, Player player) {
         double x, y, z;
 
         try {

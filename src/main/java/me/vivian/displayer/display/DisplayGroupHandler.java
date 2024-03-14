@@ -306,7 +306,7 @@ public class DisplayGroupHandler {
 
         // Set the new rotation of the VivDisplay
         System.out.println("out (euler) rotation: " + euler[0] + ", " + euler[1] + ", " + euler[2]);
-        vivDisplay.changeRotation(/*euler[1] ??*/0 , euler[2], 0/*euler[0] ??*/, null);
+        vivDisplay.changeRotation(/*euler[1] ??*/0 , euler[2], 0/*euler[0] ??*/);
 
         // Translate the VivDisplay's position so that the rotation point is at the origin
         Vector3d relativePosition = new Vector3d(oldLocation.getX() - point.x, oldLocation.getY() - point.y, oldLocation.getZ() - point.z);

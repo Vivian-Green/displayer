@@ -7,12 +7,12 @@ import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,8 +28,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.joml.Vector2d;
 import org.joml.Vector3d;
 
-import java.lang.reflect.Array;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,6 +36,8 @@ import java.util.Map;
 public final class EventListeners extends JavaPlugin implements Listener {
 
     public EventListeners() {}
+
+    static FileConfiguration config = Config.getConfig();
 
     double positionScale = 0.01;
     double rotationScale = 1;
@@ -87,21 +87,16 @@ public final class EventListeners extends JavaPlugin implements Listener {
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) return; // player doesn't have a display selected, so don't do anything on gui click-
 
-        int slot = event.getRawSlot();
-
-        String command = "";
         if (selectedVivDisplay instanceof ItemDisplay || selectedVivDisplay instanceof BlockDisplay) {
-            command = onStandardDisplayGUIClick(event, selectedVivDisplay);
+            onStandardDisplayGUIClick(event, selectedVivDisplay);
         } else if (selectedVivDisplay instanceof TextDisplay){
-            command = onTextDisplayGUIClick(event, selectedVivDisplay);
+            onTextDisplayGUIClick(event, selectedVivDisplay);
         } else {
             System.out.println("invalid display on gui click?");
         }
-
-        if (command != null) player.performCommand(command);
     }
 
-    private String onStandardDisplayGUIClick(InventoryClickEvent event, VivDisplay selectedVivDisplay) {
+    private void onStandardDisplayGUIClick(InventoryClickEvent event, VivDisplay selectedVivDisplay) {
         int slot = event.getRawSlot();
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
@@ -113,18 +108,18 @@ public final class EventListeners extends JavaPlugin implements Listener {
                 // close button clicked
                 player.closeInventory();
                 player.performCommand("display nearby");
-                return null;
+                return;
             case 52:
                 // If the clicked slot rename button, close the GUI and autofill the command
                 player.closeInventory();
                 String command = "/display rename ";
                 String json = String.format("{\"text\":\"Click to rename this display\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"%s\"}}", command);
                 player.performCommand("tellraw " + player.getName() + " " + json);
-                return null;
+                return;
             case 53:
                 // mise en place
                 ItemStack cursorItem = player.getItemOnCursor();
-                if (cursorItem.getType() == Material.AIR || cursorItem.getAmount() <= 0) return null;
+                if (cursorItem.getType() == Material.AIR || cursorItem.getAmount() <= 0) return;
 
                 // player has clicked on the replaceitem button in the display gui while holding an item
 
@@ -137,7 +132,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
                         // failed to create a BlockData
                         String errStr = errMap.get("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
                         CommandHandler.sendPlayerMsgIfMsg(player, errStr);
-                        return null;
+                        return;
                     }
                 }
 
@@ -153,10 +148,10 @@ public final class EventListeners extends JavaPlugin implements Listener {
                 cursorItem.setAmount(cursorItem.getAmount() - 1);
                 player.setItemOnCursor(cursorItem);
                 selectedVivDisplay.replaceItem(newItemStack);
-                return null;
+                return;
         }
 
-        if (slot >= inventory.getSize()) return null;
+        if (slot >= inventory.getSize()) return;
 
         // Regular click: 1x
         // Shift click: 10x
@@ -169,37 +164,35 @@ public final class EventListeners extends JavaPlugin implements Listener {
             multiplier = multiplierSlowSpeed;
         }
 
-
-        HashMap<String, String> commandMap = getCommandMap(multiplier, positionScale, rotationScale, sizeScale, brightnessScale);
-
-        return commandMap.getOrDefault(column + "," + row, null);
+        handleTranslationButtons(multiplier, slot, player, selectedVivDisplay);
     }
 
-    private String onTextDisplayGUIClick(InventoryClickEvent event, VivDisplay selectedVivDisplay) {
+    private void onTextDisplayGUIClick(InventoryClickEvent event, VivDisplay selectedVivDisplay) {
         int slot = event.getRawSlot();
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
+
         Player player = (Player) event.getWhoClicked();
         Inventory inventory = event.getInventory();
         TextDisplay textDisplay = (TextDisplay) selectedVivDisplay.display;
 
-        if (slot >= inventory.getSize()) return null;
+        if (slot >= inventory.getSize()) return;
 
         Vector2d switchPosition = new Vector2d(0, 5);
-        int switchStartSlot = (int) (switchPosition.y*9+switchPosition.x);
-        if (switchStartSlot <= slot && slot <= switchStartSlot+2) { // bottom left 3 slots 3-state switch
+        int switchStartSlot = (int) (switchPosition.y * 9 + switchPosition.x);
+        if (switchStartSlot <= slot && slot <= switchStartSlot + 2) { // bottom left 3 slots 3-state switch
 
             // todo: when dragging over one of these slots it needs a tactile click this is necessary
             Material off = Material.BLACK_STAINED_GLASS_PANE;
             Material on = Material.WHITE_STAINED_GLASS_PANE;
             Material[] slotMaterials = {off, off, off}; // can define a length of 3 and then fill for an arbitrary length switch but FUCK you I am not writing a goddamn multi-state switch class and binding functions and and and and
-            slotMaterials[column -(int)switchPosition.x] = on;
+            slotMaterials[column - (int) switchPosition.x] = on;
 
-            inventory.setItem(switchStartSlot+0, new ItemStack(slotMaterials[0]));
-            inventory.setItem(switchStartSlot+1, new ItemStack(slotMaterials[1]));
-            inventory.setItem(switchStartSlot+2, new ItemStack(slotMaterials[2]));
+            inventory.setItem(switchStartSlot + 0, new ItemStack(slotMaterials[0]));
+            inventory.setItem(switchStartSlot + 1, new ItemStack(slotMaterials[1]));
+            inventory.setItem(switchStartSlot + 2, new ItemStack(slotMaterials[2]));
 
-            switch (column){
+            switch (column) {
                 case 0:
                     textDisplay.setAlignment(TextDisplay.TextAlignment.LEFT);
                     break;
@@ -210,32 +203,21 @@ public final class EventListeners extends JavaPlugin implements Listener {
                     textDisplay.setAlignment(TextDisplay.TextAlignment.RIGHT);
                     break;
             }
-            return null;
-        }
-
-        switch(slot) {
-            case 0:
-                // close button clicked
-                player.closeInventory();
-                player.performCommand("display nearby");
-                return null;
+            return;
         }
 
         // Regular click: 1x
         // Shift click: 10x
         // Right click OR shift right click: 0.1x
         double multiplier = 1;
-        if (event.isShiftClick()){
+        if (event.isShiftClick()) {
             multiplier = multiplierFastSpeed;
         }
         if (event.isRightClick()) {
             multiplier = multiplierSlowSpeed;
         }
 
-
-        HashMap<String, String> commandMap = getCommandMap(multiplier, positionScale, rotationScale, sizeScale, brightnessScale);
-
-        return commandMap.getOrDefault(column + "," + row, null);
+        handleTranslationButtons(multiplier, slot, player, selectedVivDisplay);
     }
 
     public void onDisplayNearbyGUIClick(InventoryClickEvent event) {
@@ -323,10 +305,10 @@ public final class EventListeners extends JavaPlugin implements Listener {
             }
         }else{
             if (heldItemMaterial == Material.LEAD){
-                selectedVivDisplay.changeRotation(0, 0, -deltaYaw, null);
+                selectedVivDisplay.changeRotation(0, 0, -deltaYaw);
             }
             if (heldItemMaterial == Material.SPECTRAL_ARROW){
-                selectedVivDisplay.changeRotation(deltaYaw, deltaPitch, 0, null);
+                selectedVivDisplay.changeRotation(deltaYaw, deltaPitch, 0);
             }
         }
     }
@@ -363,7 +345,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
                 selectedVivDisplay.changePosition(delta);
             }
             if (heldItemMaterial == Material.BLAZE_ROD) {
-                selectedVivDisplay.changeScale((delta.x+delta.y+delta.z)*0.1, null);
+                selectedVivDisplay.changeSize((delta.x+delta.y+delta.z)*0.1, null);
             }
         }
     }
@@ -374,25 +356,51 @@ public final class EventListeners extends JavaPlugin implements Listener {
             ArmorStandClickHandler.onInteractWithArmorStand(event);
         }
     }
+    private void handleTranslationButtons(double multiplier, int slot, Player player, VivDisplay selectedVivDisplay) {
+        int column = slot % 9; // zero-based
+        int row = (slot - column) / 9;
 
+        double scaledPosition = positionScale * multiplier;
+        double scaledRotation = rotationScale * multiplier;
 
-    private static HashMap<String, String> getCommandMap(double multiplier, double positionScale, double rotationScale, double sizeScale, double brightnessScale) {
-        // it was this or a switch statement
-        HashMap<String, String> commandMap = new HashMap<>();
-        commandMap.put("1,1", "advdisplay changeposition " + (positionScale * multiplier) + " 0 0");
-        commandMap.put("1,2", "advdisplay changeposition " + (-positionScale * multiplier) + " 0 0");
-        commandMap.put("2,1", "advdisplay changeposition 0 " + (positionScale * multiplier) + " 0");
-        commandMap.put("2,2", "advdisplay changeposition 0 " + (-positionScale * multiplier) + " 0");
-        commandMap.put("3,1", "advdisplay changeposition 0 0 " + (positionScale * multiplier));
-        commandMap.put("3,2", "advdisplay changeposition 0 0 " + (-positionScale * multiplier));
-        commandMap.put("4,1", "advdisplay changerotation " + (rotationScale * multiplier) + " 0 0");
-        commandMap.put("4,2", "advdisplay changerotation " + (-rotationScale * multiplier) + " 0 0");
-        commandMap.put("5,1", "advdisplay changerotation 0 " + (rotationScale * multiplier) + " 0");
-        commandMap.put("5,2", "advdisplay changerotation 0 " + (-rotationScale * multiplier) + " 0");
-        commandMap.put("6,1", "advdisplay changerotation 0 0 " + (rotationScale * multiplier));
-        commandMap.put("6,2", "advdisplay changerotation 0 0 " + (-rotationScale * multiplier));
-        commandMap.put("7,1", "advdisplay changesize " + (sizeScale * multiplier));
-        commandMap.put("7,2", "advdisplay changesize " + (-sizeScale * multiplier));
-        return commandMap;
+        Map<String, Vector3d> slotToTranslation = Map.of(
+                "1,1", new Vector3d(scaledPosition, 0, 0),
+                "1,2", new Vector3d(-scaledPosition, 0, 0),
+                "2,1", new Vector3d(0, scaledPosition, 0),
+                "2,2", new Vector3d(0, -scaledPosition, 0),
+                "3,1", new Vector3d(0, 0, scaledPosition),
+                "3,2", new Vector3d(0, 0, -scaledPosition)
+        );
+
+        Map<String, Vector3d> slotToRotation = Map.of(
+                "4,1", new Vector3d(scaledRotation, 0, 0),
+                "4,2", new Vector3d(-scaledRotation, 0, 0),
+                "5,1", new Vector3d(0, scaledRotation, 0),
+                "5,2", new Vector3d(0, -scaledRotation, 0),
+                "6,1", new Vector3d(0, 0, scaledRotation),
+                "6,2", new Vector3d(0, 0, -scaledRotation)
+        );
+
+        String slotKey = column + "," + row;
+        Vector3d translation = slotToTranslation.get(slotKey);
+        if (translation != null) {
+            selectedVivDisplay.changePosition(translation.x, translation.y, translation.z);
+            return;
+        }
+
+        Vector3d rotation = slotToRotation.get(slotKey);
+        if (rotation != null) {
+            selectedVivDisplay.changeRotation((float) rotation.x, (float) rotation.y, (float) rotation.z);
+            return;
+        }
+
+        switch (slotKey) {
+            case "7,1":
+                selectedVivDisplay.changeSize(sizeScale * multiplier, player);
+                break;
+            case "7,2":
+                selectedVivDisplay.changeSize(-sizeScale * multiplier, player);
+                break;
+        }
     }
 }
