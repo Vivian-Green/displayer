@@ -220,6 +220,54 @@ public final class EventListeners extends JavaPlugin implements Listener {
         handleTranslationButtons(multiplier, slot, player, selectedVivDisplay);
     }
 
+    private void handleTranslationButtons(double multiplier, int slot, Player player, VivDisplay selectedVivDisplay) {
+        int column = slot % 9; // zero-based
+        int row = (slot - column) / 9;
+
+        double scaledPosition = positionScale * multiplier;
+        double scaledRotation = rotationScale * multiplier;
+
+        Map<String, Vector3d> slotToTranslation = Map.of(
+                "1,1", new Vector3d(scaledPosition, 0, 0),
+                "1,2", new Vector3d(-scaledPosition, 0, 0),
+                "2,1", new Vector3d(0, scaledPosition, 0),
+                "2,2", new Vector3d(0, -scaledPosition, 0),
+                "3,1", new Vector3d(0, 0, scaledPosition),
+                "3,2", new Vector3d(0, 0, -scaledPosition)
+        );
+
+        Map<String, Vector3d> slotToRotation = Map.of(
+                "4,1", new Vector3d(scaledRotation, 0, 0),
+                "4,2", new Vector3d(-scaledRotation, 0, 0),
+                "5,1", new Vector3d(0, scaledRotation, 0),
+                "5,2", new Vector3d(0, -scaledRotation, 0),
+                "6,1", new Vector3d(0, 0, scaledRotation),
+                "6,2", new Vector3d(0, 0, -scaledRotation)
+        );
+
+        String slotKey = column + "," + row;
+        Vector3d translation = slotToTranslation.get(slotKey);
+        if (translation != null) {
+            selectedVivDisplay.changePosition(translation.x, translation.y, translation.z);
+            return;
+        }
+
+        Vector3d rotation = slotToRotation.get(slotKey);
+        if (rotation != null) {
+            selectedVivDisplay.changeRotation((float) rotation.x, (float) rotation.y, (float) rotation.z);
+            return;
+        }
+
+        switch (slotKey) {
+            case "7,1":
+                selectedVivDisplay.changeSize(sizeScale * multiplier, player);
+                break;
+            case "7,2":
+                selectedVivDisplay.changeSize(-sizeScale * multiplier, player);
+                break;
+        }
+    }
+
     public void onDisplayNearbyGUIClick(InventoryClickEvent event) {
         // mise en place
         int slot = event.getRawSlot();
@@ -354,53 +402,6 @@ public final class EventListeners extends JavaPlugin implements Listener {
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
         if (event.getRightClicked() instanceof ArmorStand) {
             ArmorStandClickHandler.onInteractWithArmorStand(event);
-        }
-    }
-    private void handleTranslationButtons(double multiplier, int slot, Player player, VivDisplay selectedVivDisplay) {
-        int column = slot % 9; // zero-based
-        int row = (slot - column) / 9;
-
-        double scaledPosition = positionScale * multiplier;
-        double scaledRotation = rotationScale * multiplier;
-
-        Map<String, Vector3d> slotToTranslation = Map.of(
-                "1,1", new Vector3d(scaledPosition, 0, 0),
-                "1,2", new Vector3d(-scaledPosition, 0, 0),
-                "2,1", new Vector3d(0, scaledPosition, 0),
-                "2,2", new Vector3d(0, -scaledPosition, 0),
-                "3,1", new Vector3d(0, 0, scaledPosition),
-                "3,2", new Vector3d(0, 0, -scaledPosition)
-        );
-
-        Map<String, Vector3d> slotToRotation = Map.of(
-                "4,1", new Vector3d(scaledRotation, 0, 0),
-                "4,2", new Vector3d(-scaledRotation, 0, 0),
-                "5,1", new Vector3d(0, scaledRotation, 0),
-                "5,2", new Vector3d(0, -scaledRotation, 0),
-                "6,1", new Vector3d(0, 0, scaledRotation),
-                "6,2", new Vector3d(0, 0, -scaledRotation)
-        );
-
-        String slotKey = column + "," + row;
-        Vector3d translation = slotToTranslation.get(slotKey);
-        if (translation != null) {
-            selectedVivDisplay.changePosition(translation.x, translation.y, translation.z);
-            return;
-        }
-
-        Vector3d rotation = slotToRotation.get(slotKey);
-        if (rotation != null) {
-            selectedVivDisplay.changeRotation((float) rotation.x, (float) rotation.y, (float) rotation.z);
-            return;
-        }
-
-        switch (slotKey) {
-            case "7,1":
-                selectedVivDisplay.changeSize(sizeScale * multiplier, player);
-                break;
-            case "7,2":
-                selectedVivDisplay.changeSize(-sizeScale * multiplier, player);
-                break;
         }
     }
 }
