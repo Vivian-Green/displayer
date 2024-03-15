@@ -6,12 +6,15 @@ import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -104,15 +107,17 @@ public class DisplayCommands {
 
         boolean isBlock = args.length >= 2 && Objects.equals(args[1], "block");
         boolean atSelected = args.length >= 3 && args[2].equalsIgnoreCase("atselected");
-        boolean isText = args.length >= 3 && args[2].equalsIgnoreCase("text");
-
+        boolean isText = args.length >= 2 && args[1].equalsIgnoreCase("text");
+        System.out.println("isText: " + isText);
+        System.out.println(Arrays.toString(args));
         if (isText) {
-            if (args.length < 4) {
+            if (args.length < 3) {
                 CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateTextNoText"));
                 return;
             }
 
             DisplayHandler.createTextDisplay(player, args);
+            return;
         }
 
         if (!ItemManipulation.isHeldItemValid(player)) {
@@ -257,17 +262,19 @@ public class DisplayCommands {
             return;
         }
 
-        ItemStack itemStack = selectedDisplay.getItemStack();
-        itemStack.setAmount(1);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        String name = Texts.getText("displayGUIReplaceItemButtonDisplayName");
-        if(name.isEmpty()){
-            name = "displayGUIReplaceItemButtonDisplayName";
-        }
-        itemMeta.setDisplayName(name);
-        itemStack.setItemMeta(itemMeta);
+        if (selectedDisplay.display instanceof ItemDisplay || selectedDisplay.display instanceof BlockDisplay) {
+            ItemStack itemStack = selectedDisplay.getItemStack();
+            itemStack.setAmount(1);
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            String name = Texts.getText("displayGUIReplaceItemButtonDisplayName");
+            if (name.isEmpty()) {
+                name = "displayGUIReplaceItemButtonDisplayName";
+            }
+            itemMeta.setDisplayName(name);
+            itemStack.setItemMeta(itemMeta);
 
-        inventory.setItem(53, itemStack);
+            inventory.setItem(53, itemStack);
+        }
 
         player.openInventory(inventory);
     }

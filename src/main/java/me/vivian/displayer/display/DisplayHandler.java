@@ -38,7 +38,7 @@ public class DisplayHandler {
     }
 
     public static void createTextDisplay(Player player, String[] args) { // todo: filter
-        String text = String.join(" ", Arrays.copyOfRange(args, 3, args.length-1)).trim();
+        String text = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
 
         if (text.isEmpty()) { // case text is only whitespace, which is trimmed
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateTextNoText"));
@@ -48,6 +48,10 @@ public class DisplayHandler {
         CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayCreateText") + text);
 
         VivDisplay vivDisplay = new VivDisplay(plugin, player.getWorld(), player.getEyeLocation(), EntityType.TEXT_DISPLAY, text);
+
+        if (vivDisplay.display instanceof TextDisplay){
+            ((TextDisplay) (vivDisplay.display)).setSeeThrough(false);
+        }
         updateDisplay(player, vivDisplay, args);
     }
 

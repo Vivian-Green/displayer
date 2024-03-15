@@ -69,10 +69,14 @@ public class AutoFill implements TabCompleter {
             case "create":
                 switch (args.length) {
                     case 2:
-                        completions.addAll(Arrays.asList("item", "block"));
+                        completions.addAll(Arrays.asList("item", "block", "text"));
                         break;
                     case 3:
-                        completions.add("atSelected");
+                        if (args[1].equals("text")){
+                            completions.add("<whatever text>");
+                        } else {
+                            completions.add("atSelected");
+                        }
                         break;
                 }
                 break;

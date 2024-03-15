@@ -78,7 +78,9 @@ public class VivDisplay{
         } else if (display instanceof ItemDisplay && displayData instanceof ItemStack) {
             ((ItemDisplay) display).setItemStack((ItemStack) displayData);
         } else if (display instanceof TextDisplay && displayData instanceof String) {
-            ((TextDisplay) display).setText((String) displayData);
+            String text = (String) displayData;
+            text = text.replace("&", "§");
+            ((TextDisplay) display).setText(text);
         } else {
             System.out.println("createDisplay: Unhandled display type or display data mismatch.");
         }
