@@ -142,8 +142,8 @@ public class GUIBuilder {
     }
 
 
-    public static Inventory displaySelectorGUIBuilder(List<VivDisplay> vivDisplays, String titleKey, boolean isNearby) {
-        Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText(titleKey));
+    public static Inventory displaySelectorGUIBuilder(List<VivDisplay> vivDisplays, String title, boolean isNearby) {
+        Inventory inventory = Bukkit.createInventory(null, 54, title);
 
         int maxDisplaysToShow = 10;
         int specialCount = 0;
@@ -157,13 +157,13 @@ public class GUIBuilder {
             if (isNearby) {
                 specialCount = placeButtonAndGetRenamedCount(button, vivDisplay, inventory, specialCount, i);
             } else {
-                specialCount = placeButtonAndGetParentCount(vivDisplay, inventory, specialCount, button, i);
+                specialCount = placeButtonAndGetParentCount(button, vivDisplay, inventory, specialCount, i);
             }
         }
         return inventory;
     }
 
-    private static int placeButtonAndGetParentCount(VivDisplay vivDisplay, Inventory inventory, int parentCount, ItemStack button, int i) {
+    private static int placeButtonAndGetParentCount(ItemStack button, VivDisplay vivDisplay, Inventory inventory, int parentCount, int i) {
         if (vivDisplay.isParent) { // add parented displays at begin, otherwise towards end
             inventory.setItem(9+ parentCount, button); // left to right starting at second row
             parentCount++;
@@ -174,8 +174,8 @@ public class GUIBuilder {
     }
 
     private static int placeButtonAndGetRenamedCount(ItemStack button, VivDisplay vivDisplay, Inventory inventory, int renamedCount, int i) {
-        if (!button.getItemMeta().getDisplayName().isEmpty() || vivDisplay.isParent) { // add renamed or parented displays at end, otherwise at begin
-            inventory.setItem(53- renamedCount, button);
+        if (!vivDisplay.displayName.isEmpty() || vivDisplay.isParent) { // add renamed or parented displays at end, otherwise at begin
+            inventory.setItem(53 - renamedCount, button);
             renamedCount++;
         } else {
             inventory.setItem(i - renamedCount, button);

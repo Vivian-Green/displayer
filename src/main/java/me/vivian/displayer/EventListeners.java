@@ -314,6 +314,8 @@ public final class EventListeners extends JavaPlugin implements Listener {
     }
 
     public void onDisplayNearbyGUIClick(InventoryClickEvent event) {
+        System.out.println("display nearby gui click");
+
         // mise en place
         int slot = event.getRawSlot();
 
@@ -327,6 +329,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
         Player player = (Player) event.getWhoClicked();
+        player.closeInventory();
 
         // the actual code
 
