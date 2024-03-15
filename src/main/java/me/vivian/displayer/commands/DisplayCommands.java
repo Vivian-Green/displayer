@@ -97,9 +97,7 @@ public class DisplayCommands {
      *               - /display create <name> [block/item] [atselected]
      */
     static void handleDisplayCreateCommand(Player player, String[] args) {
-        WorldGuardIntegration worldGuardIntegration = new WorldGuardIntegration();
-
-        if(!WorldGuardIntegration.canEditDisplay(player)) {
+        if(WorldGuardIntegration.worldGuardExists && !WorldGuardIntegration.canEditDisplay(player)) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }

@@ -220,6 +220,7 @@ public class AdvDisplayCommands {
         newScale = Math.min(newScale, maxSize); // clamp high values
 
         if (newScale >= minSize && newScale <= maxSize) { // sanity check
+            System.out.println(newScale);
             transformation.getScale().set(newScale);
             selectedVivDisplay.display.setTransformation(transformation);
         } else {

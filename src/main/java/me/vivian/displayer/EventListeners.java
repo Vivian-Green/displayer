@@ -29,6 +29,7 @@ import org.joml.Vector2d;
 import org.joml.Vector3d;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Handles startup and events relevant to displays/display GUIs.
@@ -36,7 +37,6 @@ import java.util.Map;
 public final class EventListeners extends JavaPlugin implements Listener {
 
     public EventListeners() {}
-
     static FileConfiguration config = Config.getConfig();
 
     double positionScale = 0.01;
@@ -51,8 +51,8 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
     public void registerCommand(CommandExecutor commandExecutor, TabCompleter subCommandExecutor, String commandName) {
         System.out.println(commandName);
-        getCommand(commandName).setExecutor(commandExecutor);
-        getCommand(commandName).setTabCompleter(subCommandExecutor);
+        Objects.requireNonNull(getCommand(commandName)).setExecutor(commandExecutor);
+        Objects.requireNonNull(getCommand(commandName)).setTabCompleter(subCommandExecutor);
     }
 
     @Override
@@ -61,17 +61,15 @@ public final class EventListeners extends JavaPlugin implements Listener {
         this.saveResource("config.yml", false);
         this.saveResource("texts.yml", false);
 
-        errMap = Texts.getErrors();
-
-        positionScale = Config.getConfig().getInt("positionScale");
-        rotationScale = Config.getConfig().getInt("rotationScale");
-        sizeScale = Config.getConfig().getInt("sizeScale");
-        brightnessScale = Config.getConfig().getInt("brightnessScale");
-        multiplierFastSpeed = Config.getConfig().getInt("multiplierFastSpeed");
-        multiplierSlowSpeed = Config.getConfig().getInt("multiplierSlowSpeed");
-
         CommandExecutor mainCommandExecutor = new CommandHandler(this);
         TabCompleter subCommandExecutor = new AutoFill();
+
+        positionScale = (float) Config.getConfig().getDouble("positionScale");
+        rotationScale = (float) Config.getConfig().getDouble("rotationScale");
+        sizeScale = (float) Config.getConfig().getDouble("sizeScale");
+        brightnessScale = (float) Config.getConfig().getDouble("brightnessScale");
+        multiplierFastSpeed = (float) Config.getConfig().getDouble("multiplierFastSpeed");
+        multiplierSlowSpeed = (float) Config.getConfig().getDouble("multiplierSlowSpeed");
 
         registerCommand(mainCommandExecutor, subCommandExecutor, "display");
         registerCommand(mainCommandExecutor, subCommandExecutor, "advdisplay");
@@ -80,23 +78,38 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
         // Register event listeners
         getServer().getPluginManager().registerEvents(this, this);
+
+
+
+        errMap = Texts.getErrors();
     }
 
     public void onDisplayGUIClick(InventoryClickEvent event){
+        System.out.println("display gui click");
         Player player = (Player) event.getWhoClicked();
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
-        if (selectedVivDisplay == null) return; // player doesn't have a display selected, so don't do anything on gui click-
+        if (selectedVivDisplay == null || selectedVivDisplay.display == null) return; // player doesn't have a display selected, so don't do anything on gui click-
 
-        if (selectedVivDisplay instanceof ItemDisplay || selectedVivDisplay instanceof BlockDisplay) {
+        System.out.println(selectedVivDisplay.getClass());
+
+        if (selectedVivDisplay.display instanceof ItemDisplay || selectedVivDisplay.display instanceof BlockDisplay) {
+            System.out.println("standard display gui click");
             onStandardDisplayGUIClick(event, selectedVivDisplay);
-        } else if (selectedVivDisplay instanceof TextDisplay){
+        } else if (selectedVivDisplay.display instanceof TextDisplay){
+            System.out.println("text display gui click");
             onTextDisplayGUIClick(event, selectedVivDisplay);
         } else {
             System.out.println("invalid display on gui click?");
+            event.setCancelled(true); // don't let the players take the gui items just bc they're in a weird state (michigan :(  )
+            player.closeInventory(); // close the inventory
+            player.sendMessage("FUCK!"); // todo: debug, remove
+            // todo: write err for this, warn player, do not yell "FUCK!" at them
         }
     }
 
     private void onStandardDisplayGUIClick(InventoryClickEvent event, VivDisplay selectedVivDisplay) {
+        System.out.println("onStandardDisplayGUIClick");
+
         int slot = event.getRawSlot();
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
@@ -105,18 +118,22 @@ public final class EventListeners extends JavaPlugin implements Listener {
 
         switch (slot) {
             case 0:
-                // close button clicked
+                System.out.println("close button click!");
                 player.closeInventory();
                 player.performCommand("display nearby");
+                event.setCancelled(true);
+
                 return;
             case 52:
-                // If the clicked slot rename button, close the GUI and autofill the command
+                System.out.println("rename button click!");
                 player.closeInventory();
                 String command = "/display rename ";
                 String json = String.format("{\"text\":\"Click to rename this display\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"%s\"}}", command);
                 player.performCommand("tellraw " + player.getName() + " " + json);
+                event.setCancelled(true);
                 return;
             case 53:
+                System.out.println("material button click!");
                 // mise en place
                 ItemStack cursorItem = player.getItemOnCursor();
                 if (cursorItem.getType() == Material.AIR || cursorItem.getAmount() <= 0) return;
@@ -148,10 +165,14 @@ public final class EventListeners extends JavaPlugin implements Listener {
                 cursorItem.setAmount(cursorItem.getAmount() - 1);
                 player.setItemOnCursor(cursorItem);
                 selectedVivDisplay.replaceItem(newItemStack);
+                event.setCancelled(true);
                 return;
         }
 
+        System.out.println("inside inv check:");
         if (slot >= inventory.getSize()) return;
+        System.out.println("    pass");
+        event.setCancelled(true);
 
         // Regular click: 1x
         // Shift click: 10x
@@ -164,10 +185,13 @@ public final class EventListeners extends JavaPlugin implements Listener {
             multiplier = multiplierSlowSpeed;
         }
 
+        System.out.println("checking translation buttons");
         handleTranslationButtons(multiplier, slot, player, selectedVivDisplay);
     }
 
     private void onTextDisplayGUIClick(InventoryClickEvent event, VivDisplay selectedVivDisplay) {
+        event.setCancelled(true);
+
         int slot = event.getRawSlot();
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
@@ -176,11 +200,14 @@ public final class EventListeners extends JavaPlugin implements Listener {
         Inventory inventory = event.getInventory();
         TextDisplay textDisplay = (TextDisplay) selectedVivDisplay.display;
 
+        System.out.println("inside inv check:");
         if (slot >= inventory.getSize()) return;
+        System.out.println("    pass");
 
         Vector2d switchPosition = new Vector2d(0, 5);
         int switchStartSlot = (int) (switchPosition.y * 9 + switchPosition.x);
         if (switchStartSlot <= slot && slot <= switchStartSlot + 2) { // bottom left 3 slots 3-state switch
+            System.out.println("is switch click");
 
             // todo: when dragging over one of these slots it needs a tactile click this is necessary
             Material off = Material.BLACK_STAINED_GLASS_PANE;
@@ -205,6 +232,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
             }
             return;
         }
+        System.out.println("isn't switch click");
 
         // Regular click: 1x
         // Shift click: 10x
@@ -217,10 +245,12 @@ public final class EventListeners extends JavaPlugin implements Listener {
             multiplier = multiplierSlowSpeed;
         }
 
+        System.out.println("checking translation buttons");
         handleTranslationButtons(multiplier, slot, player, selectedVivDisplay);
     }
 
     private void handleTranslationButtons(double multiplier, int slot, Player player, VivDisplay selectedVivDisplay) {
+        System.out.println("translation buttons check called");
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
 
@@ -246,14 +276,18 @@ public final class EventListeners extends JavaPlugin implements Listener {
         );
 
         String slotKey = column + "," + row;
+        System.out.println("slot: "+slotKey);
         Vector3d translation = slotToTranslation.get(slotKey);
         if (translation != null) {
+            System.out.println("translation button!");
+            System.out.println("    : " + translation);
             selectedVivDisplay.changePosition(translation.x, translation.y, translation.z);
             return;
         }
 
         Vector3d rotation = slotToRotation.get(slotKey);
         if (rotation != null) {
+            System.out.println("rotation button!");
             selectedVivDisplay.changeRotation((float) rotation.x, (float) rotation.y, (float) rotation.z);
             return;
         }
@@ -261,11 +295,14 @@ public final class EventListeners extends JavaPlugin implements Listener {
         switch (slotKey) {
             case "7,1":
                 selectedVivDisplay.changeSize(sizeScale * multiplier, player);
+                System.out.println("size button!");
                 break;
             case "7,2":
                 selectedVivDisplay.changeSize(-sizeScale * multiplier, player);
+                System.out.println("size button!");
                 break;
         }
+        System.out.println("no button clicked!");
     }
 
     public void onDisplayNearbyGUIClick(InventoryClickEvent event) {

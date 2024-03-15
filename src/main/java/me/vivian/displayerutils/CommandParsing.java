@@ -65,18 +65,18 @@ public class CommandParsing {
     }
 
     public static float[] parsePositionOffsets(String[] args, Player player) {
-        double x, y, z;
+        float x, y, z;
 
         try {
-            x = Double.parseDouble(args[1]);
-            y = Double.parseDouble(args[2]);
-            z = Double.parseDouble(args[3]);
+            x = (float) Double.parseDouble(args[1]);
+            y = (float) Double.parseDouble(args[2]);
+            z = (float) Double.parseDouble(args[3]);
         } catch (NumberFormatException e) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("parseInvalidPosition"));
             return null;
         }
 
-        return new double[] {x, y, z};
+        return new float[] {x, y, z};
     }
 
     public static byte parseByteFromArg(String opacityArg) {

@@ -24,8 +24,10 @@ public class CommandHandler implements CommandExecutor {
     public static NBTMagic nbtm;
 
     public static Map<String, String> errMap;
+    public static boolean loaded = false;
 
     public CommandHandler(Plugin thisPlugin) {
+        //System.out.println("displayer: initializing CommandHandler..");
         plugin = thisPlugin;
         pluginDesc = plugin.getDescription();
         nbtm = new NBTMagic(plugin);
@@ -36,12 +38,27 @@ public class CommandHandler implements CommandExecutor {
         errMap = Texts.getErrors();
 
         TextDisplayCommands.init();
+        System.out.println("displayer: initialized CommandHandler"); // todo: config this
+        loaded = true;
     }
 
     public static Plugin getPlugin() {
+        while (!loaded || plugin == null){
+            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+                // wait a tick and hope CommandHandler is actually initialized
+                System.out.println("CommandHandler.getPlugin(): waiting for plugin...\n....this shouldn't happen (something is loading before CommandHandler when it shouldn't be, or loading plugin somehow failed) \n....Stack trace:");
+
+                StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+
+                // Print the first few lines of the stack trace
+                for(int i=1; i<=3; i++) {
+                    System.out.println("........: " + stackTraceElements[i].toString());
+                }
+                System.out.println("....loaded: " + loaded + ", is plugin null? " + (plugin == null));
+            }, 1L);
+        }
         return plugin;
     }
-    public static final Map<String, VivDisplay> vivDisplays = new HashMap<>();
     public static final Map<Player, VivDisplay> selectedVivDisplays = new HashMap<>();
 
     @Override

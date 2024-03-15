@@ -83,3 +83,17 @@ commands:
       show:
         description: Highlights the displaygroup selected
         usage: /displaygroup show
+
+  textdisplay:
+    description: Commands for handling text displays
+    usage: /textdisplay set <text <whatever text to set> | backgroundcolor <r> <g> <b> [a] | opacity <opacityValue>> | togglebackground | toggleshadow
+    subcommands:
+      set:
+        description: sets various values for the textdisplay
+        usage: /textdisplay set <text <whatever text to set> | backgroundcolor <r> <g> <b> [a] | opacity <opacityValue>>
+      togglebackground:
+        description: toggles text display background
+        usage: /textdisplay togglebackground
+      toggleshadow:
+        description: toggles text display shadows
+        usage: /textdisplay toggleshadow

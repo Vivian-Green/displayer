@@ -11,7 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -33,7 +35,7 @@ public class GUIBuilder {
         createButtonAtXY(inventory, material, "-" + displayName, x, y + 1);
     }
 
-    public static void createButtonsAndTools(Inventory inventory) {
+    public static void createButtonsAndTools(Inventory inventory, VivDisplay vivDisplay) {
         // buttons
         createPlusMinusButtonsAtXY(inventory, posButtonMaterial, "x", 1, 1); // pos
         createPlusMinusButtonsAtXY(inventory, posButtonMaterial, "y", 2, 1);
@@ -52,22 +54,68 @@ public class GUIBuilder {
 
         // back button
         createButtonAtXY(inventory, backButtonMaterial, Texts.getText("displayGUIBackButtonDisplayName"), 0, 0);
+
+        createButtonAtXY(inventory, Material.PAPER,"details: ", 6,  5);
+        ItemStack detailsButton = ItemManipulation.itemWithName(new ItemStack(Material.PAPER), "details: ");
+        ItemMeta detailsButtonMeta = detailsButton.getItemMeta();
+
+        ArrayList<String> details = new ArrayList<>();
+
+        details.add("name: " + vivDisplay.displayName);
+        details.add("type: " + vivDisplay.display.getType());
+
+        if (vivDisplay instanceof TextDisplay){
+            TextDisplay textDisplay = (TextDisplay) vivDisplay;
+
+            String alignmentStr = "| | | |";
+            switch (textDisplay.getAlignment()){
+                case LEFT:
+                    alignmentStr = "|L| | |";
+                    break;
+                case CENTER:
+                    alignmentStr = "| |C| |";
+                    break;
+                case RIGHT:
+                    alignmentStr = "| | |R|";
+                    break;
+            }
+
+            details.add("text properties: " + alignmentStr);
+            details.add("    text: " + textDisplay.getText());
+            details.add("    background color: " + textDisplay.getBackgroundColor());
+            details.add("    opacity: " + textDisplay.getTextOpacity());
+
+        } else if (vivDisplay instanceof ItemDisplay || vivDisplay instanceof BlockDisplay) {
+            // leave here in case details need to be added for these in the future
+        }
+
+        // todo: set lore to details
+
+        // todo: lore as config text with placeholders
+
+        detailsButton.setItemMeta(detailsButtonMeta);
+
+        ItemManipulation.setInventoryItemXY(inventory, detailsButton, 6, 5);
     }
 
 
     public static Inventory displayGUIBuilder(Player player) {
-        VivDisplay selectedDisplay = CommandHandler.selectedVivDisplays.get(player);
-        if (selectedDisplay.display instanceof ItemDisplay || selectedDisplay.display instanceof BlockDisplay) {
-            return standardDisplayGUIBuilder();
-        } else if (selectedDisplay.display instanceof TextDisplay) {
-            return textDisplayGUIBuilder((TextDisplay) selectedDisplay);
+        System.out.println("displayGUIBuilder called");
+        VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
+        if (selectedVivDisplay == null || selectedVivDisplay.display == null) return null; // player doesn't have a display selected, so ya can't make a gui for it-
+
+        System.out.println("displayGUIBuilder called");
+        if (selectedVivDisplay.display instanceof ItemDisplay || selectedVivDisplay.display instanceof BlockDisplay) {
+            return standardDisplayGUIBuilder(selectedVivDisplay);
+        } else if (selectedVivDisplay.display instanceof TextDisplay) {
+            return textDisplayGUIBuilder(selectedVivDisplay);
         }
         return null;
     }
 
-    public static Inventory standardDisplayGUIBuilder() {
+    public static Inventory standardDisplayGUIBuilder(VivDisplay vivDisplay) {
         Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayGUITitle"));
-        createButtonsAndTools(inventory);
+        createButtonsAndTools(inventory, vivDisplay);
 
         createButtonAtXY(inventory, Material.WRITABLE_BOOK, Texts.getText("displayGUIRenameButtonDisplayName"), 7, 5);
         ItemManipulation.setInventoryItemXY(inventory, ItemBuilder.makeGUIBook(), 0, 5);
@@ -75,9 +123,10 @@ public class GUIBuilder {
         return inventory;
     }
 
-    public static Inventory textDisplayGUIBuilder(TextDisplay textDisplay) {
+    public static Inventory textDisplayGUIBuilder(VivDisplay vivDisplay) {
+        TextDisplay textDisplay = (TextDisplay) vivDisplay.display;
         Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayGUITitle"));
-        createButtonsAndTools(inventory);
+        createButtonsAndTools(inventory, vivDisplay);
 
         ItemStack off = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemStack on = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
