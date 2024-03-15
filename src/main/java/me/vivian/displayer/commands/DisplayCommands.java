@@ -244,6 +244,7 @@ public class DisplayCommands {
         CommandHandler.selectedVivDisplays.put(player, closestVivDisplay);
         ParticleHandler.spawnParticle(closestVivDisplay.display, null, null);
         CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayClosestSuccess"));
+        player.performCommand("display gui");
     }
 
     /**
