@@ -58,6 +58,7 @@ public class GUIBuilder {
         createButtonAtXY(inventory, Material.PAPER,"details: ", 6,  5);
         ItemStack detailsButton = ItemManipulation.itemWithName(new ItemStack(Material.PAPER), "details: ");
         ItemMeta detailsButtonMeta = detailsButton.getItemMeta();
+        assert detailsButtonMeta != null;
 
         ArrayList<String> details = new ArrayList<>();
 
@@ -89,10 +90,9 @@ public class GUIBuilder {
             // leave here in case details need to be added for these in the future
         }
 
-        // todo: set lore to details
+        // todo: lore text as config with placeholders
 
-        // todo: lore as config text with placeholders
-
+        detailsButtonMeta.setLore(details);
         detailsButton.setItemMeta(detailsButtonMeta);
 
         ItemManipulation.setInventoryItemXY(inventory, detailsButton, 6, 5);

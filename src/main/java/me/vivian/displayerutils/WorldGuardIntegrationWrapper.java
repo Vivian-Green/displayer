@@ -1,4 +1,3 @@
-// WorldGuardIntegration.java
 package me.vivian.displayerutils;
 
 import me.vivian.displayer.commands.CommandHandler;
@@ -8,15 +7,13 @@ import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Method;
 
-public class WorldGuardIntegrationLoader {
+public class WorldGuardIntegrationWrapper { // loads WorldGuardIntegration if worldguard exists, otherwise assumes player can edit anywhere.
     public static Object worldGuardHandler;
     public static boolean worldGuardExists = false;
     public static Method canEditDisplayMethod;
     public static Method canEditThisDisplayMethod;
 
-    public WorldGuardIntegrationLoader() {
-        // ohgod reflection go brrrrr
-        //      todo: sweep off the coke
+    public static void init() {
         worldGuardHandler = getWorldGuardHandler();
         if (worldGuardHandler != null) {
             try {

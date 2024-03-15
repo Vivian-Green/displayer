@@ -6,6 +6,7 @@ import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.NBTMagic;
+import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -37,7 +38,8 @@ public class CommandHandler implements CommandExecutor {
         errMap = Texts.getErrors();
 
         TextDisplayCommands.init();
-        System.out.println("displayer: initialized CommandHandler"); // todo: config this
+        WorldGuardIntegrationWrapper.init();
+        //System.out.println("displayer: initialized CommandHandler");
         loaded = true;
     }
 
@@ -162,18 +164,6 @@ public class CommandHandler implements CommandExecutor {
         switch (subCommand) {
             case "select":
                 AdvDisplayCommands.handleAdvDisplaySelectCommand(player, args);
-                break;
-            case "setrotation":
-            case "changerotation":
-                AdvDisplayCommands.handleAdvDisplayRotationCommand(player, args);
-                break;
-            case "setposition":
-            case "changeposition":
-                AdvDisplayCommands.handleAdvDisplayPositionCommand(player, args);
-                break;
-            case "setsize":
-            case "changesize":
-                AdvDisplayCommands.handleAdvDisplaySizeCommand(player, args);
                 break;
             case "details":
                 AdvDisplayCommands.handleAdvDisplayDetailsCommand(player);

@@ -4,7 +4,7 @@ import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayer.config.Texts;
-import me.vivian.displayerutils.WorldGuardIntegrationLoader;
+import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -79,7 +79,7 @@ public class DisplayHandler {
         // Destroy nearby displays up to the specified max count
         int destroyedCount = 0;
         for (VivDisplay vivDisplay: nearbyVivDisplays) {
-            if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, vivDisplay)) {
+            if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, vivDisplay)) {
                 // todo: warn can't build here
                 System.out.println("can't build here idiot");
                 continue;
@@ -145,7 +145,7 @@ public class DisplayHandler {
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
         } else {
-            if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
+            if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
                 // todo: warn can't build here
                 System.out.println("can't build here idiot");
                 return;

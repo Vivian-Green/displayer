@@ -2,11 +2,8 @@ package me.vivian.displayer;
 
 import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Texts;
-import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
-import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayerutils.TransformMath;
-import me.vivian.displayerutils.WorldGuardIntegrationLoader;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
@@ -15,9 +12,7 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Transformation;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**

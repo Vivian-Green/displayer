@@ -1,4 +1,3 @@
-// WorldGuardHandler.java
 package me.vivian.displayerutils;
 
 import com.sk89q.worldedit.math.BlockVector3;
@@ -16,7 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
-public class WorldGuardIntegration {
+public class WorldGuardIntegration { // will only be instantiated if worldguard is present
     public StateFlag displayEditingFlag = null;
     public WorldGuardPlugin worldGuardPlugin;
 

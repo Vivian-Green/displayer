@@ -6,7 +6,7 @@ import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.TransformMath;
-import me.vivian.displayerutils.WorldGuardIntegrationLoader;
+import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -31,7 +31,7 @@ public class AdvDisplayCommands {
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
 
         if (selectedVivDisplay == null) return;
-        if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
+        if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
@@ -95,7 +95,7 @@ public class AdvDisplayCommands {
             return;
         }
 
-        if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
+        if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }

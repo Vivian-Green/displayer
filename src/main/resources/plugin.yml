@@ -3,6 +3,8 @@ version: '${project.version}'
 main: me.vivian.displayer.EventListeners
 api-version: '1.20'
 
+# todo: ensure this is accurate still-
+
 commands:
   display:
     description: Main command for managing displays
@@ -28,38 +30,23 @@ commands:
       help:
         description: Display plugin help
         usage: /display help
+      rename:
+        description: Set the name for a given display
+        usage: /display rename <name>
 
   advdisplay:
-    description: Advanced display manipulation commands
-    usage: /advdisplay select <index> | setrotation <yaw> <pitch> [roll] | changerotation <yawOffset> <pitchOffset> [rollOffset] | setposition <x> <y> <z> | changeposition <xOffset> <yOffset> <zOffset> | setsize <size> | changesize <sizeOffset>
+    description: display commands the player shouldn't be entering directly
+    usage: /advdisplay details | select <index>
     subcommands:
       select:
         description: Select a display by index
         usage: /advdisplay select <index>
-      setrotation:
-        description: Set rotation for the selected display
-        usage: /advdisplay setrotation <yaw> <pitch> [roll]
-      changerotation:
-        description: Change rotation for the selected display
-        usage: /advdisplay changerotation <yawOffset> <pitchOffset> [rollOffset]
-      setposition:
-        description: Set position for the selected display
-        usage: /advdisplay setposition <x> <y> <z>
-      changeposition:
-        description: Change position for the selected display
-        usage: /advdisplay changeposition <xOffset> <yOffset> <zOffset>
-      setsize:
-        description: Set size for the selected display
-        usage: /advdisplay setsize <size>
-      changesize:
-        description: Change size for the selected display
-        usage: /advdisplay changesize <sizeOffset>
-      rename:
-        description: Set the name for a given display
-        usage: /display rename <name>
       details:
         description: gives you the details of your selected display
         usage: /advdisplay details
+      rename:
+        description: renames a display
+        usage: /advdisplay rename <name>
 
   displaygroup:
     description: Commands for handling grouped displays

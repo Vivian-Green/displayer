@@ -14,7 +14,7 @@ import java.util.List;
 
 public class AutoFill implements TabCompleter {
     static final List<String> displaySubcommands = Arrays.asList("replaceitem", "create", "nearby", "closest", "destroy", "gui", "help", "rename");
-    static final List<String> advDisplaySubcommands = Arrays.asList("select", "setrotation", "changerotation", "setposition", "changeposition", "setsize", "changesize", "details");
+    static final List<String> advDisplaySubcommands = Arrays.asList("select", "details");
     static final List<String> displayGroupSubcommands = Arrays.asList("parent", "unparent", "copypaste", "show", "rotate", "translate");
     static final List<String> textDisplaySubcommands = Arrays.asList("set", "togglebackground", "toggleshadow");
 
@@ -78,7 +78,7 @@ public class AutoFill implements TabCompleter {
                 break;
             case "nearby":
             case "closest":
-                if (args.length == 1) {
+                if (args.length == 2) {
                     completions.addAll(Arrays.asList("[radius]", "5"));
                 }
                 break;
@@ -95,6 +95,11 @@ public class AutoFill implements TabCompleter {
                         break;
                 }
                 break;
+            case "rename":
+                if (args.length == 2) {
+                    completions.add("<name>");
+                }
+                break;
         }
 
         return completions;
@@ -105,82 +110,12 @@ public class AutoFill implements TabCompleter {
 
         List<String> completions = new ArrayList<>();
         if (!(sender instanceof Player)) return completions;
-        Player player = (Player) sender;
-
-        Location eyeLocation = player.getEyeLocation();
-        float yaw = TransformMath.roundTo(eyeLocation.getYaw(), 3);
-        float pitch = TransformMath.roundTo(eyeLocation.getPitch(), 3);
-
-        double x = TransformMath.roundTo(eyeLocation.getX(), 3);
-        double y = TransformMath.roundTo(eyeLocation.getY(), 3);
-        double z = TransformMath.roundTo(eyeLocation.getZ(), 3);
 
         String currentSubcommand = args[0].toLowerCase();
         switch (currentSubcommand) {
             case "select":
                 if (args.length == 2) {
                     completions.add("<index>");
-                }
-                break;
-            case "setrotation":
-                switch (args.length) {
-                    case 2:
-                        completions.add(yaw + "");
-                        break;
-                    case 3:
-                        completions.add(pitch + "");
-                        break;
-                    case 4:
-                        completions.addAll(Arrays.asList("[roll]", "0"));
-                        break;
-                }
-            case "setposition":
-                switch (args.length) {
-                    case 2:
-                        completions.add(x + "");
-                        break;
-                    case 3:
-                        completions.add(y + "");
-                        break;
-                    case 4:
-                        completions.add(z + "");
-                        break;
-                }
-            case "changerotation":
-                switch (args.length) {
-                    case 2:
-                        completions.add("<yaw>");
-                        break;
-                    case 3:
-                        completions.add("<pitch>");
-                        break;
-                    case 4:
-                        completions.add("[roll]");
-                        break;
-                }
-                break;
-            case "changeposition":
-                switch (args.length) {
-                    case 2:
-                        completions.add("<x>");
-                        break;
-                    case 3:
-                        completions.add("<y>");
-                        break;
-                    case 4:
-                        completions.add("<z>");
-                        break;
-                }
-                break;
-            case "setsize":
-            case "changesize":
-                if (args.length == 2) {
-                    completions.add("<size>");
-                }
-                break;
-            case "rename":
-                if (args.length == 2) {
-                    completions.add("<name>");
                 }
                 break;
         }
