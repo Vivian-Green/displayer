@@ -1,5 +1,6 @@
 package me.vivian.displayer.commands;
 
+import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.ParticleHandler;
 import me.vivian.displayer.config.Texts;
@@ -14,12 +15,10 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class AdvDisplayCommands {
-    static FileConfiguration config = Config.getConfig();
-    static Map<String, String> errMap = Texts.getErrors();
+    static FileConfiguration config = Config.config;
 
     /**
      * writes an awful, technical, details message
@@ -32,7 +31,7 @@ public class AdvDisplayCommands {
 
         if (selectedVivDisplay == null) return;
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
-            Main.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
             return;
         }
 
@@ -57,7 +56,7 @@ public class AdvDisplayCommands {
         player.sendMessage("Distance to Display: " + TransformMath.roundTo(player.getLocation().distance(displayLocation), 2));
 
         // Send NBT data related to parent and child
-        Main.sendPlayerAifBelseC(player, "Parent UUID: " + selectedVivDisplay.parentUUID, selectedVivDisplay.isChild);
+        CommandHandler.sendPlayerAifBelseC(player, "Parent UUID: " + selectedVivDisplay.parentUUID, selectedVivDisplay.isChild);
 
         player.sendMessage("Is Parent: " + selectedVivDisplay.isParentDisplay());
     }
@@ -96,11 +95,11 @@ public class AdvDisplayCommands {
         }
 
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
-            Main.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
             return;
         }
 
-        Main.selectedVivDisplays.put(player, selectedVivDisplay);
+        DisplayPlugin.selectedVivDisplays.put(player, selectedVivDisplay);
         ParticleHandler.spawnParticle(selectedVivDisplay.display, null, null);
 
         // open gui if selecting from here

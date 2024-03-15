@@ -1,6 +1,6 @@
 package me.vivian.displayerutils;
 
-import me.vivian.displayer.commands.Main;
+import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.Bukkit;
@@ -101,7 +101,7 @@ public class GUIBuilder {
 
     public static Inventory displayGUIBuilder(Player player) {
         System.out.println("displayGUIBuilder called");
-        VivDisplay selectedVivDisplay = Main.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayPlugin.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null || selectedVivDisplay.display == null) return null; // player doesn't have a display selected, so ya can't make a gui for it-
 
         System.out.println("displayGUIBuilder called");

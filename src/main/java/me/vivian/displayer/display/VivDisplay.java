@@ -1,6 +1,6 @@
 package me.vivian.displayer.display;
 
-import me.vivian.displayer.commands.Main;
+import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayerutils.NBTMagic;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -29,7 +29,6 @@ import java.util.Map;
 public class VivDisplay{
     public Display display;
     Plugin plugin;
-    NBTMagic nbtm;
 
     public String displayName;
     public String parentUUID;
@@ -48,16 +47,15 @@ public class VivDisplay{
 
     public void init(Plugin thisPlugin){
         plugin = thisPlugin;
-        nbtm = new NBTMagic(plugin);
 
-        displayName = nbtm.getNBT(display, "VivDisplayName", String.class);
-        parentUUID = nbtm.getNBT(display, "VivDisplayParentUUID", String.class);
-        isChild = nbtm.getNBT(display, "VivDisplayIsChild", Boolean.class);
-        isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
+        displayName = NBTMagic.getNBT(display, "VivDisplayName", String.class);
+        parentUUID = NBTMagic.getNBT(display, "VivDisplayParentUUID", String.class);
+        isChild = NBTMagic.getNBT(display, "VivDisplayIsChild", Boolean.class);
+        isParent = NBTMagic.getNBT(display, "VivDisplayIsParent", Boolean.class);
     }
 
     public Boolean isParentDisplay() {
-        isParent = nbtm.getNBT(display, "VivDisplayIsParent", Boolean.class);
+        isParent = NBTMagic.getNBT(display, "VivDisplayIsParent", Boolean.class);
         return isParent;
     }
 
@@ -94,7 +92,7 @@ public class VivDisplay{
      * @param player              The player performing the display destruction.
      */
     public void destroy(Player player) { // todo: handle case player is null
-        Map<Player, VivDisplay> selectedVivDisplays = Main.selectedVivDisplays;
+        Map<Player, VivDisplay> selectedVivDisplays = DisplayPlugin.selectedVivDisplays;
 
         if (display!= null) {
             try {
@@ -163,7 +161,7 @@ public class VivDisplay{
      */
     public String rename(String newName) {
         try {
-            nbtm.setNBT(display, "VivDisplayName", newName);
+            NBTMagic.setNBT(display, "VivDisplayName", newName);
             displayName = newName;
 
             return "The display is now called " + newName; // todo: config this
@@ -188,9 +186,9 @@ public class VivDisplay{
         parentUUID = String.valueOf(parentDisplay.getUniqueId());
         isChild = true;
 
-        nbtm.setNBT(display, "VivDisplayParentUUID", parentUUID);
-        nbtm.setNBT(parentDisplay, "VivDisplayIsParent", true);
-        nbtm.setNBT(display, "VivDisplayIsChild", true);
+        NBTMagic.setNBT(display, "VivDisplayParentUUID", parentUUID);
+        NBTMagic.setNBT(parentDisplay, "VivDisplayIsParent", true);
+        NBTMagic.setNBT(display, "VivDisplayIsChild", true);
         return "";
     }
 
@@ -201,7 +199,7 @@ public class VivDisplay{
      */
     public String unsetParent() {
         // Get the UUID of the parent display from the display's NBT
-        String parentUUIDStr = nbtm.getNBT(display, "VivDisplayParentUUID", String.class);
+        String parentUUIDStr = NBTMagic.getNBT(display, "VivDisplayParentUUID", String.class);
 
         if (!isChild || parentUUIDStr == null || parentUUIDStr.isEmpty()) {
             return "The display is not a child display and does not have a parent.";
@@ -211,8 +209,8 @@ public class VivDisplay{
         isChild = false;
 
         // Clear the parent-related NBT tags
-        nbtm.setNBT(display, "VivDisplayParentUUID", "");
-        nbtm.setNBT(display, "VivDisplayIsChild", false);
+        NBTMagic.setNBT(display, "VivDisplayParentUUID", "");
+        NBTMagic.setNBT(display, "VivDisplayIsChild", false);
 
         // todo: Update the IsParent property of the parent display and handle other related tasks.
 

@@ -1,63 +1,20 @@
 package me.vivian.displayer.commands;
 
-import java.util.*;
-
 import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
-import me.vivian.displayer.display.VivDisplay;
-import me.vivian.displayerutils.NBTMagic;
-import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
 
-
+// todo: CommandHandler should exist and shouldn't be taped to main-
+//  why is eventlisteners the plugin we're passing around-
 // todo: aliases in config
 
 // handles commands for creating, manipulating, and interacting with displays
-public class Main implements CommandExecutor {
-    public static PluginDescriptionFile pluginDesc;
-    private static Plugin plugin;
-    public static NBTMagic nbtm;
-    public static Map<String, String> errMap;
-    public static boolean loaded = false;
-
-    public Main(Plugin thisPlugin) {
-        //System.out.println("displayer: initializing CommandHandler..");
-        plugin = thisPlugin;
-        pluginDesc = plugin.getDescription();
-        nbtm = new NBTMagic(plugin);
-
-        Config.loadConfig();
-        Texts.loadTexts();
-
-        errMap = Texts.getErrors();
-
-        TextDisplayCommands.init();
-        WorldGuardIntegrationWrapper.init();
-        //System.out.println("displayer: initialized CommandHandler");
-        loaded = true;
-    }
-
-    public static Plugin getPlugin() {
-        if (!loaded || plugin == null || !plugin.isEnabled()){
-            System.out.println("CommandHandler.getPlugin(): plugin either isn't loaded, valid, or enabled...\n....this shouldn't happen (something is loading before CommandHandler when it shouldn't be, or loading plugin somehow failed) \n....Stack trace:");
-
-            // Print the first few lines of the stack trace
-            StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-            for(int i=1; i<=4; i++) {
-                System.out.println("........: " + stackTraceElements[i].toString());
-            }
-            System.out.println("....loaded: " + loaded + ", is plugin null? " + (plugin == null));
-        }
-        return plugin;
-    }
-
-    public static final Map<Player, VivDisplay> selectedVivDisplays = new HashMap<>();
+public class CommandHandler implements CommandExecutor {
+    public CommandHandler(){} // oops I accidentally a don't need constructor anymore rip
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -69,7 +26,7 @@ public class Main implements CommandExecutor {
         return onPlayerCommand(player, command, label, args);
     }
 
-    public boolean onPlayerCommand(Player player, Command command, String label, String[] args) {
+    private boolean onPlayerCommand(Player player, Command command, String label, String[] args) {
         if (label.equalsIgnoreCase("display")) {
             return onPlayerDisplayCommand(player, args);
         } else if (label.equalsIgnoreCase("advdisplay")) {
@@ -82,7 +39,7 @@ public class Main implements CommandExecutor {
         return true;
     }
 
-    public boolean onConsoleCommand(CommandSender sender, Command command, String label, String[] args) {
+    private boolean onConsoleCommand(CommandSender sender, Command command, String label, String[] args) {
         String subCommand = args[0].toLowerCase();
 
         if (label.equalsIgnoreCase("display")) {
@@ -98,9 +55,9 @@ public class Main implements CommandExecutor {
         return true;
     }
 
-    public boolean onPlayerTextDisplayCommand(Player player, String[] args) {
+    private boolean onPlayerTextDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            Main.sendPlayerMsgIfMsg(player, errMap.get("textDisplayUsage"));
+            sendPlayerMsgIfMsg(player, Texts.errors.get("textDisplayUsage"));
             return false;
         }
 
@@ -108,9 +65,9 @@ public class Main implements CommandExecutor {
         return true;
     }
 
-    public boolean onPlayerDisplayCommand(Player player, String[] args) {
+    private boolean onPlayerDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            Main.sendPlayerMsgIfMsg(player, errMap.get("displayUsage"));
+            sendPlayerMsgIfMsg(player, Texts.errors.get("displayUsage"));
             return false;
         }
 
@@ -142,14 +99,14 @@ public class Main implements CommandExecutor {
                 DisplayCommands.handleDisplayRenameCommand(player, args);
                 break;
             default:
-                Main.sendPlayerMsgIfMsg(player, errMap.get("displayInvalidSubcommand"));
+                sendPlayerMsgIfMsg(player, Texts.errors.get("displayInvalidSubcommand"));
         }
         return true;
     }
 
-    public boolean onPlayerAdvDisplayCommand(Player player, String[] args) {
+    private boolean onPlayerAdvDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            Main.sendPlayerMsgIfMsg(player, errMap.get("advDisplayUsage"));
+            sendPlayerMsgIfMsg(player, Texts.errors.get("advDisplayUsage"));
             return false;
         }
 
@@ -165,20 +122,20 @@ public class Main implements CommandExecutor {
             case "debug":
                 handleDebugCommand(player);
             default:
-                Main.sendPlayerMsgIfMsg(player, errMap.get("advDisplayInvalidSubcommand"));
+                sendPlayerMsgIfMsg(player, Texts.errors.get("advDisplayInvalidSubcommand"));
         }
         return true;
     }
 
-    public boolean onPlayerDisplayGroupCommand(Player player, String[] args) {
-        if (!Config.getConfig().getBoolean("doDisplayGroups")) {
+    private boolean onPlayerDisplayGroupCommand(Player player, String[] args) {
+        if (!Config.config.getBoolean("doDisplayGroups")) {
             // this is actually enough to disable all of this, since you can't set a parent (create a group) otherwise
-            Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupDisabled"));
+            sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupDisabled"));
             return false;
         }
 
         if (args.length < 1) {
-            Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupUsage"));
+            sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupUsage"));
             return false;
         }
 
@@ -205,7 +162,7 @@ public class Main implements CommandExecutor {
                 DisplayGroupCommands.handleDisplayGroupShowCommand(player, args);
                 break;
             default:
-                Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupInvalidSubcommand"));
+                sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupInvalidSubcommand"));
         }
         return true;
     }
@@ -233,7 +190,7 @@ public class Main implements CommandExecutor {
     }
 
 
-    static void handleDebugCommand(Player player) {
+    private static void handleDebugCommand(Player player) {
         return;
     }
 }

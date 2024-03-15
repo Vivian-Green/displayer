@@ -25,7 +25,7 @@ public class WorldGuardIntegration { // will only be instantiated if worldguard 
     }
 
     private void loadFlagFromConfig() {
-        String flagName = Config.getConfig().getString("worldguardFlag");
+        String flagName = Config.config.getString("worldguardFlag");
         assert flagName != null;
         displayEditingFlag = (StateFlag) Flags.fuzzyMatchFlag(WorldGuard.getInstance().getFlagRegistry(), flagName);
     }

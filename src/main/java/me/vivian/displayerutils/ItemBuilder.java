@@ -1,6 +1,7 @@
 package me.vivian.displayerutils;
 
-import me.vivian.displayer.commands.Main;
+import me.vivian.displayer.DisplayPlugin;
+import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.Material;
@@ -18,6 +19,11 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class ItemBuilder {
+    private static DisplayPlugin plugin;
+
+    public static void init(DisplayPlugin thisPlugin){
+        plugin = thisPlugin;
+    }
     public static ItemStack makeGUIBook() {
         // Create a new book
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
@@ -68,7 +74,7 @@ public class ItemBuilder {
         // bind UUID to button nbt
         PersistentDataContainer dataContainer = buttonMeta.getPersistentDataContainer();
         UUID displayUUID = vivDisplay.display.getUniqueId();
-        dataContainer.set(new NamespacedKey(Main.getPlugin(), "displayUUID"), PersistentDataType.STRING, displayUUID.toString());
+        dataContainer.set(new NamespacedKey(plugin, "displayUUID"), PersistentDataType.STRING, displayUUID.toString());
 
         // add enchantment glint to named Displays
         if (vivDisplay.displayName.isEmpty()){

@@ -12,12 +12,12 @@ import java.util.Map;
 /**
  * Utility class for managing NBT, provides getters/setters for NBT
  */
-public class NBTMagic {
-    Plugin plugin;
+public final class NBTMagic {
+    static Plugin plugin;
 
-    private final Map<Class<?>, PersistentDataType<?, ?>> dataTypeMap = new HashMap<>();
+    private static final Map<Class<?>, PersistentDataType<?, ?>> dataTypeMap = new HashMap<>();
 
-    public NBTMagic(Plugin thisPlugin) {
+    public static void init(Plugin thisPlugin) {
         plugin = thisPlugin;
         dataTypeMap.put(String.class, PersistentDataType.STRING);
         dataTypeMap.put(Integer.class, PersistentDataType.INTEGER);
@@ -25,15 +25,15 @@ public class NBTMagic {
         dataTypeMap.put(Boolean.class, PersistentDataType.BOOLEAN);
     }
 
-    private NamespacedKey getNamespacedKey(String key) {
+    private static NamespacedKey getNamespacedKey(String key) {
         return new NamespacedKey(plugin, key);
     }
 
-    public PersistentDataContainer getNBTHolder(Entity entity) {
+    public static PersistentDataContainer getNBTHolder(Entity entity) {
         return entity.getPersistentDataContainer();
     }
 
-    public <T> T getNBT(Entity entity, String key, Class<T> dataType) {
+    public static <T> T getNBT(Entity entity, String key, Class<T> dataType) {
         if (entity != null && key != null) {
             PersistentDataType<?, T> persistentDataType = (PersistentDataType<?, T>) dataTypeMap.get(dataType);
             if (persistentDataType != null) {
@@ -64,7 +64,7 @@ public class NBTMagic {
 
 
 
-    public Boolean isBoolNBTNull(Entity entity, String key) {
+    public static Boolean isBoolNBTNull(Entity entity, String key) {
         if (entity != null && key != null) {
             return getNBTHolder(entity).get(getNamespacedKey(key), PersistentDataType.BOOLEAN) == null;
         } else {
@@ -72,23 +72,23 @@ public class NBTMagic {
         }
     }
 
-    private void setNBTInner(Entity entity, String key, String value) {
+    private static void setNBTInner(Entity entity, String key, String value) {
         getNBTHolder(entity).set(getNamespacedKey(key), PersistentDataType.STRING, value);
     }
 
-    private void setNBTInner(Entity entity, String key, Integer value) {
+    private static void setNBTInner(Entity entity, String key, Integer value) {
         getNBTHolder(entity).set(getNamespacedKey(key), PersistentDataType.INTEGER, value);
     }
 
-    private void setNBTInner(Entity entity, String key, Double value) {
+    private static void setNBTInner(Entity entity, String key, Double value) {
         getNBTHolder(entity).set(getNamespacedKey(key), PersistentDataType.DOUBLE, value);
     }
 
-    private void setNBTInner(Entity entity, String key, Boolean value) {
+    private static void setNBTInner(Entity entity, String key, Boolean value) {
         getNBTHolder(entity).set(getNamespacedKey(key), PersistentDataType.BOOLEAN, value);
     }
 
-    public <T> void setNBT(Entity entity, String key, T value) {
+    public static <T> void setNBT(Entity entity, String key, T value) {
         if (entity == null || key == null || value == null) {
             logNullValues(entity, key, value);
             throw new IllegalArgumentException("setNBT(): Entity, key, or value is null");
@@ -109,7 +109,7 @@ public class NBTMagic {
         }
     }
 
-    private void logNullValues(Entity entity, String key, Object value) {
+    private static void logNullValues(Entity entity, String key, Object value) {
         if (entity == null) {
             System.out.println("setNBT(): Entity is null");
         }

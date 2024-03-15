@@ -14,10 +14,8 @@ import java.util.Map;
 /**
  * Provides utility methods for manipulating inventory items.
  */
-public class ItemManipulation {
+public class ItemManipulation { // todo: make static
     public ItemManipulation() {}
-
-    static Map<String, String> errMap = Texts.getErrors();
 
     // Reduces the count of the (player)'s held item by 1. If the new count <= 0, the remove it.
     public static void takeFromHeldItem(Player player) {

@@ -1,13 +1,12 @@
 package me.vivian.displayerutils;
 
-import me.vivian.displayer.commands.Main;
+import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Texts;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
 
 public class CommandParsing {
-    static Map<String, String> errMap = Texts.getErrors();
 
     /**
      * Parses a double from the specified (index) of (args) and ensures
@@ -29,12 +28,12 @@ public class CommandParsing {
         try {
             double value = Double.parseDouble(args[index]);
             if (value < minValue) {
-                Main.sendPlayerMsgIfMsg(player, errorMessage);
+                CommandHandler.sendPlayerMsgIfMsg(player, errorMessage);
                 return defaultValue; // Return the default value
             }
             return value;
         } catch (NumberFormatException e) {
-            Main.sendPlayerMsgIfMsg(player, errorMessage);
+            CommandHandler.sendPlayerMsgIfMsg(player, errorMessage);
             return defaultValue; // Return the default value
         }
     }
@@ -57,7 +56,7 @@ public class CommandParsing {
                 rollOffset = Float.parseFloat(args[3]);
             }
         } catch (NumberFormatException e) {
-            Main.sendPlayerMsgIfMsg(player, errMap.get("parseInvalidRotation"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("parseInvalidRotation"));
             return null;
         }
 
@@ -72,7 +71,7 @@ public class CommandParsing {
             y = (float) Double.parseDouble(args[2]);
             z = (float) Double.parseDouble(args[3]);
         } catch (NumberFormatException e) {
-            Main.sendPlayerMsgIfMsg(player, errMap.get("parseInvalidPosition"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("parseInvalidPosition"));
             return null;
         }
 

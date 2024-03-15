@@ -1,7 +1,6 @@
 package me.vivian.displayer;
 
-import me.vivian.displayer.commands.AutoFill;
-import me.vivian.displayer.commands.Main;
+import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayGroupHandler;
@@ -10,8 +9,6 @@ import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -24,64 +21,39 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 import org.joml.Vector2d;
 import org.joml.Vector3d;
 
 import java.util.Map;
-import java.util.Objects;
+
+// todo: EventListeners should exist and shouldn't be taped to plugin-
 
 /**
  * Handles startup and events relevant to displays/display GUIs.
  */
-public final class EventListeners extends JavaPlugin implements Listener {
+public final class EventListeners implements Listener {
 
     public EventListeners() {}
-    static FileConfiguration config = Config.getConfig();
 
+    Plugin plugin;
     double positionScale = 0.01;
     double rotationScale = 1;
     double sizeScale = 0.01;
     double brightnessScale = 0.01;
     double multiplierFastSpeed = 10.0;
-
     double multiplierSlowSpeed = 0.1;
 
-    Map<String, String> errMap;
 
-    public void registerCommand(CommandExecutor commandExecutor, TabCompleter subCommandExecutor, String commandName) {
-        System.out.println(commandName);
-        Objects.requireNonNull(getCommand(commandName)).setExecutor(commandExecutor);
-        Objects.requireNonNull(getCommand(commandName)).setTabCompleter(subCommandExecutor);
-    }
+    public EventListeners(DisplayPlugin thisPlugin) {
+        plugin = thisPlugin;
 
-    @Override
-    public void onEnable() {
-        this.saveResource("plugin.yml", false);
-        this.saveResource("config.yml", false);
-        this.saveResource("texts.yml", false);
-
-        CommandExecutor mainCommandExecutor = new Main(this);
-        TabCompleter subCommandExecutor = new AutoFill();
-
-        positionScale = (float) Config.getConfig().getDouble("positionScale");
-        rotationScale = (float) Config.getConfig().getDouble("rotationScale");
-        sizeScale = (float) Config.getConfig().getDouble("sizeScale");
-        brightnessScale = (float) Config.getConfig().getDouble("brightnessScale");
-        multiplierFastSpeed = (float) Config.getConfig().getDouble("multiplierFastSpeed");
-        multiplierSlowSpeed = (float) Config.getConfig().getDouble("multiplierSlowSpeed");
-
-        registerCommand(mainCommandExecutor, subCommandExecutor, "display");
-        registerCommand(mainCommandExecutor, subCommandExecutor, "advdisplay");
-        registerCommand(mainCommandExecutor, subCommandExecutor, "displaygroup");
-        registerCommand(mainCommandExecutor, subCommandExecutor, "textdisplay");
-
-        // Register event listeners
-        getServer().getPluginManager().registerEvents(this, this);
-
-
-
-        errMap = Texts.getErrors();
+        positionScale = (float) Config.config.getDouble("positionScale");
+        rotationScale = (float) Config.config.getDouble("rotationScale");
+        sizeScale = (float) Config.config.getDouble("sizeScale");
+        brightnessScale = (float) Config.config.getDouble("brightnessScale");
+        multiplierFastSpeed = (float) Config.config.getDouble("multiplierFastSpeed");
+        multiplierSlowSpeed = (float) Config.config.getDouble("multiplierSlowSpeed");
     }
 
     public void onDisplayGUIClick(InventoryClickEvent event){
@@ -146,8 +118,8 @@ public final class EventListeners extends JavaPlugin implements Listener {
                         BlockData blockData = material.createBlockData(); // just a test
                     } catch (Exception IllegalArgumentException){
                         // failed to create a BlockData
-                        String errStr = errMap.get("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
-                        Main.sendPlayerMsgIfMsg(player, errStr);
+                        String errStr = Texts.errors.get("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
+                        CommandHandler.sendPlayerMsgIfMsg(player, errStr);
                         return;
                     }
                 }
@@ -185,7 +157,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         }
 
         System.out.println("checking translation buttons");
-        handleTranslationButtons(multiplier, slot, player, selectedVivDisplay);
+        handleTranslationButtonClick(multiplier, slot, player, selectedVivDisplay);
     }
 
     private void onTextDisplayGUIClick(InventoryClickEvent event, VivDisplay selectedVivDisplay) {
@@ -230,15 +202,14 @@ public final class EventListeners extends JavaPlugin implements Listener {
             switch (column) {
                 case 0:
                     textDisplay.setAlignment(TextDisplay.TextAlignment.LEFT);
-                    break;
+                    return;
                 case 1:
                     textDisplay.setAlignment(TextDisplay.TextAlignment.CENTER);
-                    break;
+                    return;
                 case 2:
                     textDisplay.setAlignment(TextDisplay.TextAlignment.RIGHT);
-                    break;
+                    return;
             }
-            return;
         }
         System.out.println("isn't switch click");
 
@@ -254,10 +225,10 @@ public final class EventListeners extends JavaPlugin implements Listener {
         }
 
         System.out.println("checking translation buttons");
-        handleTranslationButtons(multiplier, slot, player, selectedVivDisplay);
+        handleTranslationButtonClick(multiplier, slot, player, selectedVivDisplay);
     }
 
-    private void handleTranslationButtons(double multiplier, int slot, Player player, VivDisplay selectedVivDisplay) {
+    private void handleTranslationButtonClick(double multiplier, int slot, Player player, VivDisplay selectedVivDisplay) {
         System.out.println("translation buttons check called");
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
@@ -304,13 +275,12 @@ public final class EventListeners extends JavaPlugin implements Listener {
             case "7,1":
                 selectedVivDisplay.changeSize(sizeScale * multiplier, player);
                 System.out.println("size button!");
-                break;
+                return;
             case "7,2":
                 selectedVivDisplay.changeSize(-sizeScale * multiplier, player);
                 System.out.println("size button!");
-                break;
+                return;
         }
-        System.out.println("no button clicked!");
     }
 
     public void onDisplayNearbyGUIClick(InventoryClickEvent event) {
@@ -334,9 +304,9 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // the actual code
 
         // Check for display UUID nbt
-        if (!dataContainer.has(new NamespacedKey(Main.getPlugin(), "displayUUID"), PersistentDataType.STRING)) return;
+        if (!dataContainer.has(new NamespacedKey(plugin, "displayUUID"), PersistentDataType.STRING)) return;
 
-        String UUIDStr = dataContainer.get(new NamespacedKey(Main.getPlugin(), "displayUUID"), PersistentDataType.STRING);
+        String UUIDStr = dataContainer.get(new NamespacedKey(plugin, "displayUUID"), PersistentDataType.STRING);
 
         // Perform your desired action with the display UUID
         player.performCommand("advdisplay select " + UUIDStr);
@@ -387,7 +357,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // ensure selected display
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
-            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
         }
 
@@ -424,7 +394,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // ensure selectedVivDisplay
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
-            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
         }
 

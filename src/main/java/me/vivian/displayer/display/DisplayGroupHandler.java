@@ -1,8 +1,8 @@
 package me.vivian.displayer.display;
 
+import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.TransformMath;
-import me.vivian.displayer.commands.Main;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -14,7 +14,7 @@ import org.joml.Vector3d;
 import java.util.*;
 
 public class DisplayGroupHandler {
-    static FileConfiguration config = Config.getConfig();
+    static FileConfiguration config = Config.config;
 
     // Function to translate all displays in a hierarchy
     public static void translateHierarchy(VivDisplay vivDisplay, Vector3d translation) {
@@ -74,7 +74,7 @@ public class DisplayGroupHandler {
     // Function to copy and paste all displays in a hierarchy
     public static void copyAndPasteHierarchy(VivDisplay vivDisplay, Player player, Location newLocation) {
         // Record the player's selected display before copying
-        VivDisplay originalSelectedDisplay = Main.selectedVivDisplays.get(player);
+        VivDisplay originalSelectedDisplay = DisplayPlugin.selectedVivDisplays.get(player);
 
         // Get all displays in the hierarchy
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
@@ -119,7 +119,7 @@ public class DisplayGroupHandler {
         }
 
         // Set the player's selected display back to what it was before copying
-        Main.selectedVivDisplays.put(player, originalSelectedDisplay);
+        DisplayPlugin.selectedVivDisplays.put(player, originalSelectedDisplay);
     }
 
 

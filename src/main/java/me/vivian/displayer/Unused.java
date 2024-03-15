@@ -1,8 +1,9 @@
 package me.vivian.displayer;
 
-import me.vivian.displayer.commands.Main;
+import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.VivDisplay;
+import me.vivian.displayerutils.NBTMagic;
 import me.vivian.displayerutils.TransformMath;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -19,8 +20,6 @@ import java.util.Map;
  * Holds unused code in case I need to snag it for something else
  */
 public class Unused {
-    static Map<String, String> errMap = Texts.getErrors();
-    static Map<String, String> msgMap = Texts.getMessages();
 
     /**
      * constructor... why would you instantiate this?
@@ -54,7 +53,7 @@ public class Unused {
         // Get distance rounded to 2 places
         double distance = TransformMath.roundTo(location.distance(playerLocation), 2);
 
-        String name = Main.nbtm.getNBT(vivDisplay.display, "VivDisplayName", String.class);
+        String name = NBTMagic.getNBT(vivDisplay.display, "VivDisplayName", String.class);
         if (name == null) name = "";
 
         Material displayMaterial;
@@ -63,21 +62,21 @@ public class Unused {
         // Get material & type of display
         if (vivDisplay.display instanceof BlockDisplay) {
             displayMaterial = ((BlockDisplay) vivDisplay.display).getBlock().getMaterial();
-            displayTypeStr = msgMap.get("displayNearbyHyperlink_BlockDisplayDisplayText");
+            displayTypeStr = Texts.messages.get("displayNearbyHyperlink_BlockDisplayDisplayText");
         } else if (vivDisplay.display instanceof ItemDisplay) {
             ItemStack itemStack = ((ItemDisplay) vivDisplay.display).getItemStack();
             assert itemStack != null;
             displayMaterial = itemStack.getType();
-            displayTypeStr = msgMap.get("displayNearbyHyperlink_ItemDisplayDisplayText");
+            displayTypeStr = Texts.messages.get("displayNearbyHyperlink_ItemDisplayDisplayText");
         } else {
             displayMaterial = Material.AIR;
-            displayTypeStr = msgMap.get("displayNearbyHyperlink_UnknownDisplayDisplayText");
-            System.out.println(errMap.get("displayNearbyFoundUnknownItem"));
+            displayTypeStr = Texts.messages.get("displayNearbyHyperlink_UnknownDisplayDisplayText");
+            System.out.println(Texts.errors.get("displayNearbyFoundUnknownItem"));
             return; // Exit early if the display is borked
         }
 
         // Create & send message to select this display, if it's not borked
-        String hyperLinkText = msgMap.get("displayNearbyHyperlinkText");
+        String hyperLinkText = Texts.messages.get("displayNearbyHyperlinkText");
         hyperLinkText = hyperLinkText.replace("$DisplayTypeDisplayText", displayTypeStr);
         hyperLinkText = hyperLinkText.replace("$DisplayName", name);
         hyperLinkText = hyperLinkText.replace("$DisplayMaterial", displayMaterial.toString());
@@ -96,7 +95,7 @@ public class Unused {
         boolean isChange = args.length > 0 && "changerotation".equalsIgnoreCase(args[0]);
 
         if (args.length < 4) {
-            CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayChangeRotationUsage"), isChange, errMap.get("advDisplaySetRotationUsage"));
+            CommandHandler.sendPlayerAifBelseC(player, Texts.errors.get("advDisplayChangeRotationUsage"), isChange, Texts.errors.get("advDisplaySetRotationUsage"));
             return;
         }
 
@@ -104,7 +103,7 @@ public class Unused {
         if (selectedVivDisplay == null) return;
 
         if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
             return;
         }
 
@@ -116,14 +115,14 @@ public class Unused {
                 selectedVivDisplay.changeRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2]) :
                 selectedVivDisplay.setRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2], player);
 
-        CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayRotationFailed"), !success);
+        CommandHandler.sendPlayerAifBelseC(player, Texts.errors.get("advDisplayRotationFailed"), !success);
     }
 
     public static void handleAdvDisplayPositionCommand(Player player, String[] args) {
         // get relevant invalid position err
         boolean isChange = args.length > 0 && "changeposition".equalsIgnoreCase(args[0]);
         if (args.length != 4) {
-            CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayChangePositionUsage"), isChange, errMap.get("advDisplaySetPositionUsage"));
+            CommandHandler.sendPlayerAifBelseC(player, Texts.errors.get("advDisplayChangePositionUsage"), isChange, Texts.errors.get("advDisplaySetPositionUsage"));
             return;
         }
 
@@ -134,7 +133,7 @@ public class Unused {
         if (selectedVivDisplay == null) return;
 
         if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
             return;
         }
 
@@ -142,24 +141,24 @@ public class Unused {
                 selectedVivDisplay.changePosition(positionOffsets[0], positionOffsets[1], positionOffsets[2]) :
                 selectedVivDisplay.setPosition(positionOffsets[0], positionOffsets[1], positionOffsets[2], player);
 
-        CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayPositionFailed"), !success);
+        CommandHandler.sendPlayerAifBelseC(player, Texts.errors.get("advDisplayPositionFailed"), !success);
     }
 
     public static void handleAdvDisplaySizeCommand(Player player, String[] args) {
         // get relevant invalid size err
         boolean isChange = args.length > 0 && "changesize".equalsIgnoreCase(args[0]);
         String errorMessage = isChange ?
-                errMap.get("advDisplayChangeSizeInvalid") :
-                errMap.get("advDisplaySetSizeInvalid");
+                Texts.errors.get("advDisplayChangeSizeInvalid") :
+                Texts.errors.get("advDisplaySetSizeInvalid");
 
         // ensure selectedDisplay that can be edited by this player
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
         }
         if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
             return;
         }
 
