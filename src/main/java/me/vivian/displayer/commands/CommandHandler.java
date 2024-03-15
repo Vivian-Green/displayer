@@ -22,7 +22,6 @@ public class CommandHandler implements CommandExecutor {
     public static PluginDescriptionFile pluginDesc;
     private static Plugin plugin;
     public static NBTMagic nbtm;
-
     public static Map<String, String> errMap;
     public static boolean loaded = false;
 
@@ -43,22 +42,19 @@ public class CommandHandler implements CommandExecutor {
     }
 
     public static Plugin getPlugin() {
-        while (!loaded || plugin == null){
-            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-                // wait a tick and hope CommandHandler is actually initialized
-                System.out.println("CommandHandler.getPlugin(): waiting for plugin...\n....this shouldn't happen (something is loading before CommandHandler when it shouldn't be, or loading plugin somehow failed) \n....Stack trace:");
+        if (!loaded || plugin == null || !plugin.isEnabled()){
+            System.out.println("CommandHandler.getPlugin(): plugin either isn't loaded, valid, or enabled...\n....this shouldn't happen (something is loading before CommandHandler when it shouldn't be, or loading plugin somehow failed) \n....Stack trace:");
 
-                StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-
-                // Print the first few lines of the stack trace
-                for(int i=1; i<=3; i++) {
-                    System.out.println("........: " + stackTraceElements[i].toString());
-                }
-                System.out.println("....loaded: " + loaded + ", is plugin null? " + (plugin == null));
-            }, 1L);
+            // Print the first few lines of the stack trace
+            StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+            for(int i=1; i<=4; i++) {
+                System.out.println("........: " + stackTraceElements[i].toString());
+            }
+            System.out.println("....loaded: " + loaded + ", is plugin null? " + (plugin == null));
         }
         return plugin;
     }
+
     public static final Map<Player, VivDisplay> selectedVivDisplays = new HashMap<>();
 
     @Override

@@ -1,92 +1,84 @@
-// WorldGuardIntegration.java
+// WorldGuardHandler.java
 package me.vivian.displayerutils;
 
-import me.vivian.displayer.commands.CommandHandler;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import me.vivian.displayer.config.Config;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
-import java.lang.reflect.Method;
-
 public class WorldGuardIntegration {
-    public static Object worldGuardHandler;
-    public static boolean worldGuardExists = false;
-    public static Method canEditDisplayHereMethod;
-    public static Method playerCanFlagMethod;
-    public static Method canEditDisplayMethod;
-    public static Method canEditThisDisplayMethod;
+    public StateFlag displayEditingFlag = null;
+    public WorldGuardPlugin worldGuardPlugin;
 
-    public WorldGuardIntegration() {
-        // ohgod reflection go brrrrr
-        //      todo: sweep off the coke
-        worldGuardHandler = getWorldGuardHandler();
-        if (worldGuardHandler != null) {
-            try {
-                canEditDisplayHereMethod = worldGuardHandler.getClass().getMethod("canEditDisplayHere", Player.class, Vector.class);
-                playerCanFlagMethod = worldGuardHandler.getClass().getMethod("playerCanFlag", Player.class, Class.forName("com.sk89q.worldguard.protection.flags.StateFlag"));
-                canEditDisplayMethod = worldGuardHandler.getClass().getMethod("canEditDisplay", Player.class);
-                canEditThisDisplayMethod = worldGuardHandler.getClass().getMethod("canEditThisDisplay", Player.class, VivDisplay.class);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    public WorldGuardIntegration(Plugin worldGuardPlugin) {
+        this.worldGuardPlugin = (WorldGuardPlugin) worldGuardPlugin;
+        loadFlagFromConfig();
     }
 
-    public static Object getWorldGuardHandler() {
-        Plugin plugin = CommandHandler.getPlugin().getServer().getPluginManager().getPlugin("WorldGuard");
-
-        if (plugin == null) {
-            return null;
-        }
-
-        // Use reflection to load the WorldGuardHandler class
-        try {
-            Class<?> worldGuardHandlerClass = Class.forName("me.vivian.displayerutils.WorldGuardHandler");
-            worldGuardExists = true;
-            return worldGuardHandlerClass.getConstructor(Plugin.class).newInstance(plugin);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    private void loadFlagFromConfig() {
+        String flagName = Config.getConfig().getString("worldguardFlag");
+        assert flagName != null;
+        displayEditingFlag = (StateFlag) Flags.fuzzyMatchFlag(WorldGuard.getInstance().getFlagRegistry(), flagName);
     }
 
-    public static boolean canEditDisplayHere(Player player, Vector position) {
-        if (worldGuardHandler == null) {
+    public boolean canEditDisplayHere(Player player, Vector position) {
+        if (displayEditingFlag == null) {
             return true;
         }
 
-        try {
-            return (boolean) canEditDisplayHereMethod.invoke(worldGuardHandler, player, position);
-        } catch (Exception e) {
-            e.printStackTrace();
+        LocalPlayer localPlayer = worldGuardPlugin.wrapPlayer(player);
+        BlockVector3 thisBlockVec3 = BlockVector3.at(position.getX(), position.getY() + 1, position.getZ()); // +1 to Y coordinate for head location
+
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionManager regionManager = container.get(localPlayer.getWorld());
+
+        if (regionManager == null) {
             return true;
         }
+
+        ApplicableRegionSet applicableRegionSet = regionManager.getApplicableRegions(thisBlockVec3);
+
+        return applicableRegionSet.testState(localPlayer, displayEditingFlag);
+    }
+    public boolean playerCanFlag(Player player, StateFlag flag) {
+        return playerCanFlagHere(player, flag, player.getLocation().toVector());
     }
 
-    public static boolean canEditDisplay(Player player) {
-        if (worldGuardHandler == null) {
-            return true;
-        }
-
-        try {
-            return (boolean) canEditDisplayMethod.invoke(worldGuardHandler, player);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return true;
-        }
+    public boolean canEditDisplay(Player player) {
+        return canEditDisplayHere(player, player.getLocation().toVector());
     }
 
-    public static boolean canEditThisDisplay(Player player, VivDisplay vivDisplay) {
-        if (worldGuardHandler == null) {
+    public boolean canEditThisDisplay(Player player, VivDisplay vivDisplay) {
+        return canEditDisplayHere(player, vivDisplay.display.getLocation().toVector());
+    }
+
+    private boolean playerCanFlagHere(Player player, StateFlag flag, Vector position) {
+        if (displayEditingFlag == null) {
             return true;
         }
 
-        try {
-            return (boolean) canEditThisDisplayMethod.invoke(worldGuardHandler, player, vivDisplay);
-        } catch (Exception e) {
-            e.printStackTrace();
+        LocalPlayer localPlayer = worldGuardPlugin.wrapPlayer(player);
+        BlockVector3 thisBlockVec3 = BlockVector3.at(position.getX(), position.getY() + 1, position.getZ()); // +1 to Y coordinate for head location
+
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionManager regionManager = container.get(localPlayer.getWorld());
+
+        if (regionManager == null) {
             return true;
         }
+
+        ApplicableRegionSet applicableRegionSet = regionManager.getApplicableRegions(thisBlockVec3);
+
+        return applicableRegionSet.testState(localPlayer, flag);
     }
 }

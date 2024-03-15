@@ -97,7 +97,7 @@ public class DisplayCommands {
      *               - /display create <name> [block/item] [atselected]
      */
     static void handleDisplayCreateCommand(Player player, String[] args) {
-        if(WorldGuardIntegration.worldGuardExists && !WorldGuardIntegration.canEditDisplay(player)) {
+        if(WorldGuardIntegrationLoader.worldGuardExists && !WorldGuardIntegrationLoader.canEditDisplay(player)) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
@@ -183,7 +183,7 @@ public class DisplayCommands {
             return;
         }
 
-        if(!WorldGuardIntegration.canEditThisDisplay(player, selectedVivDisplay)) {
+        if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
@@ -230,7 +230,7 @@ public class DisplayCommands {
 
         VivDisplay closestVivDisplay = nearbyVivDisplays.get(0);
 
-        if(!WorldGuardIntegration.canEditThisDisplay(player, closestVivDisplay)) {
+        if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, closestVivDisplay)) {
             // return on closest display can't be edited
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;

@@ -2,8 +2,11 @@ package me.vivian.displayer;
 
 import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Texts;
+import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
+import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayerutils.TransformMath;
+import me.vivian.displayerutils.WorldGuardIntegrationLoader;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
@@ -12,7 +15,9 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Transformation;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -90,4 +95,98 @@ public class Unused {
 
         player.spigot().sendMessage(message);
     }
+
+    /*
+    public static void handleAdvDisplayRotationCommand(Player player, String[] args) {
+        boolean isChange = args.length > 0 && "changerotation".equalsIgnoreCase(args[0]);
+
+        if (args.length < 4) {
+            CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayChangeRotationUsage"), isChange, errMap.get("advDisplaySetRotationUsage"));
+            return;
+        }
+
+        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        if (selectedVivDisplay == null) return;
+
+        if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
+            return;
+        }
+
+        float[] rotationOffsets = CommandParsing.parseRotationOffsets(player, args);
+
+        if (rotationOffsets == null) return;
+
+        boolean success = isChange ?
+                selectedVivDisplay.changeRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2]) :
+                selectedVivDisplay.setRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2], player);
+
+        CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayRotationFailed"), !success);
+    }
+
+    public static void handleAdvDisplayPositionCommand(Player player, String[] args) {
+        // get relevant invalid position err
+        boolean isChange = args.length > 0 && "changeposition".equalsIgnoreCase(args[0]);
+        if (args.length != 4) {
+            CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayChangePositionUsage"), isChange, errMap.get("advDisplaySetPositionUsage"));
+            return;
+        }
+
+        float[] positionOffsets = CommandParsing.parsePositionOffsets(args, player);
+        if (positionOffsets == null) return; // shouldn't err unless the player calls it, which, they fukin shouldn't
+
+        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        if (selectedVivDisplay == null) return;
+
+        if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
+            return;
+        }
+
+        boolean success = isChange ?
+                selectedVivDisplay.changePosition(positionOffsets[0], positionOffsets[1], positionOffsets[2]) :
+                selectedVivDisplay.setPosition(positionOffsets[0], positionOffsets[1], positionOffsets[2], player);
+
+        CommandHandler.sendPlayerAifBelseC(player, errMap.get("advDisplayPositionFailed"), !success);
+    }
+
+    public static void handleAdvDisplaySizeCommand(Player player, String[] args) {
+        // get relevant invalid size err
+        boolean isChange = args.length > 0 && "changesize".equalsIgnoreCase(args[0]);
+        String errorMessage = isChange ?
+                errMap.get("advDisplayChangeSizeInvalid") :
+                errMap.get("advDisplaySetSizeInvalid");
+
+        // ensure selectedDisplay that can be edited by this player
+        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        if (selectedVivDisplay == null) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            return;
+        }
+        if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
+            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
+            return;
+        }
+
+        // get size clamped to range
+        Transformation transformation = selectedVivDisplay.display.getTransformation();
+        double currentSize = transformation.getScale().x;
+        double minSize = config.getDouble("minDisplaySize");
+        double maxSize = config.getDouble("maxDisplaySize");
+        minSize = isChange ? -currentSize+minSize : minSize; // offset -current size for change size
+
+        double sizeArg = CommandParsing.parseNumberFromArgs(args, 1, minSize, minSize, player, errorMessage); // clamps low values
+        double newScale = isChange ? (currentSize + sizeArg) : sizeArg; // offset +current size for change size
+        newScale = Math.min(newScale, maxSize); // clamp high values
+
+        if (newScale >= minSize && newScale <= maxSize) { // sanity check
+            System.out.println(newScale);
+            transformation.getScale().set(newScale);
+            selectedVivDisplay.display.setTransformation(transformation);
+        } else {
+            System.out.println("this path shouldn't be accessible!" + Arrays.toString(args));
+            player.sendMessage(errorMessage);
+        }
+    }
+     */
 }
