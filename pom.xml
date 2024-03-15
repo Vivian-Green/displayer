@@ -6,7 +6,7 @@
 
     <groupId>me.vivian</groupId>
     <artifactId>displayer</artifactId>
-    <version>1.5.6-dev</version>
+    <version>1.6.0-dev</version>
     <packaging>jar</packaging>
 
     <name>displayer</name>
