@@ -122,7 +122,6 @@ public final class EventListeners extends JavaPlugin implements Listener {
                 player.closeInventory();
                 player.performCommand("display nearby");
                 event.setCancelled(true);
-
                 return;
             case 52:
                 System.out.println("rename button click!");
@@ -203,6 +202,15 @@ public final class EventListeners extends JavaPlugin implements Listener {
         System.out.println("inside inv check:");
         if (slot >= inventory.getSize()) return;
         System.out.println("    pass");
+
+        switch (slot) {
+            case 0:
+                System.out.println("close button click!");
+                player.closeInventory();
+                player.performCommand("display nearby");
+                event.setCancelled(true);
+                return;
+        }
 
         Vector2d switchPosition = new Vector2d(0, 5);
         int switchStartSlot = (int) (switchPosition.y * 9 + switchPosition.x);

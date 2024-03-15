@@ -65,23 +65,23 @@ public class GUIBuilder {
         details.add("name: " + vivDisplay.displayName);
         details.add("type: " + vivDisplay.display.getType());
 
-        if (vivDisplay instanceof TextDisplay){
-            TextDisplay textDisplay = (TextDisplay) vivDisplay;
+        if (vivDisplay.display instanceof TextDisplay){
+            TextDisplay textDisplay = (TextDisplay) vivDisplay.display;
 
             String alignmentStr = "| | | |";
             switch (textDisplay.getAlignment()){
                 case LEFT:
-                    alignmentStr = "|L| | |";
+                    alignmentStr = "|<| | |";
                     break;
                 case CENTER:
-                    alignmentStr = "| |C| |";
+                    alignmentStr = "| |=| |";
                     break;
                 case RIGHT:
-                    alignmentStr = "| | |R|";
+                    alignmentStr = "| | |>|";
                     break;
             }
 
-            details.add("text properties: " + alignmentStr);
+            details.add("text properties: align: " + alignmentStr);
             details.add("    text: " + textDisplay.getText());
             details.add("    background color: " + textDisplay.getBackgroundColor());
             details.add("    opacity: " + textDisplay.getTextOpacity());

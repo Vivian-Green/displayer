@@ -104,13 +104,7 @@ public class CommandHandler implements CommandExecutor {
             return false;
         }
 
-        String subCommand = args[0].toLowerCase();
-
-        switch (subCommand) {
-            case "settext":
-                TextDisplayCommands.handleTextDisplayCommand(player, args);
-                break;
-        }
+        TextDisplayCommands.handleTextDisplayCommand(player, args);
         return true;
     }
 

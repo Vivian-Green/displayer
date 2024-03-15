@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Display;
+import org.bukkit.util.Vector;
 import org.joml.Vector3d;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class ParticleHandler {
     public static void spawnParticle(Display display, Particle particle, Integer count) {
         Location displayLocation = display.getLocation();
 
-        Vector3d offset = new Vector3d(0, 1, 0);
+        Vector offset = new Vector(0, 1, 0);
 
         if (particle == null) {
             particle = Particle.ENCHANTMENT_TABLE;
@@ -27,9 +28,11 @@ public class ParticleHandler {
             count = 100;
         }
 
+        Location offsetLocation = new Location(displayLocation.getWorld(), displayLocation.getX() + offset.getX(), displayLocation.getY() + offset.getY(), displayLocation.getZ() + offset.getZ(), displayLocation.getYaw(), displayLocation.getPitch());
+
         displayLocation.getWorld().spawnParticle(
                 particle,
-                displayLocation,
+                offsetLocation,
                 count
         );
     }

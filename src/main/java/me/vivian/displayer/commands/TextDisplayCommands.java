@@ -30,7 +30,7 @@ public class TextDisplayCommands {
     }
 
     public static void handleTextDisplaySetTextCommand(Player player, String[] args, TextDisplay textDisplay) {
-        String text = String.join(" ", Arrays.copyOfRange(args, 3, args.length-1)).trim();
+        String text = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
         if (text.isEmpty()) { // case text is only whitespace, which is trimmed
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateTextNoText"));
             return;
@@ -50,15 +50,15 @@ public class TextDisplayCommands {
      * @param textDisplay The TextDisplay instance for which the background color is set.
      */
     public static void handleTextDisplaySetBackgroundColorCommand(Player player, String[] args, TextDisplay textDisplay) {
-        if (args.length < 6) {
+        if (args.length < 5) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("invalidColor"));
             return;
         }
 
         // Extract RGB from args 3-5
-        int red = Integer.parseInt(args[3]);
-        int green = Integer.parseInt(args[4]);;
-        int blue = Integer.parseInt(args[5]);;
+        int red = Integer.parseInt(args[2]);
+        int green = Integer.parseInt(args[3]);;
+        int blue = Integer.parseInt(args[4]);;
 
         // ensure that's a color
         if (!(red >= 0 && red <= 255) || !(green >= 0 && green <= 255) || !(blue >= 0 && blue <= 255)) {
@@ -73,8 +73,8 @@ public class TextDisplayCommands {
         // handle alpha values
         byte alpha = 0;
 
-        if (args.length >= 7) {
-            alpha = CommandParsing.parseByteFromArg(args[6]);
+        if (args.length >= 6) {
+            alpha = CommandParsing.parseByteFromArg(args[5]);
             if (!(alpha >= 0 && alpha <= 255)) {
                 setVivDisplayOpacity(textDisplay, alpha);
                 CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("invalidColor"));
@@ -84,12 +84,12 @@ public class TextDisplayCommands {
 
 
     public static void handleTextDisplaySetOpacityCommand(Player player, String[] args, TextDisplay textDisplay) {
-        if (args.length < 4) {
+        if (args.length < 3) {
             CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("textDisplaySetOpacityNoOpacity"));
             return;
         }
 
-        String opacityArg = args[3];
+        String opacityArg = args[2];
 
         byte opacityByte = CommandParsing.parseByteFromArg(opacityArg);
         if ((int) opacityByte + 128 < minOpacityInt) {
@@ -124,22 +124,28 @@ public class TextDisplayCommands {
         }
         TextDisplay textDisplay = (TextDisplay) selectedDisplay.display;
 
-        String subCommand = args[1].toLowerCase();
+        String subCommand = args[0].toLowerCase();
         switch (subCommand.toLowerCase()) {
             case "set":
-                subCommand = args[2].toLowerCase();
+                subCommand = args[1].toLowerCase();
                 switch (subCommand.toLowerCase()) {
                     case "text":
                         handleTextDisplaySetTextCommand(player, args, textDisplay);
+                        break;
                     case "opacity":
                         handleTextDisplaySetOpacityCommand(player, args, textDisplay);
+                        break;
                     case "backgroundcolor":
                         handleTextDisplaySetBackgroundColorCommand(player, args, textDisplay);
+                        break;
                 }
+                break;
             case "togglebackground":
                 handleTextDisplayToggleBackgroundCommand(textDisplay);
+                break;
             case "toggleshadow":
                 handleTextDisplayToggleShadowCommand(textDisplay);
+                break;
         }
     }
 
