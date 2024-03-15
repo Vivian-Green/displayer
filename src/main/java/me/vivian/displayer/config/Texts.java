@@ -1,9 +1,8 @@
 package me.vivian.displayer.config;
 
-import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.commands.Main;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.util.HashMap;
@@ -19,7 +18,7 @@ public class Texts {
         if (loadState == 0) {
             // todo: just copy a gd default file, this is already getting too long
             //       alternatively, make this so long that someone else is more disgusted than you & does it for you
-            File textsFile = new File(CommandHandler.getPlugin().getDataFolder(), "texts.yml");
+            File textsFile = new File(Main.getPlugin().getDataFolder(), "texts.yml");
             tCfg = YamlConfiguration.loadConfiguration(textsFile);
             loadState = 1;
         }

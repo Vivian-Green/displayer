@@ -1,6 +1,6 @@
 package me.vivian.displayer.config;
 
-import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.commands.Main;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -10,7 +10,7 @@ public class Config {
     private static FileConfiguration config;
 
     public static void loadConfig() {
-        File configFile = new File(CommandHandler.getPlugin().getDataFolder(), "config.yml");
+        File configFile = new File(Main.getPlugin().getDataFolder(), "config.yml");
         config = YamlConfiguration.loadConfiguration(configFile);
     }
 

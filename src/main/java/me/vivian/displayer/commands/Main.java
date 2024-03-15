@@ -19,14 +19,14 @@ import org.bukkit.plugin.PluginDescriptionFile;
 // todo: aliases in config
 
 // handles commands for creating, manipulating, and interacting with displays
-public class CommandHandler implements CommandExecutor {
+public class Main implements CommandExecutor {
     public static PluginDescriptionFile pluginDesc;
     private static Plugin plugin;
     public static NBTMagic nbtm;
     public static Map<String, String> errMap;
     public static boolean loaded = false;
 
-    public CommandHandler(Plugin thisPlugin) {
+    public Main(Plugin thisPlugin) {
         //System.out.println("displayer: initializing CommandHandler..");
         plugin = thisPlugin;
         pluginDesc = plugin.getDescription();
@@ -100,7 +100,7 @@ public class CommandHandler implements CommandExecutor {
 
     public boolean onPlayerTextDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("textDisplayUsage"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("textDisplayUsage"));
             return false;
         }
 
@@ -110,7 +110,7 @@ public class CommandHandler implements CommandExecutor {
 
     public boolean onPlayerDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayUsage"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayUsage"));
             return false;
         }
 
@@ -142,14 +142,14 @@ public class CommandHandler implements CommandExecutor {
                 DisplayCommands.handleDisplayRenameCommand(player, args);
                 break;
             default:
-                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayInvalidSubcommand"));
+                Main.sendPlayerMsgIfMsg(player, errMap.get("displayInvalidSubcommand"));
         }
         return true;
     }
 
     public boolean onPlayerAdvDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("advDisplayUsage"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("advDisplayUsage"));
             return false;
         }
 
@@ -165,7 +165,7 @@ public class CommandHandler implements CommandExecutor {
             case "debug":
                 handleDebugCommand(player);
             default:
-                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("advDisplayInvalidSubcommand"));
+                Main.sendPlayerMsgIfMsg(player, errMap.get("advDisplayInvalidSubcommand"));
         }
         return true;
     }
@@ -173,12 +173,12 @@ public class CommandHandler implements CommandExecutor {
     public boolean onPlayerDisplayGroupCommand(Player player, String[] args) {
         if (!Config.getConfig().getBoolean("doDisplayGroups")) {
             // this is actually enough to disable all of this, since you can't set a parent (create a group) otherwise
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupDisabled"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupDisabled"));
             return false;
         }
 
         if (args.length < 1) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupUsage"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupUsage"));
             return false;
         }
 
@@ -205,7 +205,7 @@ public class CommandHandler implements CommandExecutor {
                 DisplayGroupCommands.handleDisplayGroupShowCommand(player, args);
                 break;
             default:
-                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupInvalidSubcommand"));
+                Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupInvalidSubcommand"));
         }
         return true;
     }

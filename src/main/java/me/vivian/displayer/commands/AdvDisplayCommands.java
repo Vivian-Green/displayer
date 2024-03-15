@@ -32,7 +32,7 @@ public class AdvDisplayCommands {
 
         if (selectedVivDisplay == null) return;
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
 
@@ -57,7 +57,7 @@ public class AdvDisplayCommands {
         player.sendMessage("Distance to Display: " + TransformMath.roundTo(player.getLocation().distance(displayLocation), 2));
 
         // Send NBT data related to parent and child
-        CommandHandler.sendPlayerAifBelseC(player, "Parent UUID: " + selectedVivDisplay.parentUUID, selectedVivDisplay.isChild);
+        Main.sendPlayerAifBelseC(player, "Parent UUID: " + selectedVivDisplay.parentUUID, selectedVivDisplay.isChild);
 
         player.sendMessage("Is Parent: " + selectedVivDisplay.isParentDisplay());
     }
@@ -96,11 +96,11 @@ public class AdvDisplayCommands {
         }
 
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("cantEditDisplayHere"));
             return;
         }
 
-        CommandHandler.selectedVivDisplays.put(player, selectedVivDisplay);
+        Main.selectedVivDisplays.put(player, selectedVivDisplay);
         ParticleHandler.spawnParticle(selectedVivDisplay.display, null, null);
 
         // open gui if selecting from here

@@ -28,7 +28,6 @@
 - displaygroup editing GUI
 - bones?
 
-
 # bugs:
 - display nearby gui isn't selecting displays
 - display group rotations are borked as hell

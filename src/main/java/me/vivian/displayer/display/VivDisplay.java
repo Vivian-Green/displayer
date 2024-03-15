@@ -1,6 +1,6 @@
 package me.vivian.displayer.display;
 
-import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.commands.Main;
 import me.vivian.displayerutils.NBTMagic;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -94,7 +94,7 @@ public class VivDisplay{
      * @param player              The player performing the display destruction.
      */
     public void destroy(Player player) { // todo: handle case player is null
-        Map<Player, VivDisplay> selectedVivDisplays = CommandHandler.selectedVivDisplays;
+        Map<Player, VivDisplay> selectedVivDisplays = Main.selectedVivDisplays;
 
         if (display!= null) {
             try {

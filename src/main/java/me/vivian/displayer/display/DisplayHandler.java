@@ -1,6 +1,6 @@
 package me.vivian.displayer.display;
 
-import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.commands.Main;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayer.config.Texts;
@@ -19,10 +19,10 @@ public class DisplayHandler {
     static Map<String, String> errMap = Texts.getErrors();
     static Map<String, String> msgMap = Texts.getMessages();
 
-    private static final Plugin plugin = CommandHandler.getPlugin();
+    private static final Plugin plugin = Main.getPlugin();
     public static void createBlockDisplay(Player player, String[] args) {
         if (!player.getInventory().getItemInMainHand().getType().isBlock()) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("invalidBlock"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("invalidBlock"));
             return;
         }
         BlockData blockData = player.getInventory().getItemInMainHand().getType().createBlockData();
@@ -41,11 +41,11 @@ public class DisplayHandler {
         String text = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
 
         if (text.isEmpty()) { // case text is only whitespace, which is trimmed
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateTextNoText"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayCreateTextNoText"));
             return;
         }
 
-        CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayCreateText") + text);
+        Main.sendPlayerMsgIfMsg(player, msgMap.get("displayCreateText") + text);
 
         VivDisplay vivDisplay = new VivDisplay(plugin, player.getWorld(), player.getEyeLocation(), EntityType.TEXT_DISPLAY, text);
 
@@ -59,14 +59,14 @@ public class DisplayHandler {
 
     public static void updateDisplay(Player player, VivDisplay vivDisplay, String[] args) {
         boolean atSelected = (args.length >= 3 && args[2].equalsIgnoreCase("atselected"));
-        if (atSelected && CommandHandler.selectedVivDisplays.get(player) != null) {
+        if (atSelected && Main.selectedVivDisplays.get(player) != null) {
             // todo: should the location be set directly?
-            vivDisplay.display.setTransformation(CommandHandler.selectedVivDisplays.get(player).display.getTransformation());
+            vivDisplay.display.setTransformation(Main.selectedVivDisplays.get(player).display.getTransformation());
         } else {
             vivDisplay.display.setRotation(player.getEyeLocation().getYaw(), player.getEyeLocation().getPitch());
         }
 
-        CommandHandler.selectedVivDisplays.put(player, vivDisplay);
+        Main.selectedVivDisplays.put(player, vivDisplay);
     }
 
     public static void destroyNearbyDisplays(Player player, String[] args) {
@@ -136,7 +136,7 @@ public class DisplayHandler {
         if (nearbyVivDisplays.isEmpty()) {
             if (player != null) {
                 if (!errMap.get("displayNearbyNotFound_Begin").isEmpty() || !errMap.get("displayNearbyNotFound_End").isEmpty()){
-                    CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayNearbyNotFound_Begin") + radius + errMap.get("displayNearbyNotFound_End"));
+                    Main.sendPlayerMsgIfMsg(player, errMap.get("displayNearbyNotFound_Begin") + radius + errMap.get("displayNearbyNotFound_End"));
                 }
             }
         }
@@ -145,9 +145,9 @@ public class DisplayHandler {
     }
 
     public static void destroySelectedDisplay(Player player) {
-        VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = Main.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
         } else {
             if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
                 // todo: warn can't build here
@@ -160,10 +160,10 @@ public class DisplayHandler {
     }
 
     //self-explanatory
-    public static VivDisplay getSelectedVivDisplay(Player player) {
-        VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
+    public static VivDisplay getSelectedVivDisplay(Player player) { // todo: this wrapper is unnecessary? the null check does nothing relevant!
+        VivDisplay selectedVivDisplay = Main.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
         }
         return selectedVivDisplay;
     }
@@ -180,7 +180,7 @@ public class DisplayHandler {
 
         // Find the first display with the specified "VivDisplayName" NBT tag equal to displayName
         for (Display display: nearbyDisplays) {
-            String currentDisplayName = CommandHandler.nbtm.getNBT(display, "VivDisplayName", String.class);
+            String currentDisplayName = Main.nbtm.getNBT(display, "VivDisplayName", String.class);
             if (currentDisplayName != null && currentDisplayName.equals(displayName)) {
                 return display; // Found the display, return it
             }

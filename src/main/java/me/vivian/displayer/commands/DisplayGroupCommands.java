@@ -31,7 +31,7 @@ public class DisplayGroupCommands {
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -42,40 +42,55 @@ public class DisplayGroupCommands {
         DisplayGroupHandler.copyAndPasteHierarchy(selectedVivDisplay, player, newLocation);
 
         // Send a success message to the player
-        CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayGroupPasteSuccess"));
+        Main.sendPlayerMsgIfMsg(player, msgMap.get("displayGroupPasteSuccess"));
     }
 
     // Sets the parent of the (player)'s selected VivDisplay.
-    public static void handleDisplayGroupSetParentCommand(Player player, String[] args) {
+    public static void handleDisplayGroupSetParentCommand(Player player, String[] args) { // so I decided to try gemini, and.. not bad? needed some reordering tho
         if (args.length < 2) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupSetParentUsage"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupSetParentUsage"));
             return;
         }
-
-        String parentName = args[1]; // Get the parent display name to set
-
-        // Get the selected VivDisplay for the player
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
-
+        if (selectedVivDisplay == null) {
+            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            return;
+        }
         // Find the parent display by name
+        String parentName = args[1]; // Get the parent display name
         Display parentDisplay = DisplayHandler.getDisplayByName(player, parentName);
         if (parentDisplay == null) {
             if (!errMap.get("displayGroupSetParentNoParent_Begin").isEmpty() || !errMap.get("displayGroupSetParentNoParent_End").isEmpty()) {
-                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupSetParentNoParent_Begin") + parentName + errMap.get("displayGroupSetParentNoParent_End"));
+                Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupSetParentNoParent_Begin") + parentName + errMap.get("displayGroupSetParentNoParent_End"));
             }
+            return;
+        }
+
+        // Check for recursive parent before setting
+        if (isRecursiveParent(selectedVivDisplay, parentDisplay)) {
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupSetParentRecursive"));
             return;
         }
 
         player.sendMessage(selectedVivDisplay.setParent(parentDisplay));
     }
 
+    private static boolean isRecursiveParent(VivDisplay vivDisplay, Display potentialParent) {
+        if (vivDisplay == null || potentialParent == null) {
+            return false;
+        }
+
+        VivDisplay highestParent = DisplayGroupHandler.getHighestVivDisplay(vivDisplay);
+        return highestParent != null && highestParent.display.equals(potentialParent);
+    }
+
     // Unsets the parent of the (player)'s selected VivDisplay.
     static void handleDisplayGroupUnparentCommand(Player player) {
         // Get the selected VivDisplay for the player
-        VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = Main.selectedVivDisplays.get(player);
 
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -92,7 +107,7 @@ public class DisplayGroupCommands {
     public static void handleDisplayGroupRotateCommand(Player player, String[] args) {
         // Check if the correct number of arguments are provided
         if (args.length != 4) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupRotateUsage"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupRotateUsage"));
             return;
         }
 
@@ -103,7 +118,7 @@ public class DisplayGroupCommands {
             yaw = Double.parseDouble(args[2]);
             roll = Double.parseDouble(args[3]);
         } catch (NumberFormatException e) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupInvalidRotation"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupInvalidRotation"));
             return;
         }
 
@@ -112,7 +127,7 @@ public class DisplayGroupCommands {
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -122,7 +137,7 @@ public class DisplayGroupCommands {
         DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(roll, yaw, pitch));
 
         // Send a success message to the player
-        CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayGroupRotateSuccess"));
+        Main.sendPlayerMsgIfMsg(player, msgMap.get("displayGroupRotateSuccess"));
     }
 
     /**
@@ -135,7 +150,7 @@ public class DisplayGroupCommands {
     public static void handleDisplayGroupTranslateCommand(Player player, String[] args) {
         // Check if the correct number of arguments are provided
         if (args.length != 4) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupTranslateUsage"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupTranslateUsage"));
             return;
         }
 
@@ -146,7 +161,7 @@ public class DisplayGroupCommands {
             yTranslation = Double.parseDouble(args[2]);
             zTranslation = Double.parseDouble(args[3]);
         } catch (NumberFormatException e) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupTranslateInvalidTranslation"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupTranslateInvalidTranslation"));
             return;
         }
 
@@ -155,7 +170,7 @@ public class DisplayGroupCommands {
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -163,28 +178,28 @@ public class DisplayGroupCommands {
         DisplayGroupHandler.translateHierarchy(selectedVivDisplay, new Vector3d(xTranslation, yTranslation, zTranslation));
 
         // Send a success message to the player
-        CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayGroupTranslateSuccess"));
+        Main.sendPlayerMsgIfMsg(player, msgMap.get("displayGroupTranslateSuccess"));
     }
 
     public static void handleDisplayGroupShowCommand(Player player, String[] args) {
         // Check if the correct number of arguments is provided
         if (args.length != 1) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayGroupShowUsage"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayGroupShowUsage"));
             return;
         }
 
         // Get the player's selected VivDisplay by name
-        VivDisplay selectedVivDisplay = CommandHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = Main.selectedVivDisplays.get(player);
 
         // Check if the selected VivDisplay exists
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
         List<VivDisplay> hierarchy = DisplayGroupHandler.getAllDisplaysInHierarchy(selectedVivDisplay);
         if (hierarchy == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("hierarchyIsNull"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("hierarchyIsNull"));
             return;
         }
 
@@ -193,6 +208,6 @@ public class DisplayGroupCommands {
 
         // Send a success message to the player
         // todo: lel?
-        CommandHandler.sendPlayerMsgIfMsg(player, msgMap.get("displayGroupShowSuccess"));
+        Main.sendPlayerMsgIfMsg(player, msgMap.get("displayGroupShowSuccess"));
     }
 }

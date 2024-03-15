@@ -1,6 +1,6 @@
 package me.vivian.displayerutils;
 
-import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.commands.Main;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -26,7 +26,7 @@ public class WorldGuardIntegrationWrapper { // loads WorldGuardIntegration if wo
     }
 
     public static Object getWorldGuardHandler() {
-        Plugin worldGuardPlugin = CommandHandler.getPlugin().getServer().getPluginManager().getPlugin("WorldGuard");
+        Plugin worldGuardPlugin = Main.getPlugin().getServer().getPluginManager().getPlugin("WorldGuard");
         if (worldGuardPlugin == null) {
             System.out.println("displayer: worldguard is null, continuing without region checks.");
             return null;

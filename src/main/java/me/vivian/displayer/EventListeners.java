@@ -1,7 +1,7 @@
 package me.vivian.displayer;
 
 import me.vivian.displayer.commands.AutoFill;
-import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.commands.Main;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayGroupHandler;
@@ -61,7 +61,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         this.saveResource("config.yml", false);
         this.saveResource("texts.yml", false);
 
-        CommandExecutor mainCommandExecutor = new CommandHandler(this);
+        CommandExecutor mainCommandExecutor = new Main(this);
         TabCompleter subCommandExecutor = new AutoFill();
 
         positionScale = (float) Config.getConfig().getDouble("positionScale");
@@ -147,7 +147,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
                     } catch (Exception IllegalArgumentException){
                         // failed to create a BlockData
                         String errStr = errMap.get("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
-                        CommandHandler.sendPlayerMsgIfMsg(player, errStr);
+                        Main.sendPlayerMsgIfMsg(player, errStr);
                         return;
                     }
                 }
@@ -334,9 +334,9 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // the actual code
 
         // Check for display UUID nbt
-        if (!dataContainer.has(new NamespacedKey(CommandHandler.getPlugin(), "displayUUID"), PersistentDataType.STRING)) return;
+        if (!dataContainer.has(new NamespacedKey(Main.getPlugin(), "displayUUID"), PersistentDataType.STRING)) return;
 
-        String UUIDStr = dataContainer.get(new NamespacedKey(CommandHandler.getPlugin(), "displayUUID"), PersistentDataType.STRING);
+        String UUIDStr = dataContainer.get(new NamespacedKey(Main.getPlugin(), "displayUUID"), PersistentDataType.STRING);
 
         // Perform your desired action with the display UUID
         player.performCommand("advdisplay select " + UUIDStr);
@@ -387,7 +387,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // ensure selected display
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
 
@@ -424,7 +424,7 @@ public final class EventListeners extends JavaPlugin implements Listener {
         // ensure selectedVivDisplay
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
 

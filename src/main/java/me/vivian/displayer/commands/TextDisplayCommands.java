@@ -32,7 +32,7 @@ public class TextDisplayCommands {
     public static void handleTextDisplaySetTextCommand(Player player, String[] args, TextDisplay textDisplay) {
         String text = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
         if (text.isEmpty()) { // case text is only whitespace, which is trimmed
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayCreateTextNoText"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayCreateTextNoText"));
             return;
         }
 
@@ -51,7 +51,7 @@ public class TextDisplayCommands {
      */
     public static void handleTextDisplaySetBackgroundColorCommand(Player player, String[] args, TextDisplay textDisplay) {
         if (args.length < 5) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("invalidColor"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("invalidColor"));
             return;
         }
 
@@ -62,7 +62,7 @@ public class TextDisplayCommands {
 
         // ensure that's a color
         if (!(red >= 0 && red <= 255) || !(green >= 0 && green <= 255) || !(blue >= 0 && blue <= 255)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("invalidColor"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("invalidColor"));
             return;
         }
 
@@ -77,7 +77,7 @@ public class TextDisplayCommands {
             alpha = CommandParsing.parseByteFromArg(args[5]);
             if (!(alpha >= 0 && alpha <= 255)) {
                 setVivDisplayOpacity(textDisplay, alpha);
-                CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("invalidColor"));
+                Main.sendPlayerMsgIfMsg(player, errMap.get("invalidColor"));
             }
         }
     }
@@ -85,7 +85,7 @@ public class TextDisplayCommands {
 
     public static void handleTextDisplaySetOpacityCommand(Player player, String[] args, TextDisplay textDisplay) {
         if (args.length < 3) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("textDisplaySetOpacityNoOpacity"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("textDisplaySetOpacityNoOpacity"));
             return;
         }
 
@@ -93,7 +93,7 @@ public class TextDisplayCommands {
 
         byte opacityByte = CommandParsing.parseByteFromArg(opacityArg);
         if ((int) opacityByte + 128 < minOpacityInt) {
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("textDisplaySetOpacityLowOpacity").replace("$minopacity", (int) (minOpacity * 10) + "%"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("textDisplaySetOpacityLowOpacity").replace("$minopacity", (int) (minOpacity * 10) + "%"));
             return;
         }
 
@@ -115,11 +115,11 @@ public class TextDisplayCommands {
         // mise en place
         VivDisplay selectedDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedDisplay == null){
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("noSelectedDisplay"));
             return;
         }
         if (!(selectedDisplay.display instanceof TextDisplay)){
-            CommandHandler.sendPlayerMsgIfMsg(player, errMap.get("displayTextNotTextDisplay"));
+            Main.sendPlayerMsgIfMsg(player, errMap.get("displayTextNotTextDisplay"));
             return;
         }
         TextDisplay textDisplay = (TextDisplay) selectedDisplay.display;

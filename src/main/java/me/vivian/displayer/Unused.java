@@ -1,6 +1,6 @@
 package me.vivian.displayer;
 
-import me.vivian.displayer.commands.CommandHandler;
+import me.vivian.displayer.commands.Main;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.TransformMath;
@@ -54,7 +54,7 @@ public class Unused {
         // Get distance rounded to 2 places
         double distance = TransformMath.roundTo(location.distance(playerLocation), 2);
 
-        String name = CommandHandler.nbtm.getNBT(vivDisplay.display, "VivDisplayName", String.class);
+        String name = Main.nbtm.getNBT(vivDisplay.display, "VivDisplayName", String.class);
         if (name == null) name = "";
 
         Material displayMaterial;
