@@ -7,6 +7,7 @@ import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +17,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ItemBuilder {
@@ -59,14 +61,14 @@ public class ItemBuilder {
     }
 
     private static ItemStack buildSelectButtonItem(VivDisplay vivDisplay, Material material, String displayName) {
+        System.out.println("building select button...");
         // build button
         ItemStack button = new ItemStack(material);
         ItemMeta buttonMeta = button.getItemMeta();
         buttonMeta.setDisplayName(displayName);
         if (vivDisplay.display instanceof TextDisplay){
             // set lore to TextDisplay text
-            ArrayList<String> lore = new ArrayList<>();
-            lore.add(((TextDisplay) vivDisplay.display).getText());
+            ArrayList<String> lore = new ArrayList<>(List.of(((TextDisplay) vivDisplay.display).getText().split("\n")));
             buttonMeta.setLore(lore);
         }
         button.setItemMeta(buttonMeta);
@@ -75,6 +77,7 @@ public class ItemBuilder {
         PersistentDataContainer dataContainer = buttonMeta.getPersistentDataContainer();
         UUID displayUUID = vivDisplay.display.getUniqueId();
         dataContainer.set(new NamespacedKey(plugin, "displayUUID"), PersistentDataType.STRING, displayUUID.toString());
+        button.setItemMeta(buttonMeta);
 
         // add enchantment glint to named Displays
         if (vivDisplay.displayName.isEmpty()){

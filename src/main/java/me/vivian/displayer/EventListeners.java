@@ -111,8 +111,6 @@ public final class EventListeners implements Listener {
 
         System.out.println("checking translation buttons");
         return handleTranslationButtonClick(multiplier, slot, player, vivDisplay);
-
-        return false;
     }
 
 
@@ -287,12 +285,15 @@ public final class EventListeners implements Listener {
 
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
         Player player = (Player) event.getWhoClicked();
-        player.closeInventory();
 
         // the actual code
 
         // Check for display UUID nbt
-        if (!dataContainer.has(new NamespacedKey(plugin, "displayUUID"), PersistentDataType.STRING)) return;
+        if (!dataContainer.has(new NamespacedKey(plugin, "displayUUID"), PersistentDataType.STRING)) {
+            System.out.println("no UUID?");
+            return;
+        }
+        player.closeInventory();
 
         String UUIDStr = dataContainer.get(new NamespacedKey(plugin, "displayUUID"), PersistentDataType.STRING);
 

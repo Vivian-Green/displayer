@@ -1,5 +1,6 @@
 # display todos:
-- advdisplay translation & scale commands should be removeable now, if GUI works consistently-
+- display locate command
+- ability to use placeholders? but that would probably be complicated-
 - luckperms integration
 - item frame (map) functionality
 - text display functionality

@@ -32,7 +32,9 @@ public class TextDisplayCommands {
         }
 
         // actually do things
-        text = text.replace("\\n", "\n"); // handle newline chars
+        text = text.replace("\\\\", "$ESCAPED_BACKSLASH"); // flag escaped \'s
+        text = text.replace("\\n", "\n"); // replace not escaped \n's with actual newlines
+        text = text.replace("$ESCAPED_BACKSLASH", "\\"); // replace flags with escaped \'s
         text = text.replace("&&", "§"); // handle color codes
         textDisplay.setText(text);
     }
