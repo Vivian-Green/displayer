@@ -108,7 +108,7 @@ public class TextDisplayCommands {
 
     public static void handleTextDisplayCommand(Player player, String[] args) { // todo: filter
         // mise en place
-        VivDisplay selectedDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player);
         if (selectedDisplay == null){
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;

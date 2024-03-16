@@ -59,7 +59,7 @@ public final class EventListeners implements Listener {
     public void onDisplayGUIClick(InventoryClickEvent event){
         System.out.println("display gui click");
         Player player = (Player) event.getWhoClicked();
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null || selectedVivDisplay.display == null) return; // player doesn't have a display selected, so don't do anything on gui click-
 
         System.out.println(selectedVivDisplay.getClass());
@@ -79,7 +79,45 @@ public final class EventListeners implements Listener {
         }
     }
 
+    private boolean onDisplayGUIClickCommon(InventoryClickEvent event, VivDisplay vivDisplay){
+        int slot = event.getRawSlot();
+        Player player = (Player) event.getWhoClicked();
+        switch (slot) {
+            case 0:
+                System.out.println("close button click!");
+                player.closeInventory();
+                player.performCommand("display nearby");
+                event.setCancelled(true);
+                return true;
+            case 52:
+                System.out.println("rename button click!");
+                player.closeInventory();
+                String command = "/display rename ";
+                String json = String.format("{\"text\":\"Click to rename this display\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"%s\"}}", command);
+                player.performCommand("tellraw " + player.getName() + " " + json);
+                event.setCancelled(true);
+                return true;
+        }
+        // Regular click: 1x
+        // Shift click: 10x
+        // Right click OR shift right click: 0.1x
+        double multiplier = 1;
+        if (event.isShiftClick()){
+            multiplier = multiplierFastSpeed;
+        }
+        if (event.isRightClick()) {
+            multiplier = multiplierSlowSpeed;
+        }
+
+        System.out.println("checking translation buttons");
+        return handleTranslationButtonClick(multiplier, slot, player, vivDisplay);
+
+        return false;
+    }
+
+
     private void onStandardDisplayGUIClick(InventoryClickEvent event, VivDisplay selectedVivDisplay) {
+        if (onDisplayGUIClickCommon(event, selectedVivDisplay)) return;
         System.out.println("onStandardDisplayGUIClick");
 
         int slot = event.getRawSlot();
@@ -89,20 +127,6 @@ public final class EventListeners implements Listener {
         Inventory inventory = event.getInventory();
 
         switch (slot) {
-            case 0:
-                System.out.println("close button click!");
-                player.closeInventory();
-                player.performCommand("display nearby");
-                event.setCancelled(true);
-                return;
-            case 52:
-                System.out.println("rename button click!");
-                player.closeInventory();
-                String command = "/display rename ";
-                String json = String.format("{\"text\":\"Click to rename this display\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"%s\"}}", command);
-                player.performCommand("tellraw " + player.getName() + " " + json);
-                event.setCancelled(true);
-                return;
             case 53:
                 System.out.println("material button click!");
                 // mise en place
@@ -140,28 +164,14 @@ public final class EventListeners implements Listener {
                 return;
         }
 
-        System.out.println("inside inv check:");
-        if (slot >= inventory.getSize()) return;
-        System.out.println("    pass");
+        if (slot >= inventory.getSize()) return; // only cancel event in standard display gui when in the gui, for replacing item
+
         event.setCancelled(true);
-
-        // Regular click: 1x
-        // Shift click: 10x
-        // Right click OR shift right click: 0.1x
-        double multiplier = 1;
-        if (event.isShiftClick()){
-            multiplier = multiplierFastSpeed;
-        }
-        if (event.isRightClick()) {
-            multiplier = multiplierSlowSpeed;
-        }
-
-        System.out.println("checking translation buttons");
-        handleTranslationButtonClick(multiplier, slot, player, selectedVivDisplay);
     }
 
     private void onTextDisplayGUIClick(InventoryClickEvent event, VivDisplay selectedVivDisplay) {
         event.setCancelled(true);
+        if (onDisplayGUIClickCommon(event, selectedVivDisplay)) return;
 
         int slot = event.getRawSlot();
         int column = slot % 9; // zero-based
@@ -175,14 +185,6 @@ public final class EventListeners implements Listener {
         if (slot >= inventory.getSize()) return;
         System.out.println("    pass");
 
-        switch (slot) {
-            case 0:
-                System.out.println("close button click!");
-                player.closeInventory();
-                player.performCommand("display nearby");
-                event.setCancelled(true);
-                return;
-        }
 
         Vector2d switchPosition = new Vector2d(0, 5);
         int switchStartSlot = (int) (switchPosition.y * 9 + switchPosition.x);
@@ -211,24 +213,9 @@ public final class EventListeners implements Listener {
                     return;
             }
         }
-        System.out.println("isn't switch click");
-
-        // Regular click: 1x
-        // Shift click: 10x
-        // Right click OR shift right click: 0.1x
-        double multiplier = 1;
-        if (event.isShiftClick()) {
-            multiplier = multiplierFastSpeed;
-        }
-        if (event.isRightClick()) {
-            multiplier = multiplierSlowSpeed;
-        }
-
-        System.out.println("checking translation buttons");
-        handleTranslationButtonClick(multiplier, slot, player, selectedVivDisplay);
     }
 
-    private void handleTranslationButtonClick(double multiplier, int slot, Player player, VivDisplay selectedVivDisplay) {
+    private boolean handleTranslationButtonClick(double multiplier, int slot, Player player, VivDisplay selectedVivDisplay) {
         System.out.println("translation buttons check called");
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
@@ -261,26 +248,27 @@ public final class EventListeners implements Listener {
             System.out.println("translation button!");
             System.out.println("    : " + translation);
             selectedVivDisplay.changePosition(translation.x, translation.y, translation.z);
-            return;
+            return true;
         }
 
         Vector3d rotation = slotToRotation.get(slotKey);
         if (rotation != null) {
             System.out.println("rotation button!");
             selectedVivDisplay.changeRotation((float) rotation.x, (float) rotation.y, (float) rotation.z);
-            return;
+            return true;
         }
 
         switch (slotKey) {
             case "7,1":
                 selectedVivDisplay.changeSize(sizeScale * multiplier, player);
                 System.out.println("size button!");
-                return;
+                return true;
             case "7,2":
                 selectedVivDisplay.changeSize(-sizeScale * multiplier, player);
                 System.out.println("size button!");
-                return;
+                return true;
         }
+        return false;
     }
 
     public void onDisplayNearbyGUIClick(InventoryClickEvent event) {
@@ -355,9 +343,9 @@ public final class EventListeners implements Listener {
         }
 
         // ensure selected display
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
+            //CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay")); // do NOT
             return;
         }
 
@@ -392,9 +380,9 @@ public final class EventListeners implements Listener {
         Vector3d delta = new Vector3d(to.x - from.x, to.y - from.y, to.z - from.z); // can't subtract Vector3d's lmao
 
         // ensure selectedVivDisplay
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
+            //CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay")); // do NOT
             return;
         }
 

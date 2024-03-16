@@ -6,23 +6,18 @@ import me.vivian.displayer.commands.TextDisplayCommands;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
-import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.ItemBuilder;
+import me.vivian.displayerutils.NBTMagic;
 import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.configuration.Configuration;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 public final class DisplayPlugin extends JavaPlugin { // this should be final yea?
-    public static final Map<Player, VivDisplay> selectedVivDisplays = new HashMap<>();
     public PluginDescriptionFile pluginDesc;
 
     @Override
@@ -63,6 +58,9 @@ public final class DisplayPlugin extends JavaPlugin { // this should be final ye
 
         // yea
         TextDisplayCommands.init();
+
+        // yea
+        NBTMagic.init(this);
     }
 
     public void registerCommand(CommandExecutor commandExecutor, TabCompleter subCommandExecutor, String commandName) {

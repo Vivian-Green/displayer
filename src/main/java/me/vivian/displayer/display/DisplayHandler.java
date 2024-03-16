@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 
 public class DisplayHandler {
+    public static final Map<Player, VivDisplay> selectedVivDisplays = new HashMap<>();
     private static DisplayPlugin plugin;
     public static void setPlugin(DisplayPlugin thisPlugin){
         plugin = thisPlugin;
@@ -59,14 +60,14 @@ public class DisplayHandler {
 
     public static void updateDisplay(Player player, VivDisplay vivDisplay, String[] args) {
         boolean atSelected = (args.length >= 3 && args[2].equalsIgnoreCase("atselected"));
-        if (atSelected && DisplayPlugin.selectedVivDisplays.get(player) != null) {
+        if (atSelected && selectedVivDisplays.get(player) != null) {
             // todo: should the location be set directly?
-            vivDisplay.display.setTransformation(DisplayPlugin.selectedVivDisplays.get(player).display.getTransformation());
+            vivDisplay.display.setTransformation(selectedVivDisplays.get(player).display.getTransformation());
         } else {
             vivDisplay.display.setRotation(player.getEyeLocation().getYaw(), player.getEyeLocation().getPitch());
         }
 
-        DisplayPlugin.selectedVivDisplays.put(player, vivDisplay);
+        selectedVivDisplays.put(player, vivDisplay);
     }
 
     public static void destroyNearbyDisplays(Player player, String[] args) {
@@ -145,7 +146,7 @@ public class DisplayHandler {
     }
 
     public static void destroySelectedDisplay(Player player) {
-        VivDisplay selectedVivDisplay = DisplayPlugin.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
         } else {
@@ -157,15 +158,6 @@ public class DisplayHandler {
 
             selectedVivDisplay.destroy(player);
         }
-    }
-
-    //self-explanatory
-    public static VivDisplay getSelectedVivDisplay(Player player) { // todo: this wrapper is unnecessary? the null check does nothing relevant!
-        VivDisplay selectedVivDisplay = DisplayPlugin.selectedVivDisplays.get(player);
-        if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
-        }
-        return selectedVivDisplay;
     }
 
     /**

@@ -1,6 +1,6 @@
 name: displayer
 version: '${project.version}'
-main: me.vivian.displayer.EventListeners
+main: me.vivian.displayer.DisplayPlugin
 api-version: '1.20'
 
 # todo: ensure this is accurate still-

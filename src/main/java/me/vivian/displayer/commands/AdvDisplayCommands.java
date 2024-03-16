@@ -1,6 +1,5 @@
 package me.vivian.displayer.commands;
 
-import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.ParticleHandler;
 import me.vivian.displayer.config.Texts;
@@ -27,7 +26,7 @@ public class AdvDisplayCommands {
      */
     static void handleAdvDisplayDetailsCommand(Player player) { // todo: EW AAAAA GROSS EW NO
         // Get the selected VivDisplay for the player
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
 
         if (selectedVivDisplay == null) return;
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
@@ -99,7 +98,7 @@ public class AdvDisplayCommands {
             return;
         }
 
-        DisplayPlugin.selectedVivDisplays.put(player, selectedVivDisplay);
+        DisplayHandler.selectedVivDisplays.put(player, selectedVivDisplay);
         ParticleHandler.spawnParticle(selectedVivDisplay.display, null, null);
 
         // open gui if selecting from here

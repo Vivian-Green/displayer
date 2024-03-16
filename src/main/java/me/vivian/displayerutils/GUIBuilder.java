@@ -1,7 +1,7 @@
 package me.vivian.displayerutils;
 
-import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayer.config.Texts;
+import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -65,6 +66,8 @@ public class GUIBuilder {
         details.add("name: " + vivDisplay.displayName);
         details.add("type: " + vivDisplay.display.getType());
 
+        int alignState = -1;
+
         if (vivDisplay.display instanceof TextDisplay){
             TextDisplay textDisplay = (TextDisplay) vivDisplay.display;
 
@@ -72,36 +75,67 @@ public class GUIBuilder {
             switch (textDisplay.getAlignment()){
                 case LEFT:
                     alignmentStr = "|<| | |";
+                    alignState = -1;
                     break;
                 case CENTER:
                     alignmentStr = "| |=| |";
+                    alignState = 0;
                     break;
                 case RIGHT:
                     alignmentStr = "| | |>|";
+                    alignState = 1;
                     break;
             }
 
+            String[] texts = textDisplay.getText().split("\n");
+            String[] rawTexts = texts;
+            int longestLen = 0;
+            for (int i = 0; i < rawTexts.length; i++) {
+                rawTexts[i] = rawTexts[i].replaceAll("§.", "");
+                if (rawTexts[i].length() > longestLen) longestLen = rawTexts[i].length();
+            }
+            for (String line : texts) {
+                String paddedText = padTextToLength(line, longestLen, alignState);
+
+                details.add(paddedText);
+            }
+            //details.addAll(Arrays.asList(texts));
+
             details.add("text properties: align: " + alignmentStr);
-            details.add("    text: " + textDisplay.getText());
             details.add("    background color: " + textDisplay.getBackgroundColor());
             details.add("    opacity: " + textDisplay.getTextOpacity());
 
         } else if (vivDisplay instanceof ItemDisplay || vivDisplay instanceof BlockDisplay) {
             // leave here in case details need to be added for these in the future
         }
-
         // todo: lore text as config with placeholders
 
         detailsButtonMeta.setLore(details);
         detailsButton.setItemMeta(detailsButtonMeta);
 
+        createButtonAtXY(inventory, Material.WRITABLE_BOOK, Texts.getText("displayGUIRenameButtonDisplayName"), 7, 5);
+        ItemManipulation.setInventoryItemXY(inventory, ItemBuilder.makeGUIBook(), 0, 5);
+
         ItemManipulation.setInventoryItemXY(inventory, detailsButton, 6, 5);
+    }
+
+    private static String padTextToLength(String text, int maxLen, int alignState) {
+        int halfLength = (maxLen - text.length()) / 2;
+        StringBuilder halfPaddingBuilder = new StringBuilder(halfLength);
+        for (int j = 0; j < halfLength; j++) {
+            halfPaddingBuilder.append("_");
+        }
+        String halfPadding = halfPaddingBuilder.toString();
+        String paddingIfCenterOrFull = alignState == 0 ? halfPadding : halfPadding + halfPadding;
+        String left = alignState == -1 ? "" : paddingIfCenterOrFull;
+        String right = alignState == 1 ? "" : paddingIfCenterOrFull;
+        return left + text + right;
     }
 
 
     public static Inventory displayGUIBuilder(Player player) {
         System.out.println("displayGUIBuilder called");
-        VivDisplay selectedVivDisplay = DisplayPlugin.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null || selectedVivDisplay.display == null) return null; // player doesn't have a display selected, so ya can't make a gui for it-
 
         System.out.println("displayGUIBuilder called");
@@ -116,10 +150,6 @@ public class GUIBuilder {
     public static Inventory standardDisplayGUIBuilder(VivDisplay vivDisplay) {
         Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayGUITitle"));
         createButtonsAndTools(inventory, vivDisplay);
-
-        createButtonAtXY(inventory, Material.WRITABLE_BOOK, Texts.getText("displayGUIRenameButtonDisplayName"), 7, 5);
-        ItemManipulation.setInventoryItemXY(inventory, ItemBuilder.makeGUIBook(), 0, 5);
-
         return inventory;
     }
 
@@ -132,8 +162,16 @@ public class GUIBuilder {
         ItemStack on = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
 
         TextDisplay.TextAlignment[] alignments = TextDisplay.TextAlignment.values();
+
+        if (alignments[0] == TextDisplay.TextAlignment.CENTER) {
+            TextDisplay.TextAlignment temp = alignments[0];
+            alignments[0] = alignments[1];
+            alignments[1] = temp; // swap - why tf is it center left right??
+        }
+
         for (int i = 0; i < 3; i++) {
             TextDisplay.TextAlignment alignment = alignments[i];
+
             ItemStack pane = (textDisplay.getAlignment() == alignment) ? on : off;
             ItemManipulation.setInventoryItemXY(inventory, pane, i, 5);
         }

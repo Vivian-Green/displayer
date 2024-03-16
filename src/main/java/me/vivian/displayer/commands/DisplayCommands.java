@@ -126,7 +126,7 @@ public class DisplayCommands {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayCreateEmptyHand"));
             return;
         }
-        if (atSelected && DisplayPlugin.selectedVivDisplays.get(player) == null) {
+        if (atSelected && DisplayHandler.selectedVivDisplays.get(player) == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
         }
@@ -157,7 +157,7 @@ public class DisplayCommands {
             return;
         }
 
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
@@ -180,7 +180,7 @@ public class DisplayCommands {
             return;
         }
 
-        VivDisplay selectedVivDisplay = DisplayPlugin.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
@@ -243,7 +243,7 @@ public class DisplayCommands {
             return;
         }
 
-        DisplayPlugin.selectedVivDisplays.put(player, closestVivDisplay);
+        DisplayHandler.selectedVivDisplays.put(player, closestVivDisplay);
         ParticleHandler.spawnParticle(closestVivDisplay.display, null, null);
         CommandHandler.sendPlayerMsgIfMsg(player, Texts.messages.get("displayClosestSuccess"));
         player.performCommand("display gui");
@@ -257,7 +257,7 @@ public class DisplayCommands {
     static void handleDisplayGUICommand(Player player) {
         Inventory inventory = GUIBuilder.displayGUIBuilder(player);
 
-        VivDisplay selectedDisplay = DisplayPlugin.selectedVivDisplays.get(player);
+        VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player);
         if (selectedDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             // todo: 'try "/display create"'

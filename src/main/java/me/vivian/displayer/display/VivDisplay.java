@@ -1,6 +1,5 @@
 package me.vivian.displayer.display;
 
-import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayerutils.NBTMagic;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -28,8 +27,7 @@ import java.util.Map;
  */
 public class VivDisplay{
     public Display display;
-    Plugin plugin;
-
+    static Plugin plugin = null;
     public String displayName;
     public String parentUUID;
     public boolean isChild;
@@ -46,16 +44,20 @@ public class VivDisplay{
     }
 
     public void init(Plugin thisPlugin){
-        plugin = thisPlugin;
-
-        displayName = NBTMagic.getNBT(display, "VivDisplayName", String.class);
-        parentUUID = NBTMagic.getNBT(display, "VivDisplayParentUUID", String.class);
-        isChild = NBTMagic.getNBT(display, "VivDisplayIsChild", Boolean.class);
-        isParent = NBTMagic.getNBT(display, "VivDisplayIsParent", Boolean.class);
+        if (plugin == null) {
+            plugin = thisPlugin;
+        }
+        // todo: try catch these?
+        //      Cannot invoke "java.lang.Boolean.booleanValue()" because the return value of "me.vivian.displayerutils.NBTMagic.getNBT(org.bukkit.entity.Entity, String, java.lang.Class)" is null
+        //      default values: "", "",
+        displayName = NBTMagic.getNBT(display, "VivDisplayName", String.class) == null ? "" : NBTMagic.getNBT(display, "VivDisplayName", String.class);
+        parentUUID = NBTMagic.getNBT(display, "VivDisplayParentUUID", String.class) == null ? "" : NBTMagic.getNBT(display, "VivDisplayParentUUID", String.class);
+        isChild = NBTMagic.getNBT(display, "VivDisplayIsChild", Boolean.class) != null && NBTMagic.getNBT(display, "VivDisplayIsChild", Boolean.class);
+        isParent = NBTMagic.getNBT(display, "VivDisplayIsParent", Boolean.class) != null && NBTMagic.getNBT(display, "VivDisplayIsParent", Boolean.class);
     }
 
     public Boolean isParentDisplay() {
-        isParent = NBTMagic.getNBT(display, "VivDisplayIsParent", Boolean.class);
+        isParent = NBTMagic.getNBT(display, "VivDisplayIsParent", Boolean.class) != null && NBTMagic.getNBT(display, "VivDisplayIsParent", Boolean.class);
         return isParent;
     }
 
@@ -92,7 +94,7 @@ public class VivDisplay{
      * @param player              The player performing the display destruction.
      */
     public void destroy(Player player) { // todo: handle case player is null
-        Map<Player, VivDisplay> selectedVivDisplays = DisplayPlugin.selectedVivDisplays;
+        Map<Player, VivDisplay> selectedVivDisplays = DisplayHandler.selectedVivDisplays;
 
         if (display!= null) {
             try {

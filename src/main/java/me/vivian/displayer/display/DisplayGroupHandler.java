@@ -1,6 +1,5 @@
 package me.vivian.displayer.display;
 
-import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.TransformMath;
 import org.bukkit.Location;
@@ -74,7 +73,7 @@ public class DisplayGroupHandler {
     // Function to copy and paste all displays in a hierarchy
     public static void copyAndPasteHierarchy(VivDisplay vivDisplay, Player player, Location newLocation) {
         // Record the player's selected display before copying
-        VivDisplay originalSelectedDisplay = DisplayPlugin.selectedVivDisplays.get(player);
+        VivDisplay originalSelectedDisplay = DisplayHandler.selectedVivDisplays.get(player);
 
         // Get all displays in the hierarchy
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
@@ -119,7 +118,7 @@ public class DisplayGroupHandler {
         }
 
         // Set the player's selected display back to what it was before copying
-        DisplayPlugin.selectedVivDisplays.put(player, originalSelectedDisplay);
+        DisplayHandler.selectedVivDisplays.put(player, originalSelectedDisplay);
     }
 
 

@@ -1,6 +1,5 @@
 package me.vivian.displayer.commands;
 
-import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayerutils.GUIBuilder;
 import me.vivian.displayer.display.DisplayGroupHandler;
@@ -24,7 +23,7 @@ public class DisplayGroupCommands {
      */
     public static void handleDisplayGroupCopyPasteCommand(Player player, String[] args) {
         // Get the player's selected VivDisplay
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
@@ -48,7 +47,7 @@ public class DisplayGroupCommands {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupSetParentUsage"));
             return;
         }
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
@@ -84,7 +83,7 @@ public class DisplayGroupCommands {
     // Unsets the parent of the (player)'s selected VivDisplay.
     static void handleDisplayGroupUnparentCommand(Player player) {
         // Get the selected VivDisplay for the player
-        VivDisplay selectedVivDisplay = DisplayPlugin.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
 
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
@@ -120,7 +119,7 @@ public class DisplayGroupCommands {
         }
 
         // Get the player's selected VivDisplay
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
@@ -163,7 +162,7 @@ public class DisplayGroupCommands {
         }
 
         // Get the player's selected VivDisplay
-        VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
@@ -186,7 +185,7 @@ public class DisplayGroupCommands {
         }
 
         // Get the player's selected VivDisplay by name
-        VivDisplay selectedVivDisplay = DisplayPlugin.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
 
         // Check if the selected VivDisplay exists
         if (selectedVivDisplay == null) {
