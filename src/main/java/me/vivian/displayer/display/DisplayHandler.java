@@ -51,22 +51,22 @@ public class DisplayHandler {
 
             // for each not stale player
             long delayTicks = (playerStaleTime * 20L) + 20L; // Convert seconds to ticks and add 20 ticks
-            Bukkit.getScheduler().runTaskLater(plugin, removePlayerVivDisplaysIfStale(playerUUID), delayTicks);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> removePlayerVivDisplaysIfStale(playerUUID), delayTicks);
         }
     }
 
-    public static Runnable removePlayerVivDisplaysIfStale(UUID playerUUID) {
+    public static void removePlayerVivDisplaysIfStale(UUID playerUUID) {
         long staleTime2 = System.currentTimeMillis() - (playerStaleTime * 1000L);
         if (lastUpdateTimes.get(playerUUID) < staleTime2) {
             selectedVivDisplays.remove(playerUUID);
             lastUpdateTimes.remove(playerUUID);
         }
-        return null;
     }
 
-    public static void removePlayerVivDisplays(UUID playerUUID){
+    public static void  removePlayerVivDisplays(UUID playerUUID){
         selectedVivDisplays.remove(playerUUID);
         lastUpdateTimes.remove(playerUUID);
+        return;
     }
 
 

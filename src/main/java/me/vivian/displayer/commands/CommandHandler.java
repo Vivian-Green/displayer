@@ -39,7 +39,7 @@ public class CommandHandler implements CommandExecutor {
         DisplayHandler.lastUpdateTimes.put(player.getUniqueId(), System.currentTimeMillis());
 
         long delayTicks = (DisplayHandler.playerStaleTime * 20L) + 20L; // Convert seconds to ticks and add 20 ticks
-        Bukkit.getScheduler().runTaskLater(plugin, DisplayHandler.removePlayerVivDisplaysIfStale(player.getUniqueId()), delayTicks); // schedule check if display is stale after the enstalening time, after this command is ran
+        Bukkit.getScheduler().runTaskLater(plugin, () -> DisplayHandler.removePlayerVivDisplaysIfStale(player.getUniqueId()), delayTicks); // schedule check if display is stale after the enstalening time, after this command is ran
 
         return onPlayerCommand(player, command, label, args);
     }

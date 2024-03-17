@@ -6,6 +6,7 @@ import me.vivian.displayerutils.*;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -243,9 +244,8 @@ public class DisplayCommands {
         }
 
         DisplayHandler.selectedVivDisplays.put(player.getUniqueId(), closestVivDisplay);
-        ParticleHandler.spawnParticle(closestVivDisplay.display, null, null);
         CommandHandler.sendPlayerMsgIfMsg(player, Texts.messages.get("displayClosestSuccess"));
-        player.performCommand("display gui");
+        player.performCommand("display locate");
     }
 
     /**
@@ -288,8 +288,12 @@ public class DisplayCommands {
             return;
         }
 
-        ParticleHandler.drawParticleLine(selectedDisplay.display.getLocation(), player.getLocation(), Particle.REDSTONE, 100, new Particle.DustOptions(Color.PURPLE, 3));
-        ParticleHandler.spawnParticle(selectedDisplay.display, Particle.SONIC_BOOM, 100);
+        ParticleHandler.drawParticleLine(player.getLocation(), selectedDisplay.display.getLocation(), Particle.REDSTONE, 100, new Particle.DustOptions(Color.PURPLE, 5));
+        Bukkit.getScheduler().runTaskLater(
+                plugin,
+                () -> ParticleHandler.spawnParticle(selectedDisplay.display, Particle.SONIC_BOOM, 5),
+                20
+        );
     }
 
     public static void handleDisplayUnselectCommand(Player player) {

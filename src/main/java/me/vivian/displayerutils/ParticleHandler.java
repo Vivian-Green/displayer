@@ -62,16 +62,16 @@ public class ParticleHandler {
         // Vector3d vectorBetween = new Vector3d(vector2.x-vector1.x, vector2.y-vector1.y, vector2.z-vector1.z);
 
 
-        for (int i = 0; i < count/5; i++) {
-            double t = (double) i / (count/5 - 1);
+        for (int i = 0; i < count/2; i++) {
+            double t = (double) i / (count/2 - 1);
 
             Vector3d pointOnLine = vector1.lerp(vector2, t);
             Location pointLocation = new Location(world, pointOnLine.x, pointOnLine.y, pointOnLine.z);
 
             if (dustOptions != null) {
-                world.spawnParticle(particle, pointLocation, 5, dustOptions);
+                world.spawnParticle(particle, pointLocation, 2, dustOptions);
             } else {
-                world.spawnParticle(particle, pointLocation, 5);
+                world.spawnParticle(particle, pointLocation, 2);
             }
         }
     }
