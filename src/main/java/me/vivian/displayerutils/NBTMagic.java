@@ -34,35 +34,34 @@ public final class NBTMagic {
     }
 
     public static <T> T getNBT(Entity entity, String key, Class<T> dataType) {
-        if (entity != null && key != null) {
-            PersistentDataType<?, T> persistentDataType = (PersistentDataType<?, T>) dataTypeMap.get(dataType);
-            if (persistentDataType != null) {
-                NamespacedKey namespacedKey = getNamespacedKey(key);
-                T value = getNBTHolder(entity).get(namespacedKey, persistentDataType);
-                if (value == null) {
-                    // Set default value based on dataType
-                    if (dataType == String.class) {
-                        setNBT(entity, key, "");
-                        value = (T) "";
-                    } else if (dataType == Boolean.class) {
-                        setNBT(entity, key, false);
-                        value = (T) Boolean.FALSE;
-                    } else if (dataType == Integer.class) {
-                        setNBT(entity, key, 0);
-                        value = (T) Integer.valueOf(0);
-                    } else if (dataType == Double.class) {
-                        setNBT(entity, key, 0.0);
-                        value = (T) Double.valueOf(0.0);
-                    }
-                }
-                return value;
-            }
+        if (entity == null || key == null) return null;
+
+        PersistentDataType<?, T> persistentDataType = (PersistentDataType<?, T>) dataTypeMap.get(dataType);
+        if (persistentDataType == null) return null;
+
+        NamespacedKey namespacedKey = getNamespacedKey(key);
+        T value = getNBTHolder(entity).get(namespacedKey, persistentDataType);
+        if (value != null) return value;
+
+        // Set default value based on dataType
+        switch(dataType.toString()){
+            case "java.lang.String":
+                setNBT(entity, key, "");
+                return (T) "";
+            case "java.lang.Integer":
+                setNBT(entity, key, 0);
+                return (T) Integer.valueOf(0);
+            case "java.lang.Double":
+                setNBT(entity, key, 0.0);
+                return (T) Double.valueOf(0.0);
+            case "java.lang.Boolean":
+                setNBT(entity, key, false);
+                return (T) Boolean.FALSE;
+            default:
+                System.out.println("invalid data type for getNBT: " + dataType);
         }
         return null;
     }
-
-
-
 
     public static Boolean isBoolNBTNull(Entity entity, String key) {
         if (entity != null && key != null) {
@@ -72,42 +71,33 @@ public final class NBTMagic {
         }
     }
 
-    private static void setNBTInner(Entity entity, String key, String value) {
-        getNBTHolder(entity).set(getNamespacedKey(key), PersistentDataType.STRING, value);
-    }
-
-    private static void setNBTInner(Entity entity, String key, Integer value) {
-        getNBTHolder(entity).set(getNamespacedKey(key), PersistentDataType.INTEGER, value);
-    }
-
-    private static void setNBTInner(Entity entity, String key, Double value) {
-        getNBTHolder(entity).set(getNamespacedKey(key), PersistentDataType.DOUBLE, value);
-    }
-
-    private static void setNBTInner(Entity entity, String key, Boolean value) {
-        getNBTHolder(entity).set(getNamespacedKey(key), PersistentDataType.BOOLEAN, value);
-    }
-
     public static <T> void setNBT(Entity entity, String key, T value) {
         if (entity == null || key == null || value == null) {
             logNullValues(entity, key, value);
             throw new IllegalArgumentException("setNBT(): Entity, key, or value is null");
         }
 
-        if (value instanceof String) {
-            setNBTInner(entity, key, (String) value);
-        } else if (value instanceof Integer) {
-            setNBTInner(entity, key, (Integer) value);
-        } else if (value instanceof Double) {
-            setNBTInner(entity, key, (Double) value);
-        } else if (value instanceof Boolean) {
-            setNBTInner(entity, key, (Boolean) value);
-        } else {
-            String errorMessage = "setNBT(): Unsupported data type: " + value.getClass().getName();
-            System.out.println(errorMessage); // Print the error message to the console
-            throw new IllegalArgumentException(errorMessage); // Throw an exception
+        NamespacedKey namespacedKey = getNamespacedKey(key);
+        switch (value.getClass().getName()) {
+            case "java.lang.String":
+                getNBTHolder(entity).set(namespacedKey, PersistentDataType.STRING, (String) value);
+                break;
+            case "java.lang.Integer":
+                getNBTHolder(entity).set(namespacedKey, PersistentDataType.INTEGER, (Integer) value);
+                break;
+            case "java.lang.Double":
+                getNBTHolder(entity).set(namespacedKey, PersistentDataType.DOUBLE, (Double) value);
+                break;
+            case "java.lang.Boolean":
+                getNBTHolder(entity).set(namespacedKey, PersistentDataType.BOOLEAN, (Boolean) value);
+                break;
+            default:
+                String errorMessage = "setNBT(): Unsupported data type: " + value.getClass().getName(); // todo: config this
+                System.out.println(errorMessage);
+                throw new IllegalArgumentException(errorMessage);
         }
     }
+
 
     private static void logNullValues(Entity entity, String key, Object value) {
         if (entity == null) {
