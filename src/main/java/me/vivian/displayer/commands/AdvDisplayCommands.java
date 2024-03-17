@@ -26,7 +26,7 @@ public class AdvDisplayCommands {
      */
     static void handleAdvDisplayDetailsCommand(Player player) { // todo: EW AAAAA GROSS EW NO
         // Get the selected VivDisplay for the player
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
 
         if (selectedVivDisplay == null) return;
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
@@ -98,7 +98,7 @@ public class AdvDisplayCommands {
             return;
         }
 
-        DisplayHandler.selectedVivDisplays.put(player, selectedVivDisplay);
+        DisplayHandler.selectedVivDisplays.put(player.getUniqueId(), selectedVivDisplay);
         ParticleHandler.spawnParticle(selectedVivDisplay.display, null, null);
 
         // open gui if selecting from here

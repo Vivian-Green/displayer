@@ -126,7 +126,7 @@ public class DisplayCommands {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayCreateEmptyHand"));
             return;
         }
-        if (atSelected && DisplayHandler.selectedVivDisplays.get(player) == null) {
+        if (atSelected && DisplayHandler.selectedVivDisplays.get(player.getUniqueId()) == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
         }
@@ -157,7 +157,7 @@ public class DisplayCommands {
             return;
         }
 
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
@@ -180,7 +180,7 @@ public class DisplayCommands {
             return;
         }
 
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
@@ -195,8 +195,8 @@ public class DisplayCommands {
             return;
         }
 
-        ItemStack newItem = player.getInventory().getItemInMainHand();
-
+        ItemStack newItem = player.getInventory().getItemInMainHand().clone();
+        newItem.setAmount(1);
         selectedVivDisplay.replaceItem(newItem);
 
         // todo: check for creative mode before taking shit, also whatever perms are good enough for that idk luckperms permission permissions
@@ -243,7 +243,7 @@ public class DisplayCommands {
             return;
         }
 
-        DisplayHandler.selectedVivDisplays.put(player, closestVivDisplay);
+        DisplayHandler.selectedVivDisplays.put(player.getUniqueId(), closestVivDisplay);
         ParticleHandler.spawnParticle(closestVivDisplay.display, null, null);
         CommandHandler.sendPlayerMsgIfMsg(player, Texts.messages.get("displayClosestSuccess"));
         player.performCommand("display gui");
@@ -257,7 +257,7 @@ public class DisplayCommands {
     static void handleDisplayGUICommand(Player player) {
         Inventory inventory = GUIBuilder.displayGUIBuilder(player);
 
-        VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             // todo: 'try "/display create"'

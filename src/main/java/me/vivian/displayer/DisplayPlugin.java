@@ -48,7 +48,7 @@ public final class DisplayPlugin extends JavaPlugin { // this should be final ye
         getServer().getPluginManager().registerEvents(eventListener, this);
 
         // init display handler
-        DisplayHandler.setPlugin(this);
+        DisplayHandler.init(this);
 
         // init world guard integration
         WorldGuardIntegrationWrapper.init(this);

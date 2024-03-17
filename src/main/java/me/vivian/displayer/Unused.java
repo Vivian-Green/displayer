@@ -93,7 +93,7 @@ public class Unused {
     /*
         //self-explanatory
     public static VivDisplay getSelectedVivDisplay(Player player) { // todo: this wrapper is unnecessary? the null check does nothing relevant!
-        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);//                                                                  it wasn't
+        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player.getUniqueId());//                                                                  it wasn't
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
         }

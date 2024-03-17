@@ -4,6 +4,7 @@ import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.TransformMath;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 import org.joml.Matrix3d;
@@ -11,6 +12,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector3d;
 
 import java.util.*;
+
+import static me.vivian.displayer.display.VivDisplay.plugin;
 
 public class DisplayGroupHandler {
     static FileConfiguration config = Config.config;
@@ -73,7 +76,7 @@ public class DisplayGroupHandler {
     // Function to copy and paste all displays in a hierarchy
     public static void copyAndPasteHierarchy(VivDisplay vivDisplay, Player player, Location newLocation) {
         // Record the player's selected display before copying
-        VivDisplay originalSelectedDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay originalSelectedDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
 
         // Get all displays in the hierarchy
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
@@ -118,7 +121,7 @@ public class DisplayGroupHandler {
         }
 
         // Set the player's selected display back to what it was before copying
-        DisplayHandler.selectedVivDisplays.put(player, originalSelectedDisplay);
+        DisplayHandler.selectedVivDisplays.put(player.getUniqueId(), originalSelectedDisplay);
     }
 
 
@@ -128,21 +131,22 @@ public class DisplayGroupHandler {
 
     // Function to get all descendants of a VivDisplay
     private static List<VivDisplay> getAllDescendants(VivDisplay parentVivDisplay, int depth) {
-        if (depth >= config.getInt("maxSearchDepth")) return null;
+        if (depth >= config.getInt("maxSearchDepth")) return null; // too far along in tree
+        if (!parentVivDisplay.isParent) return null; // no use getting nearby displays when this isn't a parent
 
+        String parentUUID = parentVivDisplay.display.getUniqueId().toString();
         List<VivDisplay> descendants = new ArrayList<>();
         List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(parentVivDisplay.display.getLocation(), config.getInt("maxSearchRadius"), null);
 
         for (VivDisplay vivDisplay: nearbyVivDisplays) {
-            if (vivDisplay.parentUUID != null && vivDisplay.parentUUID.equals(parentVivDisplay.display.getUniqueId().toString())) {
+            if (vivDisplay.parentUUID != null && vivDisplay.parentUUID.equals(parentUUID)) {
                 // descendants.add(vivDisplay); // unnecessary yea?
 
                 List<VivDisplay> thisDescendants = getAllDescendants(vivDisplay, depth+1);
                 if (thisDescendants == null) continue;
 
                 descendants.addAll(thisDescendants); // Recursive call
-                System.out.println(vivDisplay.displayName);
-                // todo: recursive parents-
+                //System.out.println(vivDisplay.displayName);
             }
         }
         return descendants;
@@ -151,7 +155,7 @@ public class DisplayGroupHandler {
     // Function to get all displays in a hierarchy
     public static List<VivDisplay> getAllDisplaysInHierarchy(VivDisplay vivDisplay) {
         if (vivDisplay == null) {
-            System.out.println("translateHierarchy: vivDisplay is null"); // todo: warn
+            System.out.println("vivDisplay is null"); // todo: warn
             return null;
         } else {
             System.out.println(vivDisplay.displayName);
@@ -159,7 +163,7 @@ public class DisplayGroupHandler {
 
         VivDisplay topmostParent = getHighestVivDisplay(vivDisplay);
         if (topmostParent == null) {
-            System.out.println("translateHierarchy: topmostParent is null"); // todo: warn
+            System.out.println("topmostParent is null"); // todo: warn
             return null;
         } else {
             System.out.println(topmostParent.displayName);
@@ -167,11 +171,12 @@ public class DisplayGroupHandler {
 
         List<VivDisplay> hierarchy = getAllDescendants(topmostParent);
         if (hierarchy == null) {
-            System.out.println("translateHierarchy: hierarchy is null"); // todo: warn
+            System.out.println("hierarchy is null"); // todo: warn
             return null;
         }
 
-        hierarchy.add(vivDisplay); // todo: is this line necessary?
+        hierarchy.add(topmostParent); // re-add topmost parent
+
         System.out.println(vivDisplay.displayName);
         return hierarchy;
     }
@@ -184,28 +189,22 @@ public class DisplayGroupHandler {
             System.out.println(vivDisplay.displayName);
         }
 
-        ArrayList<String> parentChainUUIDs = null;
+        ArrayList<String> parentChainUUIDs = new ArrayList<>();
 
         int depthLeft = config.getInt("maxSearchDepth");
+        List<Display> nearbyDisplays = DisplayHandler.getNearbyDisplays(vivDisplay.display.getLocation(), config.getInt("maxSearchRadius"));
+
         while (depthLeft > 0 && vivDisplay.parentUUID != null) {
             // you have a dad somewhere
-
-            List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(vivDisplay.display.getLocation(), config.getInt("maxSearchRadius"), null);
-
-            for (VivDisplay nearbyVivDisplay: nearbyVivDisplays) {
+            for (Display nearbyDisplay: nearbyDisplays) {
                 // ask everyone nearby if they're your dad
-
-                if (nearbyVivDisplay.display.getUniqueId().toString().equals(vivDisplay.parentUUID)) {
-                    if (parentChainUUIDs.contains(nearbyVivDisplay.display.getUniqueId().toString())) {
-                        // this is your dad, but you're also his dad, so you have to come back with the milk
-                        return vivDisplay;
-                        // todo: err on creating this?
-                    }
+                String nearbyUUID = nearbyDisplay.getUniqueId().toString();
+                if (nearbyUUID.equals(vivDisplay.parentUUID)) {
+                    if (parentChainUUIDs.contains(nearbyUUID)) return vivDisplay; // this is your dad, but you're also his dad, so you have to come back with the milk
 
                     // you didn't make your dad
-                    vivDisplay = nearbyVivDisplay; // but now you are your dad
-                    parentChainUUIDs.add(nearbyVivDisplay.display.getUniqueId().toString());
-                    break; // so stop looking for him.. maybe he had a dad? Does he have the milk?
+                    vivDisplay = new VivDisplay(plugin, nearbyDisplay); // but now you are your dad, so stop looking for him.. maybe his dad has the milk?
+                    parentChainUUIDs.add(nearbyUUID);
                 }
             }
 
@@ -220,7 +219,7 @@ public class DisplayGroupHandler {
     // Function to copy a VivDisplay
     public static VivDisplay copyVivDisplay(VivDisplay original) {
         // Create a new VivDisplay with the same properties as the original
-        VivDisplay copy = new VivDisplay(original.plugin, original.display);
+        VivDisplay copy = new VivDisplay(plugin, original.display);
         copy.displayName = original.displayName;
         copy.isChild = original.isChild;
         copy.isParent = original.isParentDisplay();

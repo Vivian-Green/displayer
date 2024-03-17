@@ -16,9 +16,10 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 
 public class DisplayHandler {
-    public static final Map<Player, VivDisplay> selectedVivDisplays = new HashMap<>();
+    public static final Map<UUID, VivDisplay> selectedVivDisplays = new HashMap<>();
     private static DisplayPlugin plugin;
-    public static void setPlugin(DisplayPlugin thisPlugin){
+    public static void init(DisplayPlugin thisPlugin){
+
         plugin = thisPlugin;
     }
     public static void createBlockDisplay(Player player, String[] args) {
@@ -60,14 +61,16 @@ public class DisplayHandler {
 
     public static void updateDisplay(Player player, VivDisplay vivDisplay, String[] args) {
         boolean atSelected = (args.length >= 3 && args[2].equalsIgnoreCase("atselected"));
-        if (atSelected && selectedVivDisplays.get(player) != null) {
+        VivDisplay selectedDisplay = selectedVivDisplays.get(player.getUniqueId());
+
+        if (atSelected && selectedDisplay != null) {
             // todo: should the location be set directly?
-            vivDisplay.display.setTransformation(selectedVivDisplays.get(player).display.getTransformation());
+            vivDisplay.display.setTransformation(selectedDisplay.display.getTransformation());
         } else {
             vivDisplay.display.setRotation(player.getEyeLocation().getYaw(), player.getEyeLocation().getPitch());
         }
 
-        selectedVivDisplays.put(player, vivDisplay);
+        selectedVivDisplays.put(player.getUniqueId(), vivDisplay);
     }
 
     public static void destroyNearbyDisplays(Player player, String[] args) {
@@ -75,9 +78,7 @@ public class DisplayHandler {
         int maxCount = (int) CommandParsing.parseNumberFromArgs(args, 2, 0, 1, player, "Invalid max count"); // default max count to 1
         double radius = CommandParsing.parseNumberFromArgs(args, 3, 0.0, 5.0, player, "Invalid radius"); // default radius to 5
 
-        if (maxCount <= 0 || radius <= 0.0) {
-            return; // Invalid max count or radius, error message already sent in parsing functions
-        }
+        if (maxCount < 1 || radius < 0.01) return; // Invalid max count or radius, error message already sent in parsing functions
 
         List<VivDisplay> nearbyVivDisplays = getNearbyVivDisplays(player.getLocation(), (int) radius, player);
 
@@ -128,25 +129,26 @@ public class DisplayHandler {
         // todo: MAX RADIUS
         List<VivDisplay> nearbyVivDisplays = new ArrayList<>();
         List<Display> nearbyDisplays = getNearbyDisplays(location, radius);
+        nearbyDisplays.sort(Comparator.comparingDouble(display -> display.getLocation().distance(location)));
+
+        if (nearbyDisplays.isEmpty()) {
+            if (player == null) return null;
+
+            if (!Texts.errors.get("displayNearbyNotFound").isEmpty()){
+                CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayNearbyNotFound").replace("$radius", ""+radius));
+            }
+            return null;
+        }
 
         for (Display display: nearbyDisplays) {
             nearbyVivDisplays.add(new VivDisplay(plugin, display));
-        }
-        nearbyVivDisplays.sort(Comparator.comparingDouble(vivDisplay -> vivDisplay.display.getLocation().distance(player.getLocation())));
-
-        if (nearbyVivDisplays.isEmpty()) {
-            if (player != null) {
-                if (!Texts.errors.get("displayNearbyNotFound_Begin").isEmpty() || !Texts.errors.get("displayNearbyNotFound_End").isEmpty()){
-                    CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayNearbyNotFound_Begin") + radius + Texts.errors.get("displayNearbyNotFound_End"));
-                }
-            }
         }
 
         return nearbyVivDisplays;
     }
 
     public static void destroySelectedDisplay(Player player) {
-        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
         } else {

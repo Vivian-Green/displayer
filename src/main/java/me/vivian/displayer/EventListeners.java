@@ -6,8 +6,10 @@ import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
+import me.vivian.displayerutils.ItemManipulation;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Bukkit;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
@@ -25,6 +27,9 @@ import org.bukkit.plugin.Plugin;
 import org.joml.Vector2d;
 import org.joml.Vector3d;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 // todo: EventListeners should exist and shouldn't be taped to plugin-
@@ -44,9 +49,23 @@ public final class EventListeners implements Listener {
     double multiplierFastSpeed = 10.0;
     double multiplierSlowSpeed = 0.1;
 
+    String displayGUITitle;
+    String displayNearbyGUITitle;
+    String displayGroupShowGUITitle;
+    ArrayList<String> guiTitles;
+
+    Vector2d switchPosition = new Vector2d(0, 5);
+    int switchStartSlot = (int) (switchPosition.y * 9 + switchPosition.x);
+
 
     public EventListeners(DisplayPlugin thisPlugin) {
         plugin = thisPlugin;
+
+        displayGUITitle = Texts.getText("displayGUITitle").toLowerCase();
+        displayNearbyGUITitle = Texts.getText("displayNearbyGUITitle").toLowerCase();
+        displayGroupShowGUITitle = Texts.getText("displayGroupShowGUITitle").toLowerCase();
+
+        guiTitles.addAll(List.of(new String[]{displayGUITitle, displayNearbyGUITitle, displayGroupShowGUITitle}));
 
         positionScale = (float) Config.config.getDouble("positionScale");
         rotationScale = (float) Config.config.getDouble("rotationScale");
@@ -59,7 +78,7 @@ public final class EventListeners implements Listener {
     public void onDisplayGUIClick(InventoryClickEvent event){
         System.out.println("display gui click");
         Player player = (Player) event.getWhoClicked();
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null || selectedVivDisplay.display == null) return; // player doesn't have a display selected, so don't do anything on gui click-
 
         System.out.println(selectedVivDisplay.getClass());
@@ -81,6 +100,8 @@ public final class EventListeners implements Listener {
 
     private boolean onDisplayGUIClickCommon(InventoryClickEvent event, VivDisplay vivDisplay){
         int slot = event.getRawSlot();
+        if (slot > 53) return false;
+
         Player player = (Player) event.getWhoClicked();
         switch (slot) {
             case 0:
@@ -119,8 +140,7 @@ public final class EventListeners implements Listener {
         System.out.println("onStandardDisplayGUIClick");
 
         int slot = event.getRawSlot();
-        int column = slot % 9; // zero-based
-        int row = (slot - column) / 9;
+
         Player player = (Player) event.getWhoClicked();
         Inventory inventory = event.getInventory();
 
@@ -159,35 +179,27 @@ public final class EventListeners implements Listener {
                 player.setItemOnCursor(cursorItem);
                 selectedVivDisplay.replaceItem(newItemStack);
                 event.setCancelled(true);
+                ItemManipulation.takeFromHeldItem(player);
                 return;
         }
-
         if (slot >= inventory.getSize()) return; // only cancel event in standard display gui when in the gui, for replacing item
-
         event.setCancelled(true);
     }
 
     private void onTextDisplayGUIClick(InventoryClickEvent event, VivDisplay selectedVivDisplay) {
         event.setCancelled(true);
-        if (onDisplayGUIClickCommon(event, selectedVivDisplay)) return;
 
         int slot = event.getRawSlot();
-        int column = slot % 9; // zero-based
-        int row = (slot - column) / 9;
+        if (slot > 53) return;
 
-        Player player = (Player) event.getWhoClicked();
-        Inventory inventory = event.getInventory();
+        if (onDisplayGUIClickCommon(event, selectedVivDisplay)) return;
+
         TextDisplay textDisplay = (TextDisplay) selectedVivDisplay.display;
+        Inventory inventory = event.getInventory();
 
-        System.out.println("inside inv check:");
-        if (slot >= inventory.getSize()) return;
-        System.out.println("    pass");
-
-
-        Vector2d switchPosition = new Vector2d(0, 5);
-        int switchStartSlot = (int) (switchPosition.y * 9 + switchPosition.x);
         if (switchStartSlot <= slot && slot <= switchStartSlot + 2) { // bottom left 3 slots 3-state switch
             System.out.println("is switch click");
+            int column = slot % 9; // zero-based
 
             // todo: when dragging over one of these slots it needs a tactile click this is necessary
             Material off = Material.BLACK_STAINED_GLASS_PANE;
@@ -270,12 +282,11 @@ public final class EventListeners implements Listener {
     }
 
     public void onDisplayNearbyGUIClick(InventoryClickEvent event) {
-        System.out.println("display nearby gui click");
+        //System.out.println("display nearby gui click");
 
         // mise en place
         int slot = event.getRawSlot();
-
-        if (slot < 0 || slot >= event.getInventory().getSize()) return; // OOB slot
+        if (slot > 53) return; // OOB slot
 
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return; // empty slot
@@ -284,24 +295,23 @@ public final class EventListeners implements Listener {
         if (itemMeta == null) return; // no metadata?
 
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
-        Player player = (Player) event.getWhoClicked();
-
-        // the actual code
 
         // Check for display UUID nbt
         if (!dataContainer.has(new NamespacedKey(plugin, "displayUUID"), PersistentDataType.STRING)) {
-            System.out.println("no UUID?");
-            return;
+            System.out.println("no UUID?"); // todo: config this
+            return; // no UUID (should not happen-)
         }
+
+        // actually do the thing if everything is good
+        Player player = (Player) event.getWhoClicked();
         player.closeInventory();
 
         String UUIDStr = dataContainer.get(new NamespacedKey(plugin, "displayUUID"), PersistentDataType.STRING);
 
-        // Perform your desired action with the display UUID
         player.performCommand("advdisplay select " + UUIDStr);
     }
 
-    public void onDisplayGroupGUIClick(InventoryClickEvent event){ // todo: this is the same menu yea?
+    public void onDisplayGroupGUIClick(InventoryClickEvent event){
         onDisplayNearbyGUIClick(event);
     }
 
@@ -312,16 +322,16 @@ public final class EventListeners implements Listener {
      */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals(Texts.getText("displayGUITitle"))) {
+        String thisTitle = event.getView().getTitle().toLowerCase();
+        if (!guiTitles.contains(thisTitle)) return;
+
+        if (thisTitle.equals(displayGUITitle)) {
             onDisplayGUIClick(event);
+            return;
         }
-        if (event.getView().getTitle().equals(Texts.getText("displayNearbyGUITitle"))) {
+        if (thisTitle.equals(displayNearbyGUITitle) || thisTitle.equals(displayGroupShowGUITitle)) {
             event.setCancelled(true);
             onDisplayNearbyGUIClick(event);
-        }
-        if(event.getView().getTitle().equals(Texts.getText("displayGroupShowGUITitle"))){
-            event.setCancelled(true);
-            onDisplayGroupGUIClick(event);
         }
     }
 
@@ -334,6 +344,9 @@ public final class EventListeners implements Listener {
         Material heldItemMaterial = player.getInventory().getItemInMainHand().getType();
         if (!(heldItemMaterial == Material.LEAD || heldItemMaterial == Material.SPECTRAL_ARROW)) return;
 
+        // ensure selected display
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
+        if (selectedVivDisplay == null) return;
 
         float deltaYaw = (event.getTo().getYaw() - event.getFrom().getYaw()) % 360;
         float deltaPitch = (event.getTo().getPitch() - event.getFrom().getPitch()) % 360;
@@ -341,13 +354,6 @@ public final class EventListeners implements Listener {
         if(player.isSneaking()){
             deltaPitch *= 0.1F;
             deltaYaw *= 0.1F;
-        }
-
-        // ensure selected display
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
-        if (selectedVivDisplay == null) {
-            //CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay")); // do NOT
-            return;
         }
 
         if (selectedVivDisplay.isParentDisplay()) {
@@ -376,16 +382,13 @@ public final class EventListeners implements Listener {
         Material heldItemMaterial = player.getInventory().getItemInMainHand().getType();
         if (!(heldItemMaterial == Material.LEAD || heldItemMaterial == Material.BLAZE_ROD)) return;
 
+        // ensure selectedVivDisplay
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
+        if (selectedVivDisplay == null) return;
+
         Vector3d from = new Vector3d(event.getFrom().getX(), event.getFrom().getY(), event.getFrom().getZ());
         Vector3d to = new Vector3d(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ());
         Vector3d delta = new Vector3d(to.x - from.x, to.y - from.y, to.z - from.z); // can't subtract Vector3d's lmao
-
-        // ensure selectedVivDisplay
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
-        if (selectedVivDisplay == null) {
-            //CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay")); // do NOT
-            return;
-        }
 
         if (selectedVivDisplay.isParentDisplay()) {
             if (heldItemMaterial == Material.LEAD) {
@@ -394,7 +397,6 @@ public final class EventListeners implements Listener {
             if (heldItemMaterial == Material.BLAZE_ROD) {
                 DisplayGroupHandler.resizeHierarchy(selectedVivDisplay, (float) ((delta.x+delta.y+delta.z)*0.1+1));
             }
-
         }else{
             if (heldItemMaterial == Material.LEAD) {
                 selectedVivDisplay.changePosition(delta);

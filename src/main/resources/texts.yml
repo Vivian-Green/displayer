@@ -11,8 +11,7 @@ errors:
   invalidColor: 'invalid color format! proper format is <r> <g> <b> [a] eg "1 0 0.5" or "255 0 128 192"'
 
   displayUsage: 'Usage: /display create | nearby [radius] | destroy [nearby] [maxCount] [radius] | gui | help'
-  displayNearbyNotFound_Begin: 'No nearby Displays found within '
-  displayNearbyNotFound_End: ' blocks.'
+  displayNearbyNotFound: 'No nearby Displays found within $radius blocks.' # $radius
   displayGroupDisabled: 'display groups are disabled'
   displayCreateUsage: 'Usage: /display create <block/item> [atSelected]'
   displayInvalidSubcommand: 'Invalid subcommand. Try /display help'
@@ -33,8 +32,7 @@ errors:
 
   displayGroupUsage: 'Usage: /displaygroup setparent <parentname>'
   displayGroupSetParentUsage: 'Usage: /displaygroup setparent <parentname>'
-  displayGroupSetParentNoParent_Begin: 'No nearby display with the name "'
-  displayGroupSetParentNoParent_End:  '" found.'
+  displayGroupSetParentNoParent: 'No nearby display with the name "$displayname" found.' # $displayname
   displayGroupRotateUsage: 'Usage: /displaygroup rotate <xRotation> <yRotation> <zRotation>'
   displayGroupInvalidRotation: 'Invalid rotation. Please provide valid numbers for xRotation, yRotation, and zRotation.'
   displayGroupTranslateUsage: 'Usage: /displaygroup translate <xTranslation> <yTranslation> <zTranslation>'

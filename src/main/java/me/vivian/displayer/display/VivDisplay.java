@@ -14,6 +14,7 @@ import org.joml.Vector3d;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 // todo: return strings instead of needing player as arg
@@ -94,7 +95,7 @@ public class VivDisplay{
      * @param player              The player performing the display destruction.
      */
     public void destroy(Player player) { // todo: handle case player is null
-        Map<Player, VivDisplay> selectedVivDisplays = DisplayHandler.selectedVivDisplays;
+        Map<UUID, VivDisplay> selectedVivDisplays = DisplayHandler.selectedVivDisplays;
 
         if (display!= null) {
             try {
@@ -141,14 +142,15 @@ public class VivDisplay{
         }
 
         ItemStack oldItem = getItemStack();
-        newItem.setAmount(1);
+        ItemStack newItemCopy = newItem.clone();
+        newItemCopy.setAmount(1);
 
         if (display instanceof ItemDisplay) {
             ItemDisplay itemDisplay = (ItemDisplay) display;
-            itemDisplay.setItemStack(newItem);
+            itemDisplay.setItemStack(newItemCopy);
         } else if (display instanceof BlockDisplay) {
             BlockDisplay blockDisplay = (BlockDisplay) display;
-            BlockData blockData = newItem.getType().createBlockData();
+            BlockData blockData = newItemCopy.getType().createBlockData();
             blockDisplay.setBlock(blockData);
         }
 

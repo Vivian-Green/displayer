@@ -23,7 +23,7 @@ public class DisplayGroupCommands {
      */
     public static void handleDisplayGroupCopyPasteCommand(Player player, String[] args) {
         // Get the player's selected VivDisplay
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
@@ -47,7 +47,7 @@ public class DisplayGroupCommands {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupSetParentUsage"));
             return;
         }
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
@@ -56,8 +56,8 @@ public class DisplayGroupCommands {
         String parentName = args[1]; // Get the parent display name
         Display parentDisplay = DisplayHandler.getDisplayByName(player, parentName);
         if (parentDisplay == null) {
-            if (!Texts.errors.get("displayGroupSetParentNoParent_Begin").isEmpty() || !Texts.errors.get("displayGroupSetParentNoParent_End").isEmpty()) {
-                CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupSetParentNoParent_Begin") + parentName + Texts.errors.get("displayGroupSetParentNoParent_End"));
+            if (!Texts.errors.get("displayGroupSetParentNoParent").isEmpty()) {
+                CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupSetParentNoParent").replace("$displayName", parentName));
             }
             return;
         }
@@ -83,7 +83,7 @@ public class DisplayGroupCommands {
     // Unsets the parent of the (player)'s selected VivDisplay.
     static void handleDisplayGroupUnparentCommand(Player player) {
         // Get the selected VivDisplay for the player
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
 
         if (selectedVivDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
@@ -119,7 +119,7 @@ public class DisplayGroupCommands {
         }
 
         // Get the player's selected VivDisplay
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
@@ -162,7 +162,7 @@ public class DisplayGroupCommands {
         }
 
         // Get the player's selected VivDisplay
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
 
         // If the player has not selected a VivDisplay, send an error message and return
         if (selectedVivDisplay == null) {
@@ -185,7 +185,7 @@ public class DisplayGroupCommands {
         }
 
         // Get the player's selected VivDisplay by name
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
 
         // Check if the selected VivDisplay exists
         if (selectedVivDisplay == null) {

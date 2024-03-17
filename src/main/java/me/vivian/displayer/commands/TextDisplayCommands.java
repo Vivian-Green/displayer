@@ -110,7 +110,7 @@ public class TextDisplayCommands {
 
     public static void handleTextDisplayCommand(Player player, String[] args) { // todo: filter
         // mise en place
-        VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedDisplay == null){
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
@@ -148,6 +148,7 @@ public class TextDisplayCommands {
 
     private static void handleTextDisplayToggleBackgroundCommand(TextDisplay textDisplay) {
         textDisplay.setDefaultBackground(!textDisplay.isDefaultBackground());
+        textDisplay.setSeeThrough(!textDisplay.isDefaultBackground());
     }
 
     private static void handleTextDisplayToggleShadowCommand(TextDisplay textDisplay) {

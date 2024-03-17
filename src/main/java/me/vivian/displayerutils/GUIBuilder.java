@@ -135,7 +135,7 @@ public class GUIBuilder {
 
     public static Inventory displayGUIBuilder(Player player) {
         System.out.println("displayGUIBuilder called");
-        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player);
+        VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null || selectedVivDisplay.display == null) return null; // player doesn't have a display selected, so ya can't make a gui for it-
 
         System.out.println("displayGUIBuilder called");
