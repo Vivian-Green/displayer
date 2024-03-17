@@ -136,7 +136,10 @@ public final class EventListeners implements Listener {
 
 
     private void onStandardDisplayGUIClick(InventoryClickEvent event, VivDisplay selectedVivDisplay) {
-        if (onDisplayGUIClickCommon(event, selectedVivDisplay)) return;
+        if (onDisplayGUIClickCommon(event, selectedVivDisplay)) {
+            event.setCancelled(true);
+            return;
+        }
         System.out.println("onStandardDisplayGUIClick");
 
         int slot = event.getRawSlot();
