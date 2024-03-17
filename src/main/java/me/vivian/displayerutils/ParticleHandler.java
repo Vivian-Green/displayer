@@ -29,8 +29,7 @@ public class ParticleHandler {
     }
     
     public static void spawnParticle(Display display, Particle particle, Integer count, Particle.DustOptions dustOptions) {
-        Location displayLocation = display.getLocation();
-        spawnParticle(displayLocation, particle, count, dustOptions);
+        spawnParticle(display.getLocation(), particle, count, dustOptions);
     }
 
     public static void spawnParticle(Location location, Particle particle, Integer count, Particle.DustOptions dustOptions) {
@@ -41,11 +40,9 @@ public class ParticleHandler {
             particle = Particle.ENCHANTMENT_TABLE;
             offset = new Vector(0, 1, 0); // only offset these ones- they're weird and go *below* the table
         }
-        if (count == null) {
-            count = 100;
-        }
+        if (count == null) count = 1;
 
-        Location offsetLocation = new Location(world, location.getX() + offset.getX(), location.getY() + offset.getY(), location.getZ() + offset.getZ(), displayLocation.getYaw(), displayLocation.getPitch());
+        Location offsetLocation = new Location(world, location.getX() + offset.getX(), location.getY() + offset.getY(), location.getZ() + offset.getZ(), location.getYaw(), location.getPitch());
 
         if (dustOptions != null) {
             world.spawnParticle(particle, offsetLocation, count, dustOptions);

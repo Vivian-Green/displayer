@@ -90,7 +90,7 @@ public class AdvDisplayCommands {
         }
 
         DisplayHandler.selectedVivDisplays.put(player.getUniqueId(), selectedVivDisplay);
-        ParticleHandler.spawnParticle(selectedVivDisplay.display);
+        ParticleHandler.spawnParticle(selectedVivDisplay.display, null, 100);
 
         // open gui if selecting from here
         player.performCommand("display gui");
