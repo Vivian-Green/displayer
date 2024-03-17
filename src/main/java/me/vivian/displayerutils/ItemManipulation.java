@@ -30,28 +30,11 @@ public class ItemManipulation { // todo: make static
 
     // Checks if a (player) is holding a displayable item
     public static boolean isHeldItemValid(Player player) {
-        ItemStack heldItem = player.getInventory().getItemInMainHand();
-
-        if (heldItem.getType() == Material.AIR) {
-            player.sendMessage();
+        if (player.getInventory().getItemInMainHand().getType() == Material.AIR) {
+            player.sendMessage(Texts.errors.get("displayEmptyHand"));
             return false;
         }
         return true;
-    }
-
-    /**
-     * Checks if a slot (index) is out of bounds for the given (inventory size).
-     *
-     * @param index   The slot index to check.
-     * @param invSize The size of the inventory.
-     * @return        True if the slot index is out of bounds, otherwise false.
-     */
-    public static boolean isSlotOOB(Integer index, Integer invSize) {
-        if (index > invSize - 1) {
-            System.out.println("Addressing out-of-bounds slot " + index + " of max " + (invSize - 1));
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -65,27 +48,10 @@ public class ItemManipulation { // todo: make static
     public static void setInventoryItemXY(Inventory inventory, ItemStack itemStack, Integer X, Integer Y) {
         // TODO URGENT: Ensure slot is empty first! This can delete shit!
 
-        int index = Y * 9 + X;
-        if (isSlotOOB(index, inventory.getSize())) {
-            return;
-        }
-        inventory.setItem(index, itemStack);
-    }
+        int slot = Y * 9 + X;
+        if (slot >= inventory.getSize()) return;
 
-    /**
-     * gets the item from slot (X, Y) of the given (inventory).
-     *
-     * @param inventory  The target inventory.
-     * @param X          The X coordinate of the slot.
-     * @param Y          The Y coordinate of the slot.
-     * @return           The ItemStack in the specified slot or null if out of bounds.
-     */
-    public ItemStack getInventoryItemXY(Inventory inventory, Integer X, Integer Y) {
-        int index = Y * 9 + X;
-        if (isSlotOOB(index, inventory.getSize())) {
-            return null;
-        }
-        return inventory.getItem(Y * 9 + X);
+        inventory.setItem(slot, itemStack);
     }
 
     /**

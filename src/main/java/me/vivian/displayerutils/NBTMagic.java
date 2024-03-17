@@ -33,7 +33,7 @@ public final class NBTMagic {
         return entity.getPersistentDataContainer();
     }
 
-    public static <T> T getNBT(Entity entity, String key, Class<T> dataType) {
+    public static <T> T getNBT(Entity entity, String key, Class<T> dataType) { // todo: memoization for this? for name, isparent, ischild, & uuid
         if (entity == null || key == null) return null;
 
         PersistentDataType<?, T> persistentDataType = (PersistentDataType<?, T>) dataTypeMap.get(dataType);

@@ -107,11 +107,7 @@ public class DisplayCommands {
             return;
         }
 
-        boolean isBlock = args.length >= 2 && Objects.equals(args[1], "block");
-        boolean atSelected = args.length >= 3 && args[2].equalsIgnoreCase("atselected");
         boolean isText = args.length >= 2 && args[1].equalsIgnoreCase("text");
-        System.out.println("isText: " + isText);
-        System.out.println(Arrays.toString(args));
         if (isText) {
             if (args.length < 3) {
                 CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayCreateTextNoText"));
@@ -121,17 +117,17 @@ public class DisplayCommands {
             DisplayHandler.createTextDisplay(player, args);
             return;
         }
-
         if (!ItemManipulation.isHeldItemValid(player)) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayCreateEmptyHand"));
             return;
         }
+        boolean atSelected = args.length >= 3 && args[2].equalsIgnoreCase("atselected");
         if (atSelected && DisplayHandler.selectedVivDisplays.get(player.getUniqueId()) == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
             return;
         }
 
-
+        boolean isBlock = args.length >= 2 && Objects.equals(args[1], "block");
         if (isBlock) {
             DisplayHandler.createBlockDisplay(player, args);
         } else {

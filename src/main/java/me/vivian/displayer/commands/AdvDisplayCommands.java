@@ -10,11 +10,12 @@ import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.ItemDisplay;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
+
 import java.util.List;
 import java.util.UUID;
+
+import static me.vivian.displayer.display.VivDisplay.plugin;
 
 public class AdvDisplayCommands {
     static FileConfiguration config = Config.config;
@@ -68,9 +69,7 @@ public class AdvDisplayCommands {
      */
     static void handleAdvDisplaySelectCommand(Player player, String[] args) { // this should never be executed by the player
         // todo: early return if player
-        if (args.length < 2) {
-            return;
-        }
+        if (args.length < 2) return;
 
         // if UUID specified
         UUID displayUUID;
@@ -81,17 +80,9 @@ public class AdvDisplayCommands {
             return;
         }
 
-        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player.getLocation(), config.getInt("maxSearchRadius"), player);
-
-        // Find the VivDisplay with the specified UUID
-        VivDisplay selectedVivDisplay = nearbyVivDisplays.stream()
-                .filter(vivDisplay -> vivDisplay.display.getUniqueId().equals(displayUUID))
-                .findFirst()
-                .orElse(null);
-
-        if (selectedVivDisplay == null) {
-            return;
-        }
+        Entity entity = Bukkit.getServer().getEntity(displayUUID);
+        if (!(entity instanceof Display)) return;
+        VivDisplay selectedVivDisplay = new VivDisplay(null, (Display) entity);
 
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));

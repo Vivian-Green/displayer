@@ -28,7 +28,7 @@ import java.util.UUID;
  */
 public class VivDisplay{
     public Display display;
-    static Plugin plugin = null;
+    public static Plugin plugin = null;
     public String displayName;
     public String parentUUID;
     public boolean isChild;
