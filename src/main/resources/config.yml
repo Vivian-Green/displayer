@@ -1,10 +1,16 @@
 
-# allow display group commands (default: false)
-doDisplayGroups: false
-doArmorStandConversion: false
+
+autoFocusDisplayOnGUI: true # whether to turn the player's camera for /display gui
+textsPath: 'texts_en.yml'
 
 # world guard flag to check against for editing displays. default: BUILD
 worldguardFlag: 'BUILD'
+
+# allow display group commands (default: false)
+doDisplayGroups: true
+doDisplayGroupRotation: false
+doDisplayGroupShow: false
+doArmorStandConversion: false
 
 
 
@@ -26,7 +32,6 @@ minTextDisplayOpacity: 0.1
 playerStaleTime: 300
 playerCleanupFrequency: 600
 
-textsPath: 'texts_en.yml'
 
 # furthest distance to search when looking for nearby displays (default: 16)
 # high values might affect performance in large areas with a lot of displays

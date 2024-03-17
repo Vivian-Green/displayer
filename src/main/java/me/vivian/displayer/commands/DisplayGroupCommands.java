@@ -1,5 +1,6 @@
 package me.vivian.displayer.commands;
 
+import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayerutils.GUIBuilder;
 import me.vivian.displayer.display.DisplayGroupHandler;
@@ -101,6 +102,8 @@ public class DisplayGroupCommands {
      *               - /displaygroup rotate <xRotation> <yRotation> <zRotation>
      */
     public static void handleDisplayGroupRotateCommand(Player player, String[] args) {
+        if (!Config.config.getBoolean("doDisplayGroupRotation")) return;
+
         // Check if the correct number of arguments are provided
         if (args.length != 4) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupRotateUsage"));
@@ -178,6 +181,7 @@ public class DisplayGroupCommands {
     }
 
     public static void handleDisplayGroupShowCommand(Player player, String[] args) {
+        if (!Config.config.getBoolean("doDisplayGroupShow")) return;
         // Check if the correct number of arguments is provided
         if (args.length != 1) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupShowUsage"));
@@ -203,7 +207,6 @@ public class DisplayGroupCommands {
         player.openInventory(inventory);
 
         // Send a success message to the player
-        // todo: lel?
         CommandHandler.sendPlayerMsgIfMsg(player, Texts.messages.get("displayGroupShowSuccess"));
     }
 }

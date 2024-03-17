@@ -189,7 +189,7 @@ public class DisplayGroupHandler {
         int depthLeft = config.getInt("maxSearchDepth");
         List<Display> nearbyDisplays = DisplayHandler.getNearbyDisplays(vivDisplay.display.getLocation(), config.getInt("maxSearchRadius"));
 
-        while (depthLeft > 0 && vivDisplay.parentUUID != null) {
+        while (depthLeft > 0 && vivDisplay.parentUUID != null && !vivDisplay.parentUUID.isEmpty()) {
             // you have a dad somewhere
             if (parentChainUUIDs.contains(vivDisplay.parentUUID)) return vivDisplay; // you're your dad's dad, so you have to come back with the milk
 
@@ -223,6 +223,8 @@ public class DisplayGroupHandler {
 
 
     public static void rotateVivDisplayAroundPoint(VivDisplay vivDisplay, Vector3d point, Vector3d rotationDegrees) {
+        if (!Config.config.getBoolean("doDisplayGroupRotation")) return;
+
         // todo: hella borked, needs debugging- changeRotation should NOT be the call here.
         System.out.println("rotationDegrees (euler): " + rotationDegrees.x + ", " + rotationDegrees.y + ", " + rotationDegrees.z);
 
@@ -291,6 +293,8 @@ public class DisplayGroupHandler {
 
     // Function to rotate all displays in a hierarchy
     public static void rotateHierarchy(VivDisplay vivDisplay, Vector3d rotation) {
+        if (!Config.config.getBoolean("doDisplayGroupRotation")) return;
+
         // mise en place
         if (vivDisplay == null) {
             System.out.println("rotateHierarchy: vivDisplay is null");

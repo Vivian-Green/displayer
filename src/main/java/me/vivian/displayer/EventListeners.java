@@ -359,7 +359,7 @@ public final class EventListeners implements Listener {
             deltaYaw *= 0.1F;
         }
 
-        if (selectedVivDisplay.isParentDisplay()) {
+        if (selectedVivDisplay.isParentDisplay() && Config.config.getBoolean("doDisplayGroupRotation")) {
             if (heldItemMaterial == Material.LEAD){
                 System.out.println("-deltaYaw: " + -deltaYaw);
                 DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(0, 0, -deltaYaw));

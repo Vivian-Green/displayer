@@ -8,6 +8,7 @@ import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.BlockDisplay;
@@ -17,6 +18,7 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 import java.util.List;
@@ -254,8 +256,6 @@ public class DisplayCommands {
      * @param player The player performing the command.
      */
     static void handleDisplayGUICommand(Player player) {
-        Inventory inventory = GUIBuilder.displayGUIBuilder(player);
-
         VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedDisplay == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
@@ -264,6 +264,7 @@ public class DisplayCommands {
             return;
         }
 
+        Inventory inventory = GUIBuilder.displayGUIBuilder(player);
         if (selectedDisplay.display instanceof ItemDisplay || selectedDisplay.display instanceof BlockDisplay) {
             ItemStack itemStack = selectedDisplay.getItemStack();
             itemStack.setAmount(1);
@@ -276,6 +277,35 @@ public class DisplayCommands {
             itemStack.setItemMeta(itemMeta);
 
             inventory.setItem(53, itemStack);
+        }
+
+        if(Config.config.getBoolean("autoFocusDisplayOnGUI")) {
+            double targetYawOffset = 50; // target angle diff
+
+            // get angle diff from
+            Vector lookVector = player.getLocation().getDirection();
+            Vector toDisplayVector = selectedDisplay.display.getLocation().subtract(player.getLocation()).toVector();
+            lookVector.normalize();
+            toDisplayVector.normalize();
+            lookVector.setY(0);
+            toDisplayVector.setY(0);
+            lookVector.normalize();
+            toDisplayVector.normalize();
+            double dotProduct = lookVector.dot(toDisplayVector);
+            double angleInRadians = Math.acos(dotProduct);
+            double angleInDegrees = Math.toDegrees(angleInRadians);
+
+            if (angleInDegrees <= targetYawOffset) {
+                // Turn the player to look to the right of the display
+                // todo: always turns player to the right, check if left?
+                float newYaw = (float) (player.getLocation().getYaw() + targetYawOffset * (angleInDegrees / Math.abs(angleInDegrees)) - angleInDegrees);
+
+                System.out.println("setting yaw!");
+
+                Location newLocation = player.getLocation();
+                newLocation.setYaw(newYaw);
+                player.teleport(newLocation);
+            }
         }
 
         player.openInventory(inventory);

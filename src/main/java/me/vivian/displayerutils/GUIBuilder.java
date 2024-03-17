@@ -203,17 +203,17 @@ public class GUIBuilder {
 
     private static int placeButtonAndGetParentCount(ItemStack button, VivDisplay vivDisplay, Inventory inventory, int parentCount, int i) {
         if (vivDisplay.isParent) { // add parented displays at begin, otherwise towards end
-            inventory.setItem(9+ parentCount, button); // left to right starting at second row
+            inventory.setItem(36 + parentCount, button); // left to right starting at second row
             parentCount++;
         } else {
-            inventory.setItem(27+ i - parentCount, button); // left to right starting at fourth row
+            inventory.setItem(i - parentCount, button); // left to right starting at fourth row
         }
         return parentCount;
     }
 
     private static int placeButtonAndGetRenamedCount(ItemStack button, VivDisplay vivDisplay, Inventory inventory, int renamedCount, int i) {
         if (!vivDisplay.displayName.isEmpty() || vivDisplay.isParent) { // add renamed or parented displays at end, otherwise at begin
-            inventory.setItem(53 - renamedCount, button);
+            inventory.setItem(36 + renamedCount, button);
             renamedCount++;
         } else {
             inventory.setItem(i - renamedCount, button);
