@@ -3,6 +3,7 @@ package me.vivian.displayer;
 import me.vivian.displayer.commands.AutoFill;
 import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.commands.TextDisplayCommands;
+import me.vivian.displayer.commands.DisplayCommands;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
@@ -35,7 +36,7 @@ public final class DisplayPlugin extends JavaPlugin { // this should be final ye
         Texts.loadTexts(this);
 
         // init commandHandler & autofill
-        CommandExecutor commandHandler = new CommandHandler();
+        CommandExecutor commandHandler = new CommandHandler(this);
         TabCompleter autofill = new AutoFill();
 
         registerCommand(commandHandler, autofill, "display");
@@ -57,7 +58,9 @@ public final class DisplayPlugin extends JavaPlugin { // this should be final ye
         ItemBuilder.init(this);
 
         // yea
+        DisplayCommands.init(this);
         TextDisplayCommands.init();
+
 
         // yea
         NBTMagic.init(this);

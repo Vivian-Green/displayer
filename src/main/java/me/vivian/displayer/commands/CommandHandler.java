@@ -1,12 +1,17 @@
 package me.vivian.displayer.commands;
 
+import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
+import me.vivian.displayer.display.DisplayHandler;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // todo: CommandHandler should exist and shouldn't be taped to main-
 //  why is eventlisteners the plugin we're passing around-
@@ -14,15 +19,28 @@ import org.bukkit.entity.*;
 
 // handles commands for creating, manipulating, and interacting with displays
 public class CommandHandler implements CommandExecutor {
-    public CommandHandler(){} // oops I accidentally a don't need constructor anymore rip
+    public CommandHandler(DisplayPlugin thisPlugin){
+        plugin = thisPlugin;
+    }
+    DisplayPlugin plugin;
+
+    ArrayList<String> commandLabels = new ArrayList<>(List.of(new String[]{"display", "advdisplay", "displaygroup", "textdisplay"}));
+
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!commandLabels.contains(label.toLowerCase())) return true;
+
         if (!(sender instanceof Player)) {
             return onConsoleCommand(sender, command, label, args);
         }
 
         Player player = (Player) sender;
+        DisplayHandler.lastUpdateTimes.put(player.getUniqueId(), System.currentTimeMillis());
+
+        long delayTicks = (DisplayHandler.playerStaleTime * 20L) + 20L; // Convert seconds to ticks and add 20 ticks
+        Bukkit.getScheduler().runTaskLater(plugin, DisplayHandler.removePlayerVivDisplaysIfStale(player.getUniqueId()), delayTicks); // schedule check if display is stale after the enstalening time, after this command is ran
+
         return onPlayerCommand(player, command, label, args);
     }
 
@@ -100,6 +118,9 @@ public class CommandHandler implements CommandExecutor {
                 break;
             case "locate":
                 DisplayCommands.handleDisplayLocateCommand(player);
+                break;
+            case "unselect":
+                DisplayCommands.handleDisplayUnselectCommand(player);
                 break;
             default:
                 sendPlayerMsgIfMsg(player, Texts.errors.get("displayInvalidSubcommand"));

@@ -23,6 +23,8 @@ minDisplaySize: 0.01
 minTextDisplayOpacity: 0.1
 
 
+playerStaleTime: 300
+playerCleanupFrequency: 600
 
 textsPath: 'texts_en.yml'
 

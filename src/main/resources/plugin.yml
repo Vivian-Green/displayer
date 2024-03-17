@@ -36,6 +36,9 @@ commands:
       locate:
         description: Locates the selected display
         usage: /display locate
+      unselect:
+        description: Deselects display
+        usage: /display unselect
 
   advdisplay:
     description: display commands the player shouldn't be entering directly

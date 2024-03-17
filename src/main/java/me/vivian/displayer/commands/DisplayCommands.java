@@ -27,7 +27,8 @@ public class DisplayCommands {
     static FileConfiguration config = Config.config;
     private static DisplayPlugin plugin;
 
-    static void init(DisplayPlugin thisPlugin){
+    public static void init(DisplayPlugin thisPlugin){
+
         plugin = thisPlugin;
     }
     /**
@@ -289,5 +290,9 @@ public class DisplayCommands {
 
         ParticleHandler.drawParticleLine(selectedDisplay.display.getLocation(), player.getLocation(), Particle.REDSTONE, 100, new Particle.DustOptions(Color.PURPLE, 3));
         ParticleHandler.spawnParticle(selectedDisplay.display, Particle.SONIC_BOOM, 100);
+    }
+
+    public static void handleDisplayUnselectCommand(Player player) {
+        DisplayHandler.removePlayerVivDisplays(player.getUniqueId());
     }
 }

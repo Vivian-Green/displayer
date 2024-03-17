@@ -7,6 +7,7 @@ import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayerutils.NBTMagic;
 import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -17,10 +18,59 @@ import java.util.*;
 
 public class DisplayHandler {
     public static final Map<UUID, VivDisplay> selectedVivDisplays = new HashMap<>();
+    public static final Map<UUID, Long> lastUpdateTimes = new HashMap<>();
     private static DisplayPlugin plugin;
+    public static int playerStaleTime; // seconds
+    public static int playerCleanupFrequency; // seconds
+
     public static void init(DisplayPlugin thisPlugin){
         plugin = thisPlugin;
+        playerStaleTime = Config.config.getInt("playerStaleTime");
+        playerCleanupFrequency = Config.config.getInt("playerCleanupFrequency");
+
+        int periodTicks = 20 * playerCleanupFrequency;
+        plugin.getServer().getScheduler().runTaskTimer(plugin, DisplayHandler::cleanupStalePlayers, 0, periodTicks);
     }
+
+    public static void cleanupStalePlayers() {
+        long currentTime = System.currentTimeMillis();
+        long staleTime = currentTime - (playerStaleTime * 1000L); // time that's old enough to be stale
+
+        Iterator<Map.Entry<UUID, Long>> iterator = lastUpdateTimes.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, Long> entry = iterator.next();
+            UUID playerUUID = entry.getKey();
+            long lastUpdateTime = entry.getValue();
+
+            // for each stale player
+            if (lastUpdateTime < staleTime) {
+                iterator.remove();
+                selectedVivDisplays.remove(playerUUID);
+                continue;
+            }
+
+            // for each not stale player
+            long delayTicks = (playerStaleTime * 20L) + 20L; // Convert seconds to ticks and add 20 ticks
+            Bukkit.getScheduler().runTaskLater(plugin, removePlayerVivDisplaysIfStale(playerUUID), delayTicks);
+        }
+    }
+
+    public static Runnable removePlayerVivDisplaysIfStale(UUID playerUUID) {
+        long staleTime2 = System.currentTimeMillis() - (playerStaleTime * 1000L);
+        if (lastUpdateTimes.get(playerUUID) < staleTime2) {
+            selectedVivDisplays.remove(playerUUID);
+            lastUpdateTimes.remove(playerUUID);
+        }
+        return null;
+    }
+
+    public static void removePlayerVivDisplays(UUID playerUUID){
+        selectedVivDisplays.remove(playerUUID);
+        lastUpdateTimes.remove(playerUUID);
+    }
+
+
+
     public static void createBlockDisplay(Player player, String[] args) {
         if (!player.getInventory().getItemInMainHand().getType().isBlock()) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("invalidBlock"));
