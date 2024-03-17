@@ -1,5 +1,6 @@
 package me.vivian.displayer.commands;
 
+import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.TransformMath;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -129,8 +130,8 @@ public class AutoFill implements TabCompleter {
 
     private List<String> handleDisplayGroupSubcommands(CommandSender sender, String[] args) {
         if (args.length == 1) return displayGroupSubcommands;
-
         List<String> completions = new ArrayList<>();
+        if (Config.config.getBoolean("doDisplayGroups")) return completions;
 
         String currentSubcommand = args[0].toLowerCase();
         switch (currentSubcommand) {

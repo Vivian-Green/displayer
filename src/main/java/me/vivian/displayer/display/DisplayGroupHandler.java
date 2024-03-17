@@ -76,7 +76,7 @@ public class DisplayGroupHandler {
     }
 
     // Function to copy and paste all displays in a hierarchy
-    public static void copyAndPasteHierarchy(VivDisplay vivDisplay, Player player, Location newLocation) {
+    public static void copyAndPasteHierarchy(VivDisplay vivDisplay, Player player, Location newLocation) { // todo: parenting just doesn't apply right here
         // Record the player's selected display before copying
         VivDisplay originalSelectedDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
 
@@ -84,7 +84,6 @@ public class DisplayGroupHandler {
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
         if (hierarchy == null) return; /* either this vivDisplay is null, or its topmost parent is, which is a weird case
             todo: handle by getting topmost not-null parent?
-
         */
 
         // Create a map to store the copies of each VivDisplay
@@ -94,11 +93,7 @@ public class DisplayGroupHandler {
         for (VivDisplay original: hierarchy) {
             VivDisplay copy = copyVivDisplay(original);
             copies.put(original.display.getUniqueId().toString(), copy);
-        }
 
-        // Update the parentUUIDs of the copies
-        for (VivDisplay original: hierarchy) {
-            VivDisplay copy = copies.get(original.display.getUniqueId().toString());
             if (original.parentUUID != null) {
                 VivDisplay parentCopy = copies.get(original.parentUUID);
                 copy.parentUUID = parentCopy.display.getUniqueId().toString();
@@ -183,12 +178,10 @@ public class DisplayGroupHandler {
         return hierarchy;
     }
 
-    public static VivDisplay getHighestVivDisplay(VivDisplay vivDisplay) { // todo: replace while loop with recursive calls
+    public static VivDisplay getHighestVivDisplay(VivDisplay vivDisplay) {
         if (vivDisplay == null) {
-            System.out.println("getHighestVivDisplay: vivDisplay is null"); // todo: warn?
+            System.out.println("getHighestVivDisplay: vivDisplay is null");
             return null;
-        } else {
-            System.out.println(vivDisplay.displayName);
         }
 
         ArrayList<String> parentChainUUIDs = new ArrayList<>();
@@ -215,10 +208,12 @@ public class DisplayGroupHandler {
     }
 
 
-    // Function to copy a VivDisplay
     public static VivDisplay copyVivDisplay(VivDisplay original) {
+        System.out.println("this shouldn't be running yet! copyVivDisplay untested!");
+        if (true) return null;
+
         // Create a new VivDisplay with the same properties as the original
-        VivDisplay copy = new VivDisplay(plugin, original.display);
+        VivDisplay copy = new VivDisplay(plugin, (Display) original.display.copy()); // todo: .copy() probably doesn't work on its own-
         copy.displayName = original.displayName;
         copy.isChild = original.isChild;
         copy.isParent = original.isParentDisplay();
@@ -226,32 +221,6 @@ public class DisplayGroupHandler {
         return copy;
     }
 
-    // Function to rotate a VivDisplay around a point using degrees
-    /*public static void rotateVivDisplayAroundPoint(VivDisplay vivDisplay, Vector3d point, Vector3d rotationDegrees) {
-        // todo: use absolute rotation, not relative- position seems correct
-
-        // Convert degrees to radians
-        // roll, yaw, pitch
-        double xRotation = Math.toRadians(rotationDegrees.x);
-        double yRotation = Math.toRadians(rotationDegrees.y);
-        double zRotation = Math.toRadians(rotationDegrees.z);
-
-        Location oldLocation = vivDisplay.display.getLocation();
-
-        // Translate the VivDisplay's position so that the rotation point is at the origin
-        Vector3d relativePosition = new Vector3d(oldLocation.getX() - point.x, oldLocation.getY() - point.y, oldLocation.getZ() - point.z);
-
-        // rotate relative position by rotationMatrix
-        Matrix3d rotationMatrix = new Matrix3d().rotateXYZ(xRotation, zRotation, -yRotation); // todo: does yRot need to be negative? ignore for now
-        Vector3d rotatedPosition = rotationMatrix.transform(relativePosition);
-
-        // absolute position from rotated relative position
-        Vector3d newPosition = new Vector3d(rotatedPosition.x + point.x, rotatedPosition.y + point.y, rotatedPosition.z + point.z);
-
-        // Set the VivDisplay's position and rotation
-        vivDisplay.setPosition(newPosition.x, newPosition.y, newPosition.z, null);
-        vivDisplay.changeRotation((float) rotationDegrees.x, (float) rotationDegrees.y, (float) rotationDegrees.z, null);
-    }*/
 
     public static void rotateVivDisplayAroundPoint(VivDisplay vivDisplay, Vector3d point, Vector3d rotationDegrees) {
         // todo: hella borked, needs debugging- changeRotation should NOT be the call here.

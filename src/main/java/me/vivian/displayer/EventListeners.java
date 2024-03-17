@@ -52,7 +52,7 @@ public final class EventListeners implements Listener {
     String displayGUITitle;
     String displayNearbyGUITitle;
     String displayGroupShowGUITitle;
-    ArrayList<String> guiTitles;
+    ArrayList<String> guiTitles = new ArrayList<>();
 
     Vector2d switchPosition = new Vector2d(0, 5);
     int switchStartSlot = (int) (switchPosition.y * 9 + switchPosition.x);
@@ -410,7 +410,9 @@ public final class EventListeners implements Listener {
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
         if (event.getRightClicked() instanceof ArmorStand) {
-            ArmorStandClickHandler.onInteractWithArmorStand(event);
+            if (Config.config.getBoolean("doArmorStandConversion")) {
+                ArmorStandClickHandler.onInteractWithArmorStand(event);
+            }
         }
     }
 }

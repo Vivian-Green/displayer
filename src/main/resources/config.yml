@@ -1,6 +1,7 @@
 
 # allow display group commands (default: false)
 doDisplayGroups: false
+doArmorStandConversion: false
 
 # world guard flag to check against for editing displays. default: BUILD
 worldguardFlag: 'BUILD'
@@ -23,7 +24,7 @@ minTextDisplayOpacity: 0.1
 
 
 
-
+textsPath: 'texts_en.yml'
 
 # furthest distance to search when looking for nearby displays (default: 16)
 # high values might affect performance in large areas with a lot of displays

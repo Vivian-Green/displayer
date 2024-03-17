@@ -149,7 +149,7 @@ public class DisplayCommands {
      */
     static void handleDisplayRenameCommand(Player player, String[] args) {
         if (args.length < 2) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("advDisplayRenameUsage"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayRenameUsage"));
             return;
         }
 

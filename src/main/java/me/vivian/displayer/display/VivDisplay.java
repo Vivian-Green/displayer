@@ -1,5 +1,6 @@
 package me.vivian.displayer.display;
 
+import me.vivian.displayer.config.Texts;
 import me.vivian.displayerutils.NBTMagic;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -20,7 +21,7 @@ import java.util.UUID;
 // todo: return strings instead of needing player as arg
 // todo: handle case display is null
 
-// todo: add errs & texts to texts.yml
+// todo: add errs & texts to texts_en.yml
 /**
  * Wrapper class for a display entity in the game world, used to hold display values
  * Provides methods to interact with and manage displays, including creation, destruction, and retrieval
@@ -116,9 +117,6 @@ public class VivDisplay{
 
             // Print a warning if the display was null
             System.out.println("Tried to destroy a null display");
-            if (player != null) {
-                player.sendMessage("Tried to destroy a null display?"); // todo: config this
-            }
         }
 
         display.remove();
@@ -166,12 +164,13 @@ public class VivDisplay{
     public String rename(String newName) {
         try {
             NBTMagic.setNBT(display, "VivDisplayName", newName);
+            String oldName = displayName;
             displayName = newName;
 
-            return "The display is now called " + newName; // todo: config this
+            return Texts.errors.get("renameSuccess").replace("$newname", newName).replace("$oldname", oldName);
         } catch (Exception e) {
             System.out.println("renameDisplay(): Failed to rename display. Error: " + e.getMessage());
-            return "Failed to rename the display. Please try again later.";
+            return Texts.errors.get("renameFailed");
         }
     }
 

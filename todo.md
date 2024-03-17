@@ -1,13 +1,12 @@
 # display todos:
+- textdisplay filtering
 - display locate command
-- ability to use placeholders? but that would probably be complicated-
 - luckperms integration
 - item frame (map) functionality
 - text display functionality
   - setDisplayHeight 
   - setDisplayWidth
   - setGlowColorOverride
-- textdisplay toggle command
 - handle case empty display- other plugins might make one
 
 </br></br>
@@ -18,7 +17,6 @@
 - ensure no parent time travel alabama ouroborosing - checking for it currently
 - display unselect command OR auto-unselect after time
 </br></br></br></br>
-- import armorstand data from cmi - WIP
 - move armor stand conversion to command or tool instead of on interact
 - add heads to armor stand conversion
 - different translation offsets for how different items are held, not just sprites

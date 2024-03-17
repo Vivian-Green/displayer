@@ -19,7 +19,6 @@ public class DisplayHandler {
     public static final Map<UUID, VivDisplay> selectedVivDisplays = new HashMap<>();
     private static DisplayPlugin plugin;
     public static void init(DisplayPlugin thisPlugin){
-
         plugin = thisPlugin;
     }
     public static void createBlockDisplay(Player player, String[] args) {
@@ -51,9 +50,8 @@ public class DisplayHandler {
 
         VivDisplay vivDisplay = new VivDisplay(plugin, player.getWorld(), player.getEyeLocation(), EntityType.TEXT_DISPLAY, text);
 
-        if (vivDisplay.display instanceof TextDisplay){
-            ((TextDisplay) (vivDisplay.display)).setSeeThrough(false);
-        }
+        ((TextDisplay) (vivDisplay.display)).setSeeThrough(false);
+
         updateDisplay(player, vivDisplay, args);
     }
 
@@ -81,13 +79,13 @@ public class DisplayHandler {
         if (maxCount < 1 || radius < 0.01) return; // Invalid max count or radius, error message already sent in parsing functions
 
         List<VivDisplay> nearbyVivDisplays = getNearbyVivDisplays(player.getLocation(), (int) radius, player);
+        if (nearbyVivDisplays == null) return;
 
         // Destroy nearby displays up to the specified max count
         int destroyedCount = 0;
         for (VivDisplay vivDisplay: nearbyVivDisplays) {
             if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, vivDisplay)) {
-                // todo: warn can't build here
-                System.out.println("can't build here idiot");
+                CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
                 continue;
             }
 
@@ -153,8 +151,7 @@ public class DisplayHandler {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
         } else {
             if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
-                // todo: warn can't build here
-                System.out.println("can't build here idiot");
+                CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
                 return;
             }
 
@@ -170,7 +167,7 @@ public class DisplayHandler {
      * @return The found Display object, or null if no display with the given name is found.
      */
     public static Display getDisplayByName(Player player, String displayName) {
-        List<Display> nearbyDisplays = getNearbyDisplays(player.getLocation(), Config.config.getInt("maxSearchRadius")); // todo: config this
+        List<Display> nearbyDisplays = getNearbyDisplays(player.getLocation(), Config.config.getInt("maxSearchRadius"));
 
         // Find the first display with the specified "VivDisplayName" NBT tag equal to displayName
         for (Display display: nearbyDisplays) {

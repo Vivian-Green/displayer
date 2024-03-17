@@ -53,7 +53,7 @@ public class ItemBuilder {
         }
 
         if (displayName.isEmpty()) { // unnamed vivDisplay, use default name
-            displayName = material == Material.NAME_TAG ? "Text" : material + " Display";
+            displayName = material == Material.NAME_TAG ? "Text" : material.name() + " Display";
         }
 
         // return button with material & name

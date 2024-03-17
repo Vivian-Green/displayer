@@ -28,7 +28,9 @@ errors:
   advDisplayChangeSizeInvalid: 'Invalid size offset. Usage: /advdisplay changesize <size offset: number>'
   advDisplayDestroyUsage: 'Usage: /display destroy [nearby [max count] [radius]]'
   advDisplayInvalidSubcommand: 'Invalid subcommand for /advdisplay. Try /advdisplay help'
-  advDisplayRenameUsage: 'Usage: /display rename <name>'
+  displayRenameUsage: 'Usage: /display rename <name>'
+  renameFailed: 'Failed to rename the display. Please try again later.'
+  renameSuccess: 'renamed display to $newname' # accepts $oldname $newname
 
   displayGroupUsage: 'Usage: /displaygroup setparent <parentname>'
   displayGroupSetParentUsage: 'Usage: /displaygroup setparent <parentname>'

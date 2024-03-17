@@ -1,5 +1,6 @@
 package me.vivian.displayer;
 
+import me.vivian.displayer.config.Config;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
@@ -13,7 +14,7 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 
-public class ArmorStandClickHandler extends JavaPlugin implements Listener {
+public class ArmorStandClickHandler {
     // todo: clean up- a lot-
 
     public static final float SHOULDER_X_OFFSET = 5f / 16f;

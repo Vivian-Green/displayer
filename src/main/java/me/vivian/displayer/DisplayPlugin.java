@@ -29,9 +29,9 @@ public final class DisplayPlugin extends JavaPlugin { // this should be final ye
         // todo: check config validity-
         saveResource("plugin.yml", false);
         saveResource("config.yml", false);
-        saveResource("texts.yml", false);
-
         Config.loadConfig(this);
+
+        saveResource(Config.textsFileName, false);
         Texts.loadTexts(this);
 
         // init commandHandler & autofill

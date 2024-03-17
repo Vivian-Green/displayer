@@ -17,9 +17,10 @@ public class Texts {
 
 
     public static void loadTexts(DisplayPlugin plugin) {
-        System.out.println("trying to load texts...");
+        System.out.println("[displayer] trying to load texts...");
         if (loadState == 0) {
-            File textsFile = new File(plugin.getDataFolder(), "texts.yml");
+            System.out.println(Config.textsFileName);
+            File textsFile = new File(plugin.getDataFolder(), Config.textsFileName);
 
             tCfg = YamlConfiguration.loadConfiguration(textsFile);
             loadState = 1;
