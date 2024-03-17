@@ -2,9 +2,11 @@ package me.vivian.displayer.display;
 
 import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.TransformMath;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 import org.joml.Matrix3d;
@@ -196,17 +198,14 @@ public class DisplayGroupHandler {
 
         while (depthLeft > 0 && vivDisplay.parentUUID != null) {
             // you have a dad somewhere
-            for (Display nearbyDisplay: nearbyDisplays) {
-                // ask everyone nearby if they're your dad
-                String nearbyUUID = nearbyDisplay.getUniqueId().toString();
-                if (nearbyUUID.equals(vivDisplay.parentUUID)) {
-                    if (parentChainUUIDs.contains(nearbyUUID)) return vivDisplay; // this is your dad, but you're also his dad, so you have to come back with the milk
+            if (parentChainUUIDs.contains(vivDisplay.parentUUID)) return vivDisplay; // you're your dad's dad, so you have to come back with the milk
 
-                    // you didn't make your dad
-                    vivDisplay = new VivDisplay(plugin, nearbyDisplay); // but now you are your dad, so stop looking for him.. maybe his dad has the milk?
-                    parentChainUUIDs.add(nearbyUUID);
-                }
-            }
+            Entity entity = Bukkit.getServer().getEntity(UUID.fromString(vivDisplay.parentUUID));
+            if (!(entity instanceof Display)) return vivDisplay; // your dad isn't real
+
+            // you didn't make your dad, and he is real!
+            parentChainUUIDs.add(vivDisplay.parentUUID);
+            vivDisplay = new VivDisplay(plugin, (Display) entity); // but now you are your dad... maybe his dad has the milk?
 
             depthLeft--;
         }

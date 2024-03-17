@@ -76,7 +76,7 @@ public class AdvDisplayCommands {
         try {
             displayUUID = UUID.fromString(args[1]);
         } catch (IllegalArgumentException e) {
-            Bukkit.getLogger().warning("handleAdvDisplaySelectCommand: failed to create a UUID from arg 1 of '/advdisplay select ?'");
+            Bukkit.getLogger().warning("handleAdvDisplaySelectCommand: failed to create a UUID from arg 1 of '/advdisplay select ?'"); // todo: config this
             return;
         }
 
