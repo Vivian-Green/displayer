@@ -76,7 +76,7 @@ public class CommandHandler implements CommandExecutor {
     private boolean onPlayerTextDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
             sendPlayerMsgIfMsg(player, Texts.errors.get("textDisplayUsage"));
-            return false;
+            return true;
         }
 
         TextDisplayCommands.handleTextDisplayCommand(player, args);
@@ -86,7 +86,7 @@ public class CommandHandler implements CommandExecutor {
     private boolean onPlayerDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
             sendPlayerMsgIfMsg(player, Texts.errors.get("displayUsage"));
-            return false;
+            return true;
         }
 
         String subCommand = args[0].toLowerCase();
@@ -131,7 +131,7 @@ public class CommandHandler implements CommandExecutor {
     private boolean onPlayerAdvDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
             sendPlayerMsgIfMsg(player, Texts.errors.get("advDisplayUsage"));
-            return false;
+            return true;
         }
 
         String subCommand = args[0].toLowerCase();
@@ -155,12 +155,12 @@ public class CommandHandler implements CommandExecutor {
         if (!Config.config.getBoolean("doDisplayGroups")) {
             // this is actually enough to disable all of this, since you can't set a parent (create a group) otherwise
             sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupDisabled"));
-            return false;
+            return true;
         }
 
         if (args.length < 1) {
             sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupUsage"));
-            return false;
+            return true;
         }
 
         String subCommand = args[0].toLowerCase();
