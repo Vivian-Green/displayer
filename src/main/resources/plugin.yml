@@ -33,6 +33,9 @@ commands:
       rename:
         description: Set the name for a given display
         usage: /display rename <name>
+      locate:
+        description: Locates the selected display
+        usage: /display locate
 
   advdisplay:
     description: display commands the player shouldn't be entering directly

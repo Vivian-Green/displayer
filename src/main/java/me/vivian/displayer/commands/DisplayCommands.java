@@ -6,6 +6,8 @@ import me.vivian.displayerutils.*;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
+import org.bukkit.Color;
+import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
@@ -214,7 +216,7 @@ public class DisplayCommands {
 
         List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player.getLocation(), (int) radius, player);
 
-        if (nearbyVivDisplays.isEmpty()) return; // errs in func
+        if (nearbyVivDisplays == null || nearbyVivDisplays.isEmpty()) return; // errs in func
 
         Inventory inventory = GUIBuilder.displaySelectorGUIBuilder(nearbyVivDisplays, Texts.getText("displayNearbyGUITitle"), true);
         player.openInventory(inventory);
@@ -276,5 +278,16 @@ public class DisplayCommands {
         }
 
         player.openInventory(inventory);
+    }
+
+    public static void handleDisplayLocateCommand(Player player) {
+        VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
+        if (selectedDisplay == null) {
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
+            return;
+        }
+
+        ParticleHandler.drawParticleLine(selectedDisplay.display.getLocation(), player.getLocation(), Particle.REDSTONE, 100, new Particle.DustOptions(Color.PURPLE, 3));
+        ParticleHandler.spawnParticle(selectedDisplay.display, Particle.SONIC_BOOM, 100);
     }
 }

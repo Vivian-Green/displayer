@@ -10,7 +10,6 @@ import org.bukkit.util.Vector;
 import org.joml.Vector3d;
 
 import java.util.List;
-import java.util.Random;
 
 public class ParticleHandler {
     /**
@@ -44,12 +43,12 @@ public class ParticleHandler {
         // Spawn particles at each display
         for (VivDisplay display: hierarchy) {
             // Location displayLocation = display.display.getLocation();
-            drawParticleLine(display.display.getLocation(), vivDisplay.display.getLocation(), particle, particleCount);
+            drawParticleLine(display.display.getLocation(), vivDisplay.display.getLocation(), particle, particleCount, null);
             //display.spawnParticle(particle, particleCount);
         }
     }
 
-    public static void drawParticleLine(Location loc1, Location loc2, Particle particle, Integer count) {
+    public static void drawParticleLine(Location loc1, Location loc2, Particle particle, Integer count, Particle.DustOptions dustOptions) {
         if (particle == null) {
             particle = Particle.DOLPHIN;
         }
@@ -62,16 +61,18 @@ public class ParticleHandler {
         Vector3d vector2 = new Vector3d(loc2.getX(), loc2.getY(), loc2.getZ());
         // Vector3d vectorBetween = new Vector3d(vector2.x-vector1.x, vector2.y-vector1.y, vector2.z-vector1.z);
 
-        Random rand = new Random();
-        for (int i = 0; i < count; i++) {
-            double t = (double) i / (count - 1);
+
+        for (int i = 0; i < count/5; i++) {
+            double t = (double) i / (count/5 - 1);
 
             Vector3d pointOnLine = vector1.lerp(vector2, t);
-            Vector3d randomOffset = new Vector3d(-0.1 + (0.1 - (-0.1)) * rand.nextDouble(), -0.1 + (0.1 - (-0.1)) * rand.nextDouble(), -0.1 + (0.1 - (-0.1)) * rand.nextDouble());
-            Location pointLocation = new Location(world, pointOnLine.x + randomOffset.x, pointOnLine.y + randomOffset.y, pointOnLine.z + randomOffset.z);
+            Location pointLocation = new Location(world, pointOnLine.x, pointOnLine.y, pointOnLine.z);
 
-
-            world.spawnParticle(particle, pointLocation, 1);
+            if (dustOptions != null) {
+                world.spawnParticle(particle, pointLocation, 5, dustOptions);
+            } else {
+                world.spawnParticle(particle, pointLocation, 5);
+            }
         }
     }
 }

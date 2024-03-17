@@ -42,7 +42,7 @@ public class ItemBuilder {
     }
 
     public static ItemStack buildDisplaySelectButton(VivDisplay vivDisplay) {
-        // get mateiral & name
+        // get material & name
         Material material = Material.BARRIER;
         String displayName = vivDisplay.displayName;
 

@@ -124,10 +124,9 @@ public class DisplayHandler {
 
     // Gets VivDisplay objects near the (player) within a given (radius), sorted by distance
     public static List<VivDisplay> getNearbyVivDisplays(Location location, int radius, Player player) {
-        // todo: MAX RADIUS
-        List<VivDisplay> nearbyVivDisplays = new ArrayList<>();
+        radius = Math.min(radius, Config.config.getInt("maxSearchRadius")); // todo: warn?
+
         List<Display> nearbyDisplays = getNearbyDisplays(location, radius);
-        nearbyDisplays.sort(Comparator.comparingDouble(display -> display.getLocation().distance(location)));
 
         if (nearbyDisplays.isEmpty()) {
             if (player == null) return null;
@@ -138,6 +137,8 @@ public class DisplayHandler {
             return null;
         }
 
+        nearbyDisplays.sort(Comparator.comparingDouble(display -> display.getLocation().distance(location)));
+        List<VivDisplay> nearbyVivDisplays = new ArrayList<>();
         for (Display display: nearbyDisplays) {
             nearbyVivDisplays.add(new VivDisplay(plugin, display));
         }

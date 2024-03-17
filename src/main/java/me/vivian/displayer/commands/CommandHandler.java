@@ -98,6 +98,9 @@ public class CommandHandler implements CommandExecutor {
             case "rename":
                 DisplayCommands.handleDisplayRenameCommand(player, args);
                 break;
+            case "locate":
+                DisplayCommands.handleDisplayLocateCommand(player);
+                break;
             default:
                 sendPlayerMsgIfMsg(player, Texts.errors.get("displayInvalidSubcommand"));
         }
