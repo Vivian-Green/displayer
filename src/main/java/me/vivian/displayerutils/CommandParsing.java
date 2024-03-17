@@ -38,6 +38,28 @@ public class CommandParsing {
         }
     }
 
+    public static String toTitleCase(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        StringBuilder titleCase = new StringBuilder();
+        boolean nextCharToTitleCase = true;
+
+        for (char c : input.toCharArray()) {
+            c = Character.toLowerCase(c); // Convert all characters to lowercase
+
+            if (nextCharToTitleCase) {
+                c = Character.toUpperCase(c); // Make the first character or word start uppercase
+            }
+
+            titleCase.append(c);
+            nextCharToTitleCase = Character.isWhitespace(c); // Set nextCharToTitleCase to true after whitespace
+        }
+
+        return titleCase.toString();
+    }
+
     /**
      * Parses rotation offsets from the given command arguments.
      *
