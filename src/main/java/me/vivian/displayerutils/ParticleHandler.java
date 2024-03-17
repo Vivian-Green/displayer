@@ -12,28 +12,46 @@ import org.joml.Vector3d;
 import java.util.List;
 
 public class ParticleHandler {
-    /**
-     * spawns particles at this display
-     */
-    public static void spawnParticle(Display display, Particle particle, Integer count) {
-        Location displayLocation = display.getLocation();
+    public static void spawnParticle(Display display){
+        spawnParticle(display.getLocation(), null, null, null);
+    }
+    
+    public static void spawnParticle(Location location){
+        spawnParticle(location, null, null, null);
+    }
 
-        Vector offset = new Vector(0, 1, 0);
+    public static void spawnParticle(Display display, Particle particle, Integer count) {
+        spawnParticle(display.getLocation(), particle, count, null);
+    }
+
+    public static void spawnParticle(Location location, Particle particle, Integer count) {
+        spawnParticle(location, particle, count, null);
+    }
+    
+    public static void spawnParticle(Display display, Particle particle, Integer count, Particle.DustOptions dustOptions) {
+        Location displayLocation = display.getLocation();
+        spawnParticle(displayLocation, particle, count, dustOptions);
+    }
+
+    public static void spawnParticle(Location location, Particle particle, Integer count, Particle.DustOptions dustOptions) {
+        World world = location.getWorld();
+        Vector offset = new Vector();
 
         if (particle == null) {
             particle = Particle.ENCHANTMENT_TABLE;
+            offset = new Vector(0, 1, 0); // only offset these ones- they're weird and go *below* the table
         }
         if (count == null) {
             count = 100;
         }
 
-        Location offsetLocation = new Location(displayLocation.getWorld(), displayLocation.getX() + offset.getX(), displayLocation.getY() + offset.getY(), displayLocation.getZ() + offset.getZ(), displayLocation.getYaw(), displayLocation.getPitch());
+        Location offsetLocation = new Location(world, location.getX() + offset.getX(), location.getY() + offset.getY(), location.getZ() + offset.getZ(), displayLocation.getYaw(), displayLocation.getPitch());
 
-        displayLocation.getWorld().spawnParticle(
-                particle,
-                offsetLocation,
-                count
-        );
+        if (dustOptions != null) {
+            world.spawnParticle(particle, offsetLocation, count, dustOptions);
+        } else {
+            world.spawnParticle(particle, offsetLocation, count);
+        }
     }
 
     public static void spawnParticlesAtHierarchy(VivDisplay vivDisplay, Particle particle, int particleCount) {
@@ -47,7 +65,18 @@ public class ParticleHandler {
             //display.spawnParticle(particle, particleCount);
         }
     }
+    
+    public static void particleBetween(Location loc1, Location loc2, Particle particle, Particle.DustOptions dustOptions){
+        Vector pos1 = loc1.toVector();
+        Vector pos2 = loc2.toVector();
+        double scale = Math.random();
+        Vector posBetween = new Vector(pos1.getX()+scale*(pos2.getX() - pos1.getX()), pos1.getY()+scale*(pos2.getY() - pos1.getY()), pos1.getZ()+scale*(pos2.getZ() - pos1.getZ()));
+        Location locationBetween = new Location(loc1.getWorld(), posBetween.getX(), posBetween.getY(), posBetween.getZ(), loc1.getYaw(), loc1.getPitch());
 
+        spawnParticle(locationBetween, particle, 5, null);
+    }
+
+    
     public static void drawParticleLine(Location loc1, Location loc2, Particle particle, Integer count, Particle.DustOptions dustOptions) {
         if (particle == null) {
             particle = Particle.DOLPHIN;
