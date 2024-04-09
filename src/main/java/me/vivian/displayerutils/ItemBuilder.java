@@ -68,12 +68,15 @@ public class ItemBuilder {
             ArrayList<String> lore = new ArrayList<>(List.of(((TextDisplay) vivDisplay.display).getText().split("\n")));
             buttonMeta.setLore(lore);
         }
-        button.setItemMeta(buttonMeta);
 
         // bind UUID to button nbt
         PersistentDataContainer dataContainer = buttonMeta.getPersistentDataContainer();
+
         UUID displayUUID = vivDisplay.display.getUniqueId();
         dataContainer.set(new NamespacedKey(plugin, "displayUUID"), PersistentDataType.STRING, displayUUID.toString());
+
+        buttonMeta.setDisplayName(vivDisplay.getItemName());
+
         button.setItemMeta(buttonMeta);
 
         // add enchantment glint to named Displays
