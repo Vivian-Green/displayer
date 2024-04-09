@@ -1,6 +1,7 @@
 package me.vivian.displayer.display;
 
 import me.vivian.displayer.config.Texts;
+import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayerutils.NBTMagic;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,6 +13,7 @@ import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
 import org.bukkit.Location;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Map;
@@ -56,6 +58,15 @@ public class VivDisplay{
         parentUUID = NBTMagic.getNBT(display, "VivDisplayParentUUID", String.class) == null ? "" : NBTMagic.getNBT(display, "VivDisplayParentUUID", String.class);
         isChild = NBTMagic.getNBT(display, "VivDisplayIsChild", Boolean.class) != null && NBTMagic.getNBT(display, "VivDisplayIsChild", Boolean.class);
         isParent = NBTMagic.getNBT(display, "VivDisplayIsParent", Boolean.class) != null && NBTMagic.getNBT(display, "VivDisplayIsParent", Boolean.class);
+    }
+
+    public String getItemName(){
+        if (displayName == null || display.isEmpty()) {
+            Material material = getMaterial();
+            String materialName = material == null ? "" : material.name();
+            return CommandParsing.toTitleCase(materialName.replace("_", " "));
+        }
+        return displayName;
     }
 
     public Boolean isParentDisplay() {
@@ -130,6 +141,7 @@ public class VivDisplay{
         return DisplayHandler.getItemStackFromDisplay(display);
     }
     public Material getMaterial() {
+        if (getItemStack() == null) return null;
         return getItemStack().getType();
     }
 
@@ -226,22 +238,18 @@ public class VivDisplay{
      * Changes the scale of this VivDisplay by the specified offset.
      *
      * @param sizeOffset The offset to add to the current scale.
-     * @param player     The player performing the scale change.
      * @return True if the scale change was successful, false otherwise.
      */
-    public boolean changeSize(double sizeOffset, Player player) {
+    public boolean changeSize(Vector3d sizeOffset) {
         Transformation transformation = display.getTransformation();
-        double currentScale = transformation.getScale().x;
-        double newScale = currentScale + sizeOffset;
+        Vector3f currentScale = transformation.getScale();
+        Vector3d newScale = new Vector3d(currentScale.x + sizeOffset.x, currentScale.y + sizeOffset.y, currentScale.z + sizeOffset.z);
 
-        if (newScale > 0.0) {
+        if (Math.min(newScale.x, Math.min(newScale.y, newScale.z)) > 0.0) {
             transformation.getScale().set(newScale);
             display.setTransformation(transformation);
             return true;
         } else {
-            if (player != null) {
-                player.sendMessage("Invalid scale value. Scale must be greater than 0.0.");
-            }
             return false;
         }
     }
@@ -253,7 +261,7 @@ public class VivDisplay{
      * @param player  The player performing the scale setting.
      * @return True if the scale setting was successful, false otherwise.
      */
-    public boolean setScale(double newSize, Player player) {
+    public boolean setScale(double newSize, Player player) { // todo: remove usages
         if (newSize > 0.0) {
             Transformation transformation = display.getTransformation();
             transformation.getScale().set(newSize);
@@ -305,6 +313,10 @@ public class VivDisplay{
         return true;
     }
 
+    public boolean changeRotation(Vector3d rotationOffset) {
+        return changeRotation((float) rotationOffset.x, (float) rotationOffset.y, (float) rotationOffset.z);
+    }
+
     /**
      * Sets the rotation of this VivDisplay to the specified values.
      *
@@ -336,6 +348,7 @@ public class VivDisplay{
         }
         return true;
     }
+
 
     /**
      * Changes the position of this VivDisplay by the specified offsets.

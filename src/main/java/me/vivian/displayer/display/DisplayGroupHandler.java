@@ -29,7 +29,7 @@ public class DisplayGroupHandler {
         }
         System.out.println(vivDisplay.displayName);
 
-        List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
+        List<VivDisplay> hierarchy = getAllDescendants(vivDisplay);
         if (hierarchy == null) {
             System.out.println("translateHierarchy: hierarchy is null"); // todo: warn
             return;
@@ -128,22 +128,28 @@ public class DisplayGroupHandler {
 
     // Function to get all descendants of a VivDisplay
     private static List<VivDisplay> getAllDescendants(VivDisplay parentVivDisplay, int depth) {
-        if (depth >= config.getInt("maxSearchDepth")) return null; // too far along in tree
-        if (!parentVivDisplay.isParent) return null; // no use getting nearby displays when this isn't a parent
+        List<VivDisplay> descendants = new ArrayList<>();
+        descendants.add(parentVivDisplay);
+        if (depth >= config.getInt("maxSearchDepth")) return descendants; // too far along in tree
+        if (!parentVivDisplay.isParent) return descendants; // no use getting nearby displays when this isn't a parent
 
         String parentUUID = parentVivDisplay.display.getUniqueId().toString();
-        List<VivDisplay> descendants = new ArrayList<>();
+
         List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(parentVivDisplay.display.getLocation(), config.getInt("maxSearchRadius"), null);
+        if (nearbyVivDisplays == null) return null;
 
         for (VivDisplay vivDisplay: nearbyVivDisplays) {
+            if (!vivDisplay.isChild) continue;
             if (vivDisplay.parentUUID != null && vivDisplay.parentUUID.equals(parentUUID)) {
+                System.out.println("AAAAAAA");
                 // descendants.add(vivDisplay); // unnecessary yea?
 
-                List<VivDisplay> thisDescendants = getAllDescendants(vivDisplay, depth+1);
-                if (thisDescendants == null) continue;
+                List<VivDisplay> thisDescendants = getAllDescendants(vivDisplay, depth + 1);
+                if (thisDescendants == null) {
+                    continue;
+                }
 
-                descendants.addAll(thisDescendants); // Recursive call
-                //System.out.println(vivDisplay.displayName);
+                descendants.addAll(thisDescendants);
             }
         }
         return descendants;

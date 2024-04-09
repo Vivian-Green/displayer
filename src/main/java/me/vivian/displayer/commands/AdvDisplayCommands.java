@@ -94,6 +94,6 @@ public class AdvDisplayCommands {
 
         // open gui if selecting from here
         player.performCommand("display gui");
-        player.performCommand("display locate");
+        //player.performCommand("display locate");
     }
 }

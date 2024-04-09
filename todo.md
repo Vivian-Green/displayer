@@ -29,7 +29,5 @@
 - bones?
 
 # bugs:
-- display gui always turns player to the right, add check for if looking left of display?
-- display nearby isn't showing parent displays?
 - display group rotations are borked as hell
 - armor stand conversion rotations are borked as hell

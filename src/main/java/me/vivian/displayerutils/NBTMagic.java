@@ -44,17 +44,17 @@ public final class NBTMagic {
         if (value != null) return value;
 
         // Set default value based on dataType
-        switch(dataType.toString()){
-            case "java.lang.String":
+        switch(dataType.toString()){ // todo: .getName()?
+            case "class java.lang.String":
                 setNBT(entity, key, "");
                 return (T) "";
-            case "java.lang.Integer":
+            case "class java.lang.Integer":
                 setNBT(entity, key, 0);
                 return (T) Integer.valueOf(0);
-            case "java.lang.Double":
+            case "class java.lang.Double":
                 setNBT(entity, key, 0.0);
                 return (T) Double.valueOf(0.0);
-            case "java.lang.Boolean":
+            case "class java.lang.Boolean":
                 setNBT(entity, key, false);
                 return (T) Boolean.FALSE;
             default:

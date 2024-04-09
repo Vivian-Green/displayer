@@ -197,7 +197,7 @@ public class DisplayGroupCommands {
             return;
         }
 
-        List<VivDisplay> hierarchy = DisplayGroupHandler.getAllDisplaysInHierarchy(selectedVivDisplay);
+        List<VivDisplay> hierarchy = DisplayGroupHandler.getAllDescendants(selectedVivDisplay);
         if (hierarchy == null) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("hierarchyIsNull"));
             return;

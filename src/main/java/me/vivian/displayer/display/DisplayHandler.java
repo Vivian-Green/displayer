@@ -5,6 +5,7 @@ import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayer.config.Texts;
+import me.vivian.displayerutils.ItemManipulation;
 import me.vivian.displayerutils.NBTMagic;
 import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
 import org.bukkit.Bukkit;
@@ -13,6 +14,8 @@ import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.MapMeta;
 
 import java.util.*;
 
@@ -104,8 +107,6 @@ public class DisplayHandler {
 
         updateDisplay(player, vivDisplay, args);
     }
-
-
 
     public static void updateDisplay(Player player, VivDisplay vivDisplay, String[] args) {
         boolean atSelected = (args.length >= 3 && args[2].equalsIgnoreCase("atselected"));

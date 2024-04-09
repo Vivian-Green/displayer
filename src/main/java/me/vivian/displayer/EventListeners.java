@@ -7,11 +7,10 @@ import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.ItemManipulation;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Bukkit;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,12 +24,10 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.joml.Vector2d;
+import org.joml.Vector2i;
 import org.joml.Vector3d;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 // todo: EventListeners should exist and shouldn't be taped to plugin-
 
@@ -110,6 +107,12 @@ public final class EventListeners implements Listener {
                 player.performCommand("display nearby");
                 event.setCancelled(true);
                 return true;
+            case 27:
+                System.out.println("displaygroup button click!");
+                player.closeInventory();
+                player.performCommand("displaygroup show");
+                event.setCancelled(true);
+                return true;
             case 52:
                 System.out.println("rename button click!");
                 player.closeInventory();
@@ -149,7 +152,7 @@ public final class EventListeners implements Listener {
 
         switch (slot) {
             case 53:
-                System.out.println("material button click!");
+                System.out.println("material button click!"); // todo: make this a function
                 // mise en place
                 ItemStack cursorItem = player.getItemOnCursor();
                 if (cursorItem.getType() == Material.AIR || cursorItem.getAmount() <= 0) return;
@@ -200,7 +203,7 @@ public final class EventListeners implements Listener {
         TextDisplay textDisplay = (TextDisplay) selectedVivDisplay.display;
         Inventory inventory = event.getInventory();
 
-        if (switchStartSlot <= slot && slot <= switchStartSlot + 2) { // bottom left 3 slots 3-state switch
+        if (switchStartSlot <= slot && slot <= switchStartSlot + 2) { // bottom left 3 slots 3-state switch // todo: extract this to a function
             System.out.println("is switch click");
             int column = slot % 9; // zero-based
 
@@ -228,58 +231,69 @@ public final class EventListeners implements Listener {
         }
     }
 
+    private static Vector3d handleVectorPanel(double multiplier, Vector2i slot2i, Vector2i startSlot) {
+        int column = slot2i.x - startSlot.x;
+        int row = slot2i.y - startSlot.y;
+
+        if (column >= 0 && column < 3 && row >= 0 && row < 2) {
+            if (row == 1) {
+                multiplier *= -1; // Adjust multiplier for second row
+            }
+            double[] resultVec = new double[3]; // new {0, 0, 0}
+            resultVec[column] = multiplier; // set right direction for column selected to right multiplier for row selected
+            return new Vector3d(resultVec);
+        }
+        return null;
+    }
+
+
     private boolean handleTranslationButtonClick(double multiplier, int slot, Player player, VivDisplay selectedVivDisplay) {
         System.out.println("translation buttons check called");
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
+        Vector2i slot2i = new Vector2i(column, row);
 
-        double scaledPosition = positionScale * multiplier;
-        double scaledRotation = rotationScale * multiplier;
-
-        Map<String, Vector3d> slotToTranslation = Map.of(
-                "1,1", new Vector3d(scaledPosition, 0, 0),
-                "1,2", new Vector3d(-scaledPosition, 0, 0),
-                "2,1", new Vector3d(0, scaledPosition, 0),
-                "2,2", new Vector3d(0, -scaledPosition, 0),
-                "3,1", new Vector3d(0, 0, scaledPosition),
-                "3,2", new Vector3d(0, 0, -scaledPosition)
-        );
-
-        Map<String, Vector3d> slotToRotation = Map.of(
-                "4,1", new Vector3d(scaledRotation, 0, 0),
-                "4,2", new Vector3d(-scaledRotation, 0, 0),
-                "5,1", new Vector3d(0, scaledRotation, 0),
-                "5,2", new Vector3d(0, -scaledRotation, 0),
-                "6,1", new Vector3d(0, 0, scaledRotation),
-                "6,2", new Vector3d(0, 0, -scaledRotation)
-        );
-
-        String slotKey = column + "," + row;
-        System.out.println("slot: "+slotKey);
-        Vector3d translation = slotToTranslation.get(slotKey);
+        Vector3d translation = handleVectorPanel(positionScale * multiplier, slot2i, new Vector2i(0, 1));
         if (translation != null) {
-            System.out.println("translation button!");
-            System.out.println("    : " + translation);
-            selectedVivDisplay.changePosition(translation.x, translation.y, translation.z);
+            selectedVivDisplay.changePosition(translation);
             return true;
         }
-
-        Vector3d rotation = slotToRotation.get(slotKey);
+        Vector3d rotation = handleVectorPanel(rotationScale * multiplier, slot2i, new Vector2i(3, 1));
         if (rotation != null) {
-            System.out.println("rotation button!");
-            selectedVivDisplay.changeRotation((float) rotation.x, (float) rotation.y, (float) rotation.z);
+            selectedVivDisplay.changeRotation(rotation);
+            return true;
+        }
+        Vector3d scale = handleVectorPanel(sizeScale * multiplier, slot2i, new Vector2i(6, 1));
+        if (scale != null) {
+            selectedVivDisplay.changeSize(scale);
             return true;
         }
 
-        switch (slotKey) {
-            case "7,1":
-                selectedVivDisplay.changeSize(sizeScale * multiplier, player);
-                System.out.println("size button!");
-                return true;
-            case "7,2":
-                selectedVivDisplay.changeSize(-sizeScale * multiplier, player);
-                System.out.println("size button!");
-                return true;
+        if (handleArrowKeyButtonClicks(player, slot)) return true;
+
+        return false;
+    }
+
+    private static boolean handleArrowKeyButtonClicks(Player player, int slot) {
+        int column = slot % 9; // zero-based
+        int row = (slot - column) / 9;
+
+        boolean isArrowKey = (row >= 2 && row <= 4 && column == 4) || row == 3 && column == 3;
+        if (isArrowKey){ // match any arrow key
+            Location location = player.getLocation();
+
+            if (row == 3) { // match middle keys to pitch
+                int dir = column == 3 ? 1 : -1;
+                location.setPitch(location.getPitch() + dir * 10);
+            } else { // match not middle keys to yaw
+                int dir = row == 4 ? 1 : -1;
+                location.setYaw(location.getYaw() + dir * 10);
+            }
+
+            Inventory oldGUI = player.getOpenInventory().getInventory(50); // guarantee 54 slot inv of some OBVIOUS weird stuff-
+            player.teleport(location);
+            player.openInventory(oldGUI);
+            return true;
         }
         return false;
     }
@@ -367,7 +381,7 @@ public final class EventListeners implements Listener {
             if (heldItemMaterial == Material.SPECTRAL_ARROW){
                 DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(deltaYaw, deltaPitch, 0));
             }
-        }else{
+        } else if (!selectedVivDisplay.isParentDisplay()){
             if (heldItemMaterial == Material.LEAD){
                 selectedVivDisplay.changeRotation(0, 0, -deltaYaw);
             }
@@ -405,7 +419,8 @@ public final class EventListeners implements Listener {
                 selectedVivDisplay.changePosition(delta);
             }
             if (heldItemMaterial == Material.BLAZE_ROD) {
-                selectedVivDisplay.changeSize((delta.x+delta.y+delta.z)*0.1, null);
+                double magnitude = (delta.x+delta.y+delta.z)*sizeScale;
+                selectedVivDisplay.changeSize(new Vector3d(magnitude));
             }
         }
     }

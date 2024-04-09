@@ -6,6 +6,7 @@ import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.VivDisplay;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.ItemDisplay;
@@ -44,17 +45,12 @@ public class ItemBuilder {
     public static ItemStack buildDisplaySelectButton(VivDisplay vivDisplay) {
         // get material & name
         Material material = Material.BARRIER;
-        String displayName = vivDisplay.displayName;
+        String displayName = vivDisplay.getItemName();
 
         if (vivDisplay.display instanceof BlockDisplay || vivDisplay.display instanceof ItemDisplay) {
             material = vivDisplay.getMaterial();
         } else if (vivDisplay.display instanceof TextDisplay) {
             material = Material.NAME_TAG;
-        }
-
-        if (displayName.isEmpty()) { // unnamed vivDisplay, use default name
-            String materialDisplayName = CommandParsing.toTitleCase(material.name().replace("_", " "));
-            displayName = material == Material.NAME_TAG ? "Text" : materialDisplayName + " Display";
         }
 
         // return button with material & name

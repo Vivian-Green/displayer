@@ -20,7 +20,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,11 +27,12 @@ import java.util.Objects;
 public class DisplayCommands {
 
     static FileConfiguration config = Config.config;
+    static double GUIYawOffsetTarget;
     private static DisplayPlugin plugin;
 
     public static void init(DisplayPlugin thisPlugin){
-
         plugin = thisPlugin;
+        GUIYawOffsetTarget = Config.config.getInt("GUIYawOffsetTarget");
     }
     /**
      * writes an awful, technical, /help message
@@ -123,6 +123,8 @@ public class DisplayCommands {
             DisplayHandler.createTextDisplay(player, args);
             return;
         }
+
+
         if (!ItemManipulation.isHeldItemValid(player)) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayCreateEmptyHand"));
             return;
@@ -280,33 +282,41 @@ public class DisplayCommands {
         }
 
         if(Config.config.getBoolean("autoFocusDisplayOnGUI")) {
-            double targetYawOffset = 50; // target angle diff
-
-            // get angle diff from
+            // Get yaw difference
             Vector lookVector = player.getLocation().getDirection();
             Vector toDisplayVector = selectedDisplay.display.getLocation().subtract(player.getLocation()).toVector();
-            lookVector.normalize();
-            toDisplayVector.normalize();
             lookVector.setY(0);
             toDisplayVector.setY(0);
             lookVector.normalize();
             toDisplayVector.normalize();
+
+            // Calculate cross product to determine relative direction
+            Vector crossProduct = lookVector.clone().crossProduct(toDisplayVector);
+            double direction = crossProduct.getY(); // Get the y-component to determine direction
+
             double dotProduct = lookVector.dot(toDisplayVector);
             double angleInRadians = Math.acos(dotProduct);
             double angleInDegrees = Math.toDegrees(angleInRadians);
 
-            if (angleInDegrees <= targetYawOffset) {
-                // Turn the player to look to the right of the display
-                // todo: always turns player to the right, check if left?
-                float newYaw = (float) (player.getLocation().getYaw() + targetYawOffset * (angleInDegrees / Math.abs(angleInDegrees)) - angleInDegrees);
+            // Check if the player is looking towards the display
+            if (angleInDegrees <= GUIYawOffsetTarget) {
+                // Turn the player away from the display based on relative direction
+                float newYaw;
+                if (direction > 0) {
+                    System.out.println("right!");
+                    // facing to the right, turn right
+                    newYaw = (float) (player.getLocation().getYaw() + (GUIYawOffsetTarget-angleInDegrees));
+                } else {
+                    // facing to the left, turn left
+                    newYaw = (float) (player.getLocation().getYaw() - (GUIYawOffsetTarget-angleInDegrees));
+                }
 
-                System.out.println("setting yaw!");
-
-                Location newLocation = player.getLocation();
+                Location newLocation = player.getLocation().clone();
                 newLocation.setYaw(newYaw);
                 player.teleport(newLocation);
             }
         }
+
 
         player.openInventory(inventory);
     }

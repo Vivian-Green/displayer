@@ -54,7 +54,7 @@ messages:
   displayGroupPasteSuccess: 'Successfully copied and pasted the selected Display''s hierarchy at your current location.'
   displayGroupRotateSuccess: 'Successfully rotated the selected Display''s hierarchy.'
   displayGroupTranslateSuccess: 'Successfully translated the selected display group.'
-  displayGroupShowSuccess: 'Particles shown at every display in the group.'
+  displayGroupShowSuccess: '' # unnecessary text on gui button
 
   displayCreateText: 'creating a text display with the text: '
 
@@ -68,10 +68,16 @@ displayGUIMovePanelDisplayName: 'move'
 displayGUIRotatePanelDisplayName: 'rotate'
 displayGUIResizePanelDisplayName: 'resize'
 displayGUIBackButtonDisplayName: 'nearby displays'
+displayGUIGroupButtonDisplayName: 'show children'
 
 displayGUIBookTitle: 'controls'
 displayGUIBookAuthor: 'displayer'
 
+# buttons
+displayGUILookUpName: 'look up'
+displayGUILookLeftName: 'look left'
+displayGUILookDownName: 'look down'
+displayGUILookRightName: 'look right'
 
 displayGUIBookLore:
   - 'click blocks above to move your whatever around'
