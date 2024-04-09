@@ -1,10 +1,33 @@
 package me.vivian.displayerutils;
 
 import org.bukkit.Location;
+import org.bukkit.Rotation;
+import org.bukkit.World;
 import org.bukkit.util.Transformation;
+import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
+import org.joml.Vector2d;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 
-public class TransformMath {
+public class TMath {
+    public static Location locInWAtP(World world, Vector3d pointOnLine) {
+        return locInWAtP(world, new Vector(pointOnLine.x, pointOnLine.y, pointOnLine.z));
+    }
+
+    public static Location locInWAtP(World world, Vector pos) {
+        return new Location(world, pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public static Location locInWAtPandYP(World world, Vector pos, float yaw, float pitch) {
+        return new Location(world, pos.getX(), pos.getY(), pos.getZ(), yaw, pitch);
+    }
+
+    public static Location locInWAtPandYP(World world, Vector pos, double yaw, double pitch) {
+        return locInWAtPandYP(world, pos, (float) yaw, (float) pitch);
+    }
+
+
     /**
      * gets the roll in degrees from a given (transformation)'s right rotation component.
      *

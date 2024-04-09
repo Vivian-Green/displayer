@@ -1,10 +1,9 @@
 package me.vivian.displayer;
 
-import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.VivDisplay;
 import me.vivian.displayerutils.NBTMagic;
-import me.vivian.displayerutils.TransformMath;
+import me.vivian.displayerutils.TMath;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
@@ -13,8 +12,6 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Map;
 
 /**
  * Holds unused code in case I need to snag it for something else
@@ -51,7 +48,7 @@ public class Unused {
         Location playerLocation = player.getLocation();
 
         // Get distance rounded to 2 places
-        double distance = TransformMath.roundTo(location.distance(playerLocation), 2);
+        double distance = TMath.roundTo(location.distance(playerLocation), 2);
 
         String name = NBTMagic.getNBT(vivDisplay.display, "VivDisplayName", String.class);
         if (name == null) name = "";
@@ -71,7 +68,7 @@ public class Unused {
         } else {
             displayMaterial = Material.AIR;
             displayTypeStr = Texts.messages.get("displayNearbyHyperlink_UnknownDisplayDisplayText");
-            System.out.println(Texts.errors.get("displayNearbyFoundUnknownItem"));
+            System.out.println(Texts.getError("displayNearbyFoundUnknownItem"));
             return; // Exit early if the display is borked
         }
 
@@ -95,7 +92,7 @@ public class Unused {
     public static VivDisplay getSelectedVivDisplay(Player player) { // todo: this wrapper is unnecessary? the null check does nothing relevant!
         VivDisplay selectedVivDisplay = selectedVivDisplays.get(player.getUniqueId());//                                                                  it wasn't
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
         }
         return selectedVivDisplay;
     }
@@ -106,7 +103,7 @@ public class Unused {
         boolean isChange = args.length > 0 && "changerotation".equalsIgnoreCase(args[0]);
 
         if (args.length < 4) {
-            CommandHandler.sendPlayerAifBelseC(player, Texts.errors.get("advDisplayChangeRotationUsage"), isChange, Texts.errors.get("advDisplaySetRotationUsage"));
+            CommandHandler.sendPlayerAifBelseC(player, Texts.getError("advDisplayChangeRotationUsage"), isChange, Texts.getError("advDisplaySetRotationUsage"));
             return;
         }
 
@@ -114,7 +111,7 @@ public class Unused {
         if (selectedVivDisplay == null) return;
 
         if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
             return;
         }
 
@@ -126,14 +123,14 @@ public class Unused {
                 selectedVivDisplay.changeRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2]) :
                 selectedVivDisplay.setRotation(rotationOffsets[0], rotationOffsets[1], rotationOffsets[2], player);
 
-        CommandHandler.sendPlayerAifBelseC(player, Texts.errors.get("advDisplayRotationFailed"), !success);
+        CommandHandler.sendPlayerAifBelseC(player, Texts.getError("advDisplayRotationFailed"), !success);
     }
 
     public static void handleAdvDisplayPositionCommand(Player player, String[] args) {
         // get relevant invalid position err
         boolean isChange = args.length > 0 && "changeposition".equalsIgnoreCase(args[0]);
         if (args.length != 4) {
-            CommandHandler.sendPlayerAifBelseC(player, Texts.errors.get("advDisplayChangePositionUsage"), isChange, Texts.errors.get("advDisplaySetPositionUsage"));
+            CommandHandler.sendPlayerAifBelseC(player, Texts.getError("advDisplayChangePositionUsage"), isChange, Texts.getError("advDisplaySetPositionUsage"));
             return;
         }
 
@@ -144,7 +141,7 @@ public class Unused {
         if (selectedVivDisplay == null) return;
 
         if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
             return;
         }
 
@@ -152,24 +149,24 @@ public class Unused {
                 selectedVivDisplay.changePosition(positionOffsets[0], positionOffsets[1], positionOffsets[2]) :
                 selectedVivDisplay.setPosition(positionOffsets[0], positionOffsets[1], positionOffsets[2], player);
 
-        CommandHandler.sendPlayerAifBelseC(player, Texts.errors.get("advDisplayPositionFailed"), !success);
+        CommandHandler.sendPlayerAifBelseC(player, Texts.getError("advDisplayPositionFailed"), !success);
     }
 
     public static void handleAdvDisplaySizeCommand(Player player, String[] args) {
         // get relevant invalid size err
         boolean isChange = args.length > 0 && "changesize".equalsIgnoreCase(args[0]);
         String errorMessage = isChange ?
-                Texts.errors.get("advDisplayChangeSizeInvalid") :
-                Texts.errors.get("advDisplaySetSizeInvalid");
+                Texts.getError("advDisplayChangeSizeInvalid") :
+                Texts.getError("advDisplaySetSizeInvalid");
 
         // ensure selectedDisplay that can be edited by this player
         VivDisplay selectedVivDisplay = DisplayHandler.getSelectedVivDisplay(player);
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
             return;
         }
         if(!WorldGuardIntegrationLoader.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
             return;
         }
 

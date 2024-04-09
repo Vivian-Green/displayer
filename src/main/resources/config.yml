@@ -1,4 +1,5 @@
 textsPath: 'texts_en.yml'
+textsDefaultPath: 'texts_en.yml'
 
 # world guard flag to check against for editing displays. default: BUILD
 worldguardFlag: 'BUILD'

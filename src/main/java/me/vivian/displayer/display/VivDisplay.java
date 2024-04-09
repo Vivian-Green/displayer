@@ -3,6 +3,7 @@ package me.vivian.displayer.display;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayerutils.CommandParsing;
 import me.vivian.displayerutils.NBTMagic;
+import me.vivian.displayerutils.TMath;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
@@ -10,6 +11,7 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Transformation;
+import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
 import org.bukkit.Location;
 import org.joml.Vector3d;
@@ -183,10 +185,10 @@ public class VivDisplay{
             String oldName = displayName;
             displayName = newName;
 
-            return Texts.errors.get("renameSuccess").replace("$newname", newName).replace("$oldname", oldName);
+            return Texts.getError("renameSuccess").replace("$newname", newName).replace("$oldname", oldName);
         } catch (Exception e) {
             System.out.println("renameDisplay(): Failed to rename display. Error: " + e.getMessage());
-            return Texts.errors.get("renameFailed");
+            return Texts.getError("renameFailed");
         }
     }
 
@@ -244,10 +246,10 @@ public class VivDisplay{
      * @param sizeOffset The offset to add to the current scale.
      * @return True if the scale change was successful, false otherwise.
      */
-    public boolean changeSize(Vector3d sizeOffset) {
+    public boolean changeSize(Vector3f sizeOffset) {
         Transformation transformation = display.getTransformation();
         Vector3f currentScale = transformation.getScale();
-        Vector3d newScale = new Vector3d(currentScale.x + sizeOffset.x, currentScale.y + sizeOffset.y, currentScale.z + sizeOffset.z);
+        Vector3f newScale = currentScale.add(sizeOffset);
 
         if (Math.min(newScale.x, Math.min(newScale.y, newScale.z)) > 0.0) {
             transformation.getScale().set(newScale);
@@ -256,6 +258,10 @@ public class VivDisplay{
         } else {
             return false;
         }
+    }
+
+    public boolean changeSize(Vector3d sizeOffset) {
+        return changeSize(new Vector3f((float) sizeOffset.x, (float) sizeOffset.y, (float) sizeOffset.z));
     }
 
     /**
@@ -294,31 +300,19 @@ public class VivDisplay{
      * @param rollOffset  The roll offset to add to the current rotation (in degrees).
      * @return True if the rotation change was successful, false otherwise.
      */
-    public boolean changeRotation(float yawOffset, float pitchOffset, float rollOffset) {
-        // Convert offsets from degrees to radians
+    public void changeRotation(float yawOffset, float pitchOffset, float rollOffset) {
+        Transformation transformation = display.getTransformation();
+
         yawOffset = (float) Math.toRadians(yawOffset);
         pitchOffset = (float) Math.toRadians(pitchOffset);
         rollOffset = (float) Math.toRadians(rollOffset);
+        transformation.getLeftRotation().rotateYXZ(rollOffset, pitchOffset, yawOffset);
 
-        Transformation transformation = display.getTransformation();
-
-        // Create a new transformation with updated rotation
-        Transformation newTransformation = new Transformation(
-                transformation.getTranslation(),
-                transformation.getLeftRotation(),
-                transformation.getScale(),
-                transformation.getRightRotation()
-        );
-
-        // Apply the rotation offsets
-        newTransformation.getLeftRotation().rotateYXZ(rollOffset, pitchOffset, yawOffset);
-
-        display.setTransformation(newTransformation);
-        return true;
+        display.setTransformation(transformation);
     }
 
-    public boolean changeRotation(Vector3d rotationOffset) {
-        return changeRotation((float) rotationOffset.x, (float) rotationOffset.y, (float) rotationOffset.z);
+    public void changeRotation(Vector3d rotationOffset) {
+        changeRotation((float) rotationOffset.x, (float) rotationOffset.y, (float) rotationOffset.z);
     }
 
     /**
@@ -353,33 +347,20 @@ public class VivDisplay{
         return true;
     }
 
-
-    /**
-     * Changes the position of this VivDisplay by the specified offsets.
-     *
-     * @param xOffset The X-axis offset to add to the current position.
-     * @param yOffset The Y-axis offset to add to the current position.
-     * @param zOffset The Z-axis offset to add to the current position.
-     * @return True if the position change was successful, false otherwise.
-     */
-    public boolean changePosition(double xOffset, double yOffset, double zOffset) {
+    public void changePosition(Vector offset) {
         Location currentLocation = display.getLocation();
-        double newX = currentLocation.getX() + xOffset;
-        double newY = currentLocation.getY() + yOffset;
-        double newZ = currentLocation.getZ() + zOffset;
-
-        // Store the current rotation
-        float currentYaw = currentLocation.getYaw();
-        float currentPitch = currentLocation.getPitch();
+        Vector newPos = currentLocation.toVector().add(offset);
 
         // Teleport to the new position
-        display.teleport(new Location(currentLocation.getWorld(), newX, newY, newZ, currentYaw, currentPitch));
-
-        return true;
+        display.teleport(TMath.locInWAtPandYP(currentLocation.getWorld(), newPos, currentLocation.getYaw(), currentLocation.getPitch()));
     }
 
-    public boolean changePosition(Vector3d offset) {
-        return changePosition(offset.x, offset.y, offset.z);
+    public void changePosition(double xOffset, double yOffset, double zOffset) {
+        changePosition(new Vector(xOffset, yOffset, zOffset));
+    }
+
+    public void changePosition(Vector3d offset) {
+        changePosition(offset.x, offset.y, offset.z);
     }
 
     /**
@@ -405,6 +386,10 @@ public class VivDisplay{
         }
 
         return true;
+    }
+
+    public boolean setPosition(Vector pos){
+        return setPosition(pos.getX(), pos.getY(), pos.getZ(), null);
     }
 
     public Vector3d getPosition() {

@@ -1,13 +1,11 @@
 package me.vivian.displayer.display;
 
+import com.sk89q.worldguard.blacklist.target.BlockTarget;
 import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Config;
-import me.vivian.displayerutils.CommandParsing;
+import me.vivian.displayerutils.*;
 import me.vivian.displayer.config.Texts;
-import me.vivian.displayerutils.ItemManipulation;
-import me.vivian.displayerutils.NBTMagic;
-import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,6 +14,8 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.util.Vector;
+import org.joml.Vector3d;
 
 import java.util.*;
 
@@ -76,7 +76,7 @@ public class DisplayHandler {
 
     public static void createBlockDisplay(Player player, String[] args) {
         if (!player.getInventory().getItemInMainHand().getType().isBlock()) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("invalidBlock"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("invalidBlock"));
             return;
         }
         BlockData blockData = player.getInventory().getItemInMainHand().getType().createBlockData();
@@ -95,7 +95,7 @@ public class DisplayHandler {
         String text = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
 
         if (text.isEmpty()) { // case text is only whitespace, which is trimmed
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayCreateTextNoText"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayCreateTextNoText"));
             return;
         }
 
@@ -136,7 +136,7 @@ public class DisplayHandler {
         int destroyedCount = 0;
         for (VivDisplay vivDisplay: nearbyVivDisplays) {
             if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, vivDisplay)) {
-                CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
+                CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
                 continue;
             }
 
@@ -159,11 +159,8 @@ public class DisplayHandler {
         for (Display display: allDisplays) {
             Location displayLocation = display.getLocation();
 
-            double xDistance = Math.abs(location.getX() - displayLocation.getX());
-            double yDistance = Math.abs(location.getY() - displayLocation.getY());
-            double zDistance = Math.abs(location.getZ() - displayLocation.getZ());
-
-            double totalDistance = xDistance + yDistance + zDistance;
+            Vector3d delta = location.toVector().subtract(displayLocation.toVector()).toVector3d();
+            double totalDistance = delta.x + delta.y + delta.z;
 
             // do pythagorean after passing taxicab
             if (totalDistance <= maxTaxicabDistance && location.distance(displayLocation) <= radius) {
@@ -182,8 +179,8 @@ public class DisplayHandler {
         if (nearbyDisplays.isEmpty()) {
             if (player == null) return null;
 
-            if (!Texts.errors.get("displayNearbyNotFound").isEmpty()){
-                CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayNearbyNotFound").replace("$radius", ""+radius));
+            if (!Texts.getError("displayNearbyNotFound").isEmpty()){
+                CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayNearbyNotFound").replace("$radius", ""+radius));
             }
             return null;
         }
@@ -200,10 +197,10 @@ public class DisplayHandler {
     public static void destroySelectedDisplay(Player player) {
         VivDisplay selectedVivDisplay = selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
         } else {
             if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
-                CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
+                CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
                 return;
             }
 

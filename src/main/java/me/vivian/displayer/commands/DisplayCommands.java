@@ -2,6 +2,7 @@ package me.vivian.displayer.commands;
 
 import me.vivian.displayer.DisplayPlugin;
 import me.vivian.displayer.config.Config;
+import me.vivian.displayer.display.DisplayGroupHandler;
 import me.vivian.displayerutils.*;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
@@ -86,13 +87,35 @@ public class DisplayCommands {
      * @param args   Additional arguments provided with the command.
      */
     static void handleDisplayDestroyCommand(Player player, String[] args) {
-        if (args.length < 2) {
-            DisplayHandler.destroySelectedDisplay(player);
+        Boolean yesFlag = args.length == 2 && Objects.equals(args[1], "-y");
+        if (args.length < 2 || yesFlag) {
+            // just /display destroy
+            //      or /display destroy -y
+
+            VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
+            if (selectedVivDisplay == null) return;
+
+            if (selectedVivDisplay.isParent) {
+                if (!yesFlag) {
+                    String errMsg = Texts.getError("advDisplayDestroyNoYesFlag");
+                    errMsg = errMsg.replace("$displayname", selectedVivDisplay.displayName);
+                    CommandHandler.sendPlayerMsgIfMsg(player, errMsg);
+                    return;
+                }
+
+                List<VivDisplay> queuedDisplays = DisplayGroupHandler.getAllDescendants(selectedVivDisplay);
+                for (VivDisplay vivDisplay : queuedDisplays) {
+                    vivDisplay.destroy();
+                }
+                DisplayHandler.destroySelectedDisplay(player);
+            } else {
+                DisplayHandler.destroySelectedDisplay(player);
+            }
             return;
         }
 
         if (!args[1].equalsIgnoreCase("nearby")) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("advDisplayDestroyUsage"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("advDisplayDestroyUsage"));
             return;
         }
 
@@ -109,14 +132,14 @@ public class DisplayCommands {
      */
     static void handleDisplayCreateCommand(Player player, String[] args) {
         if(WorldGuardIntegrationWrapper.worldGuardExists && !WorldGuardIntegrationWrapper.canEditDisplay(player)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
             return;
         }
 
         boolean isText = args.length >= 2 && args[1].equalsIgnoreCase("text");
         if (isText) {
             if (args.length < 3) {
-                CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayCreateTextNoText"));
+                CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayCreateTextNoText"));
                 return;
             }
 
@@ -126,12 +149,12 @@ public class DisplayCommands {
 
 
         if (!ItemManipulation.isHeldItemValid(player)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayCreateEmptyHand"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayCreateEmptyHand"));
             return;
         }
         boolean atSelected = args.length >= 3 && args[2].equalsIgnoreCase("atselected");
         if (atSelected && DisplayHandler.selectedVivDisplays.get(player.getUniqueId()) == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
             return;
         }
 
@@ -157,13 +180,13 @@ public class DisplayCommands {
      */
     static void handleDisplayRenameCommand(Player player, String[] args) {
         if (args.length < 2) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayRenameUsage"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayRenameUsage"));
             return;
         }
 
         VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
             return;
         }
 
@@ -180,22 +203,22 @@ public class DisplayCommands {
      */
     static void handleDisplayReplaceItemCommand(Player player) {
         if (!ItemManipulation.isHeldItemValid(player)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayEmptyHand"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayEmptyHand"));
             return;
         }
 
         VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
             return;
         }
         if (selectedVivDisplay instanceof TextDisplay) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("displayReplaceItemTextDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayReplaceItemTextDisplay"));
             return;
         }
 
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
             return;
         }
 
@@ -243,7 +266,7 @@ public class DisplayCommands {
 
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, closestVivDisplay)) {
             // return on closest display can't be edited
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
             return;
         }
 
@@ -260,7 +283,7 @@ public class DisplayCommands {
     static void handleDisplayGUICommand(Player player) {
         VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
             // todo: 'try "/display create"'
             //       'or "/display nearby"' hyperlinks? also, config that-
             return;
@@ -324,7 +347,7 @@ public class DisplayCommands {
     public static void handleDisplayLocateCommand(Player player) {
         VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
             return;
         }
 

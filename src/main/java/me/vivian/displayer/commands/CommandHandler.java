@@ -75,7 +75,7 @@ public class CommandHandler implements CommandExecutor {
 
     private boolean onPlayerTextDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            sendPlayerMsgIfMsg(player, Texts.errors.get("textDisplayUsage"));
+            sendPlayerMsgIfMsg(player, Texts.getError("textDisplayUsage"));
             return true;
         }
 
@@ -85,7 +85,7 @@ public class CommandHandler implements CommandExecutor {
 
     private boolean onPlayerDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            sendPlayerMsgIfMsg(player, Texts.errors.get("displayUsage"));
+            sendPlayerMsgIfMsg(player, Texts.getError("displayUsage"));
             return true;
         }
 
@@ -123,14 +123,14 @@ public class CommandHandler implements CommandExecutor {
                 DisplayCommands.handleDisplayUnselectCommand(player);
                 break;
             default:
-                sendPlayerMsgIfMsg(player, Texts.errors.get("displayInvalidSubcommand"));
+                sendPlayerMsgIfMsg(player, Texts.getError("displayInvalidSubcommand"));
         }
         return true;
     }
 
     private boolean onPlayerAdvDisplayCommand(Player player, String[] args) {
         if (args.length < 1) {
-            sendPlayerMsgIfMsg(player, Texts.errors.get("advDisplayUsage"));
+            sendPlayerMsgIfMsg(player, Texts.getError("advDisplayUsage"));
             return true;
         }
 
@@ -146,7 +146,7 @@ public class CommandHandler implements CommandExecutor {
             case "debug":
                 handleDebugCommand(player);
             default:
-                sendPlayerMsgIfMsg(player, Texts.errors.get("advDisplayInvalidSubcommand"));
+                sendPlayerMsgIfMsg(player, Texts.getError("advDisplayInvalidSubcommand"));
         }
         return true;
     }
@@ -154,12 +154,12 @@ public class CommandHandler implements CommandExecutor {
     private boolean onPlayerDisplayGroupCommand(Player player, String[] args) {
         if (!Config.config.getBoolean("doDisplayGroups")) {
             // this is actually enough to disable all of this, since you can't set a parent (create a group) otherwise
-            sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupDisabled"));
+            sendPlayerMsgIfMsg(player, Texts.getError("displayGroupDisabled"));
             return true;
         }
 
         if (args.length < 1) {
-            sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupUsage"));
+            sendPlayerMsgIfMsg(player, Texts.getError("displayGroupUsage"));
             return true;
         }
 
@@ -186,7 +186,7 @@ public class CommandHandler implements CommandExecutor {
                 DisplayGroupCommands.handleDisplayGroupShowCommand(player, args);
                 break;
             default:
-                sendPlayerMsgIfMsg(player, Texts.errors.get("displayGroupInvalidSubcommand"));
+                sendPlayerMsgIfMsg(player, Texts.getError("displayGroupInvalidSubcommand"));
         }
         return true;
     }

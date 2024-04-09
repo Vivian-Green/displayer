@@ -78,7 +78,7 @@ public class CommandParsing {
                 rollOffset = Float.parseFloat(args[3]);
             }
         } catch (NumberFormatException e) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("parseInvalidRotation"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("parseInvalidRotation"));
             return null;
         }
 
@@ -93,7 +93,7 @@ public class CommandParsing {
             y = (float) Double.parseDouble(args[2]);
             z = (float) Double.parseDouble(args[3]);
         } catch (NumberFormatException e) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("parseInvalidPosition"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("parseInvalidPosition"));
             return null;
         }
 

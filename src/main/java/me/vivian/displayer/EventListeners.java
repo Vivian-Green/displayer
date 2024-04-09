@@ -1,5 +1,10 @@
 package me.vivian.displayer;
 
+import java.util.*;
+
+import me.vivian.displayerutils.TMath;
+import org.bukkit.util.Vector;
+
 import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
@@ -26,8 +31,6 @@ import org.bukkit.plugin.Plugin;
 import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
-
-import java.util.*;
 
 // todo: EventListeners should exist and shouldn't be taped to plugin-
 
@@ -166,7 +169,7 @@ public final class EventListeners implements Listener {
                         BlockData blockData = material.createBlockData(); // just a test
                     } catch (Exception IllegalArgumentException){
                         // failed to create a BlockData
-                        String errStr = Texts.errors.get("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
+                        String errStr = Texts.getError("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
                         CommandHandler.sendPlayerMsgIfMsg(player, errStr);
                         return;
                     }
@@ -278,15 +281,17 @@ public final class EventListeners implements Listener {
         int column = slot % 9; // zero-based
         int row = (slot - column) / 9;
 
-        boolean isArrowKey = (row >= 2 && row <= 4 && column == 4) || row == 3 && column == 3;
+        boolean isArrowKey = (column >= 2 && column <= 4 && row == 4) || (row == 3 && column == 3);
         if (isArrowKey){ // match any arrow key
             Location location = player.getLocation();
 
-            if (row == 3) { // match middle keys to pitch
-                int dir = column == 3 ? 1 : -1;
+            if (column == 3) { // match middle keys to pitch
+                System.out.println("||v||");
+                int dir = row == 3 ? -1 : 1;
                 location.setPitch(location.getPitch() + dir * 10);
             } else { // match not middle keys to yaw
-                int dir = row == 4 ? 1 : -1;
+                System.out.println("--h--");
+                int dir = column == 4 ? 1 : -1;
                 location.setYaw(location.getYaw() + dir * 10);
             }
 
@@ -375,11 +380,11 @@ public final class EventListeners implements Listener {
 
         if (selectedVivDisplay.isParentDisplay() && Config.config.getBoolean("doDisplayGroupRotation")) {
             if (heldItemMaterial == Material.LEAD){
-                System.out.println("-deltaYaw: " + -deltaYaw);
-                DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(0, 0, -deltaYaw));
+                //System.out.println("-deltaYaw: " + -deltaYaw);
+                //DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(0, 0, -deltaYaw));
             }
             if (heldItemMaterial == Material.SPECTRAL_ARROW){
-                DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(deltaYaw, deltaPitch, 0));
+                DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, -deltaYaw);
             }
         } else if (!selectedVivDisplay.isParentDisplay()){
             if (heldItemMaterial == Material.LEAD){
@@ -403,24 +408,21 @@ public final class EventListeners implements Listener {
         VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null) return;
 
-        Vector3d from = new Vector3d(event.getFrom().getX(), event.getFrom().getY(), event.getFrom().getZ());
-        Vector3d to = new Vector3d(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ());
-        Vector3d delta = new Vector3d(to.x - from.x, to.y - from.y, to.z - from.z); // can't subtract Vector3d's lmao
+        Vector delta = event.getTo().toVector().subtract(event.getFrom().toVector());
 
         if (selectedVivDisplay.isParentDisplay()) {
             if (heldItemMaterial == Material.LEAD) {
-                DisplayGroupHandler.translateHierarchy(selectedVivDisplay, delta);
+                DisplayGroupHandler.translateHierarchy(selectedVivDisplay, delta.toVector3d());
             }
-            if (heldItemMaterial == Material.BLAZE_ROD) {
+            /*if (heldItemMaterial == Material.BLAZE_ROD) {
                 DisplayGroupHandler.resizeHierarchy(selectedVivDisplay, (float) ((delta.x+delta.y+delta.z)*0.1+1));
-            }
+            }*/
         }else{
             if (heldItemMaterial == Material.LEAD) {
                 selectedVivDisplay.changePosition(delta);
             }
             if (heldItemMaterial == Material.BLAZE_ROD) {
-                double magnitude = (delta.x+delta.y+delta.z)*sizeScale;
-                selectedVivDisplay.changeSize(new Vector3d(magnitude));
+                selectedVivDisplay.changeSize(new Vector3d(delta.length()*sizeScale));
             }
         }
     }

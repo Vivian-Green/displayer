@@ -1,21 +1,17 @@
 package me.vivian.displayer.commands;
 
 import me.vivian.displayer.config.Config;
-import me.vivian.displayerutils.ParticleHandler;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
-import me.vivian.displayerutils.TransformMath;
+import me.vivian.displayerutils.TMath;
 import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 
-import java.util.List;
 import java.util.UUID;
-
-import static me.vivian.displayer.display.VivDisplay.plugin;
 
 public class AdvDisplayCommands {
     static FileConfiguration config = Config.config;
@@ -31,29 +27,29 @@ public class AdvDisplayCommands {
 
         if (selectedVivDisplay == null) return;
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
             return;
         }
 
         // Get display information directly from the selected VivDisplay
-        Location displayLocation = TransformMath.locationRoundedTo(selectedVivDisplay.display.getLocation(), 2);
-        double currentYaw = TransformMath.roundTo(displayLocation.getYaw(), 2);
-        double currentPitch = TransformMath.roundTo(displayLocation.getPitch(), 2);
-        double currentRoll = TransformMath.roundTo(TransformMath.getTransRoll(selectedVivDisplay.display.getTransformation()), 2);
+        Location displayLocation = TMath.locationRoundedTo(selectedVivDisplay.display.getLocation(), 2);
+        double currentYaw = TMath.roundTo(displayLocation.getYaw(), 2);
+        double currentPitch = TMath.roundTo(displayLocation.getPitch(), 2);
+        double currentRoll = TMath.roundTo(TMath.getTransRoll(selectedVivDisplay.display.getTransformation()), 2);
 
         // Send the details to the player
         player.sendMessage("Display Name: " + selectedVivDisplay.displayName);
 
         if (selectedVivDisplay.display instanceof ItemDisplay || selectedVivDisplay.display instanceof BlockDisplay) {
             player.sendMessage("Display Material: " + selectedVivDisplay.getMaterial());
-            player.sendMessage("Display Size: " + TransformMath.roundTo(selectedVivDisplay.display.getTransformation().getScale().x, 2));
+            player.sendMessage("Display Size: " + TMath.roundTo(selectedVivDisplay.display.getTransformation().getScale().x, 2));
         }
 
         player.sendMessage("Display Position: X=" + displayLocation.getX() + " Y=" + displayLocation.getY() + " Z=" + displayLocation.getZ());
         player.sendMessage("Display Rotation: Yaw=" + currentYaw + " Pitch=" + currentPitch + " Roll=" + currentRoll);
 
 
-        player.sendMessage("Distance to Display: " + TransformMath.roundTo(player.getLocation().distance(displayLocation), 2));
+        player.sendMessage("Distance to Display: " + TMath.roundTo(player.getLocation().distance(displayLocation), 2));
 
         // Send NBT data related to parent and child
         CommandHandler.sendPlayerAifBelseC(player, "Parent UUID: " + selectedVivDisplay.parentUUID, selectedVivDisplay.isChild);
@@ -85,7 +81,7 @@ public class AdvDisplayCommands {
         VivDisplay selectedVivDisplay = new VivDisplay(null, (Display) entity);
 
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.errors.get("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
             return;
         }
 

@@ -1,7 +1,7 @@
 package me.vivian.displayer.display;
 
 import me.vivian.displayer.config.Config;
-import me.vivian.displayerutils.TransformMath;
+import me.vivian.displayerutils.TMath;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -9,8 +9,8 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
+import org.bukkit.util.Vector;
 import org.joml.Matrix3d;
-import org.joml.Quaternionf;
 import org.joml.Vector3d;
 
 import java.util.*;
@@ -62,13 +62,9 @@ public class DisplayGroupHandler {
         // Resize all VivDisplays in the hierarchy
         for (VivDisplay vivDisplayToResize : hierarchy) {
             // Scale the position of the VivDisplay relative to the highest parent
-            Vector3d position = vivDisplayToResize.getPosition();
-            Vector3d scaledPosition = new Vector3d(
-                    parentPosition.x + (position.x - parentPosition.x) * size,
-                    parentPosition.y + (position.y - parentPosition.y) * size,
-                    parentPosition.z + (position.z - parentPosition.z) * size
-            );
-            vivDisplayToResize.setPosition(scaledPosition.x, scaledPosition.y, scaledPosition.z, null);
+            Vector3d scaledRelative = vivDisplayToResize.getPosition().sub(parentPosition).mul(size);
+            Vector3d scaledAbs = parentPosition.add(scaledRelative);
+            vivDisplayToResize.setPosition(scaledAbs.x, scaledAbs.y, scaledAbs.z, null);
 
             // Scale the size of the VivDisplay
             vivDisplayToResize.setScale(vivDisplayToResize.getScale() * size, null);
@@ -102,19 +98,13 @@ public class DisplayGroupHandler {
 
         // Calculate the translation vector
         VivDisplay topmostParent = getHighestVivDisplay(vivDisplay);
-        Vector3d translation = new Vector3d(newLocation.getX() - topmostParent.display.getLocation().getX(),
-                newLocation.getY() - topmostParent.display.getLocation().getY(),
-                newLocation.getZ() - topmostParent.display.getLocation().getZ());
+        Vector translation = newLocation.toVector().subtract(topmostParent.display.getLocation().toVector());
 
         // Paste all copies at the new location
         for (VivDisplay copy: copies.values()) {
-            Vector3d newPosition = new Vector3d(
-                copy.display.getLocation().getX() + translation.x,
-                copy.display.getLocation().getY() + translation.y,
-                copy.display.getLocation().getZ() + translation.z
-            );
+            Vector newPosition = copy.display.getLocation().toVector().add(translation);
 
-            copy.setPosition(newPosition.x, newPosition.y, newPosition.z, null);
+            copy.setPosition(newPosition.getX(), newPosition.getY(), newPosition.getZ(), null);
         }
 
         // Set the player's selected display back to what it was before copying
@@ -139,6 +129,7 @@ public class DisplayGroupHandler {
         if (nearbyVivDisplays == null) return null;
 
         for (VivDisplay vivDisplay: nearbyVivDisplays) {
+            if (Objects.equals(vivDisplay.display.getUniqueId().toString(), parentUUID)) continue;
             if (!vivDisplay.isChild) continue;
             if (vivDisplay.parentUUID != null && vivDisplay.parentUUID.equals(parentUUID)) {
                 System.out.println("AAAAAAA");
@@ -178,7 +169,7 @@ public class DisplayGroupHandler {
             return null;
         }
 
-        hierarchy.add(topmostParent); // re-add topmost parent
+        //hierarchy.add(topmostParent); // re-add topmost parent
 
         System.out.println(vivDisplay.displayName);
         return hierarchy;
@@ -227,18 +218,49 @@ public class DisplayGroupHandler {
         return copy;
     }
 
+    public static Location rotateLocXZ(Location loc, Location axis, double angle) { // where 'axis' represents a point on the axis of rotation
+        return loc.clone().subtract(axis).toVector().multiply(new Vector(1,0,1)).rotateAroundY(angle).add(axis.toVector()).toLocation(loc.getWorld());
+    }
 
-    public static void rotateVivDisplayAroundPoint(VivDisplay vivDisplay, Vector3d point, Vector3d rotationDegrees) {
+    public static void rotateVivDisplayAroundPoint(VivDisplay vivDisplay, Location point, double rotationRadians) {
         if (!Config.config.getBoolean("doDisplayGroupRotation")) return;
+        System.out.println("rotationDegrees: " + rotationRadians);
 
-        // todo: hella borked, needs debugging- changeRotation should NOT be the call here.
-        System.out.println("rotationDegrees (euler): " + rotationDegrees.x + ", " + rotationDegrees.y + ", " + rotationDegrees.z);
-
-        // Get the Transformation of the VivDisplay
         Transformation oldTransform = vivDisplay.display.getTransformation();
-        Location oldLocation = vivDisplay.display.getLocation();
+        float oldRoll = TMath.getTransRoll(oldTransform);
 
-        Quaternionf quaternionRight = oldTransform.getRightRotation();
+        Location oldLocation = vivDisplay.display.getLocation();
+        Location newLocation = rotateLocXZ(oldLocation, point, rotationRadians);
+
+        vivDisplay.setPosition(newLocation.toVector());
+        vivDisplay.setRotation(newLocation.getYaw(), newLocation.getPitch(), oldRoll, null);
+
+    }
+       /* // Rotate the quaternion of the old transformation around the Y-axis
+        org.joml.Quaternionf oldRotationQuaternionL = oldTransform.getLeftRotation();
+        org.joml.Quaternionf oldRotationQuaternionR = oldTransform.getRightRotation();
+        org.joml.Quaternionf newRotationQuaternionL = oldRotationQuaternionL;
+        org.joml.Quaternionf newRotationQuaternionR = oldRotationQuaternionR;
+        newRotationQuaternionL = newRotationQuaternionL.mul(new org.joml.Quaternionf().rotateY((float) rotationRadians));
+        newRotationQuaternionR = newRotationQuaternionR.mul(new org.joml.Quaternionf().rotateY((float) rotationRadians));
+
+        // Create a new transformation with the new position and rotated quaternion
+        System.out.println("  FFFFFFFFFFFFFFFFFFF");
+        System.out.println("from pos: " + vivDisplay.display.getLocation().toVector() + "\nrotL: " + oldRotationQuaternionL + "\nrotR: " + oldRotationQuaternionR + "\nscale: " + oldTransform.getScale());
+        System.out.println("  FF");
+        System.out.println("to pos:   " + newPosition + "\nrotL: " + newRotationQuaternionL + "\nrotR: " + newRotationQuaternionR + "\nscale: " + oldTransform.getScale());
+        Transformation newTransform = new Transformation(new org.joml.Vector3f(0, 0, 0), newRotationQuaternionL, oldTransform.getScale(), newRotationQuaternionR);
+        // Set the VivDisplay's transformation
+        vivDisplay.display.setTransformation(newTransform);
+        vivDisplay.display.teleport(TMath.locInWAtP(oldLocation.getWorld(), newPosition));
+        //vivDisplay.setRotation(vivDisplay.display.getLocation().getYaw(), vivDisplay.display.getLocation().getPitch(), oldRoll, null);
+    }*/
+
+
+
+
+
+        /*Quaternionf quaternionRight = oldTransform.getRightRotation();
 
         // Convert quaternion to Euler angles
         double sinr_cosp = 2 * (quaternionRight.w * quaternionRight.x + quaternionRight.y * quaternionRight.z);
@@ -280,7 +302,7 @@ public class DisplayGroupHandler {
 
         // Set the new rotation of the VivDisplay
         System.out.println("out (euler) rotation: " + euler[0] + ", " + euler[1] + ", " + euler[2]);
-        vivDisplay.changeRotation(/*euler[1] ??*/0 , euler[2], 0/*euler[0] ??*/);
+        vivDisplay.changeRotation(/*euler[1] ??*//*0 , euler[2], 0/*euler[0] ??*//*);
 
         // Translate the VivDisplay's position so that the rotation point is at the origin
         Vector3d relativePosition = new Vector3d(oldLocation.getX() - point.x, oldLocation.getY() - point.y, oldLocation.getZ() - point.z);
@@ -293,12 +315,12 @@ public class DisplayGroupHandler {
         Vector3d newPosition = new Vector3d(rotatedPosition.x + point.x, rotatedPosition.y + point.y, rotatedPosition.z + point.z);
 
         // Set the VivDisplay's position and rotation
-        vivDisplay.setPosition(newPosition.x, newPosition.y, newPosition.z, null);
-    }
+        vivDisplay.setPosition(newPosition.x, newPosition.y, newPosition.z, null);*/
+    //}
 
 
     // Function to rotate all displays in a hierarchy
-    public static void rotateHierarchy(VivDisplay vivDisplay, Vector3d rotation) {
+    public static void rotateHierarchy(VivDisplay vivDisplay, double rotation) {
         if (!Config.config.getBoolean("doDisplayGroupRotation")) return;
 
         // mise en place
@@ -306,7 +328,7 @@ public class DisplayGroupHandler {
             System.out.println("rotateHierarchy: vivDisplay is null");
         } else {
             System.out.println(vivDisplay.displayName);
-            System.out.println("rotateHierarchy rot (euler): " + rotation.x + ", " + rotation.y + ", " + rotation.z);
+            System.out.println("rotateHierarchy rot: " + rotation);
         }
 
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
@@ -322,10 +344,10 @@ public class DisplayGroupHandler {
         }
 
         Location rotationCenter = highestVivDisplay.display.getLocation();
-        Vector3d rotationCenterPos = new Vector3d(rotationCenter.getX(), rotationCenter.getY(), rotationCenter.getZ());
+        Vector rotationCenterPos = rotationCenter.toVector();
 
         for (VivDisplay vivDisplayToRotate: hierarchy) {
-            rotateVivDisplayAroundPoint(vivDisplayToRotate, rotationCenterPos, rotation);
+            rotateVivDisplayAroundPoint(vivDisplayToRotate, rotationCenter, Math.toRadians(rotation));
         }
     }
 }

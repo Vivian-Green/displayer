@@ -2,6 +2,8 @@
 
 # empty errors simply won't be sent
 errors:
+  default: 'No error message found for ''$errorname'''
+
   noSelectedDisplay: 'You need to select a display first!'
   invalidBlockDisplayItem: 'This item ($itemName) can''t be used in a block display!' # accepts $itemName placeholder
   cantEditDisplayHere: 'You can''t edit displays here!'
@@ -27,6 +29,7 @@ errors:
   advDisplaySetSizeInvalid: 'Invalid size. Usage: /advdisplay setsize <size: number>'
   advDisplayChangeSizeInvalid: 'Invalid size offset. Usage: /advdisplay changesize <size offset: number>'
   advDisplayDestroyUsage: 'Usage: /display destroy [nearby [max count] [radius]]'
+  advDisplayDestroyNoYesFlag: 'use ''/display destroy -y'' to confirm destroying $displayname and its descendents' # $displayname
   advDisplayInvalidSubcommand: 'Invalid subcommand for /advdisplay. Try /advdisplay help'
   displayRenameUsage: 'Usage: /display rename <name>'
   renameFailed: 'Failed to rename the display. Please try again later.'

@@ -31,7 +31,7 @@ public class ItemManipulation { // todo: make static
     // Checks if a (player) is holding a displayable item
     public static boolean isHeldItemValid(Player player) {
         if (player.getInventory().getItemInMainHand().getType() == Material.AIR) {
-            player.sendMessage(Texts.errors.get("displayEmptyHand"));
+            player.sendMessage(Texts.getError("displayEmptyHand"));
             return false;
         }
         return true;

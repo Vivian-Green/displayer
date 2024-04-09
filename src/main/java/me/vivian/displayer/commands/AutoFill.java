@@ -1,8 +1,6 @@
 package me.vivian.displayer.commands;
 
 import me.vivian.displayer.config.Config;
-import me.vivian.displayerutils.TransformMath;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
