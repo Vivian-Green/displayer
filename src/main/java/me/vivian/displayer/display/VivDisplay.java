@@ -61,11 +61,15 @@ public class VivDisplay{
     }
 
     public String getItemName(){
-        if (displayName == null || display.isEmpty()) {
+        //System.out.println("getItemName");
+        if (displayName == null) {
+            //System.out.println("A");
             Material material = getMaterial();
             String materialName = material == null ? "" : material.name();
             return CommandParsing.toTitleCase(materialName.replace("_", " "));
         }
+        //System.out.println("B");
+        //System.out.println(displayName);
         return displayName;
     }
 

@@ -199,18 +199,18 @@ public class GUIBuilder {
         //vivDisplays.sort(Comparator.comparing(VivDisplay::getItemName));
 
         for (int i = 0; i < maxDisplaysToShow && i < vivDisplays.size(); i++) {
-            System.out.println("b");
+            //System.out.println("b");
             VivDisplay vivDisplay = vivDisplays.get(i);
             ItemStack button = ItemBuilder.buildDisplaySelectButton(vivDisplay);
 
             System.out.println(button.getItemMeta().getDisplayName());
 
             if (vivDisplay.isParent) { // add parented displays at end, otherwise at begin
-                System.out.println("p");
+                //System.out.println("p");
                 inventory.setItem(36 + specialCount, button); // left to right starting at second row
                 specialCount++;
             } else {
-                System.out.println("!p");
+                //System.out.println("!p");
                 inventory.setItem(i - specialCount, button); // left to right starting at fourth row
             }
         }

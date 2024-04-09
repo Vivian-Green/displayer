@@ -58,7 +58,7 @@ public class ItemBuilder {
     }
 
     private static ItemStack buildSelectButtonItem(VivDisplay vivDisplay, Material material, String displayName) {
-        System.out.println("building select button...");
+        //System.out.println("building select button...");
         // build button
         ItemStack button = new ItemStack(material);
         ItemMeta buttonMeta = button.getItemMeta();
@@ -74,8 +74,6 @@ public class ItemBuilder {
 
         UUID displayUUID = vivDisplay.display.getUniqueId();
         dataContainer.set(new NamespacedKey(plugin, "displayUUID"), PersistentDataType.STRING, displayUUID.toString());
-
-        buttonMeta.setDisplayName(vivDisplay.getItemName());
 
         button.setItemMeta(buttonMeta);
 
