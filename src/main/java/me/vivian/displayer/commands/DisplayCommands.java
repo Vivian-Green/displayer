@@ -7,10 +7,7 @@ import me.vivian.displayerutils.*;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.ItemDisplay;
@@ -330,6 +327,12 @@ public class DisplayCommands {
         Inventory inventory = GUIBuilder.displayGUIBuilder(player);
         if (selectedDisplay.display instanceof ItemDisplay || selectedDisplay.display instanceof BlockDisplay) {
             ItemStack itemStack = selectedDisplay.getItemStack();
+
+            if (itemStack.getType() == Material.AIR) {
+                System.out.println("attempt to set display item to air");
+                return;
+            }
+
             itemStack.setAmount(1);
             ItemMeta itemMeta = itemStack.getItemMeta();
             String name = displayGUIReplaceItemButtonDisplayName;

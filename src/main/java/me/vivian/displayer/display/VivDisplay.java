@@ -127,25 +127,18 @@ public class VivDisplay{
     public void destroy(Player player) {
         Map<UUID, VivDisplay> selectedVivDisplays = DisplayHandler.selectedVivDisplays;
 
-        if (display!= null) {
-            try {
-                if (display instanceof BlockDisplay || display instanceof ItemDisplay) {
-                    display.getWorld().dropItemNaturally(display.getLocation(), getItemStack());
+        try {
+            if (display instanceof BlockDisplay || display instanceof ItemDisplay) { // display can item
+                ItemStack itemStack = getItemStack();
+                if (itemStack != null && itemStack.getType() != Material.AIR) { // & display item isn't empty
+                    display.getWorld().dropItemNaturally(display.getLocation(), itemStack); // drop item
                 }
-            } catch (Exception e) {
-                System.out.println("Failed to drop item on display destruction: " + e.getMessage()); // should not happen?
             }
-            if (player != null) {
-                selectedVivDisplays.remove(player.getUniqueId());
-            }
-        } else {
-            /* this REALLY should not be an accessible path
-             considering it requires this, the VivDisplay calling it, to contain a null Display
-             and creating a VivDisplay requires a display entity
-             and destroying a display is impossible without a plugin (EG THIS METHOD) or commands*/
-
-            // Print a warning if the display was null
-            System.out.println("Tried to destroy a null display");
+        } catch (Exception e) {
+            System.out.println("Failed to drop item on display destruction: " + e.getMessage()); // should not happen?
+        }
+        if (player != null) {
+            selectedVivDisplays.remove(player.getUniqueId());
         }
 
         display.remove();
@@ -194,7 +187,9 @@ public class VivDisplay{
             blockDisplay.setBlock(blockData);
         }
 
-        display.getWorld().dropItem(display.getLocation(), oldItem);
+        if (oldItem != null && oldItem.getType() != Material.AIR) {
+            display.getWorld().dropItem(display.getLocation(), oldItem);
+        }
     }
 
     /**

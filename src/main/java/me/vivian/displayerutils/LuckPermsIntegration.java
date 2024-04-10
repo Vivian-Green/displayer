@@ -10,30 +10,17 @@ import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Method;
 
-public class LuckPermsIntegration { // loads WorldGuardIntegration if worldguard exists, otherwise assumes player can edit anywhere.
-    public static Plugin luckPerms;
-    public static boolean luckPermsExists = false;
-
-    public static Method playerHasPermMethod;
+public class LuckPermsIntegration { // Handled LuckPerms integrations of LuckPerms exists, otherwise assumes player can yes
+    public static Plugin luckPerms = null;
 
     public static void init(DisplayPlugin plugin) {
-        luckPerms = getLuckPerms(plugin);
+        getLuckPerms(plugin);
     }
 
-    public static Plugin getLuckPerms(DisplayPlugin plugin) {
-        Plugin luckPermsPlugin = plugin.getServer().getPluginManager().getPlugin("LuckPerms");
-        if (luckPermsPlugin == null) {
+    public static void getLuckPerms(DisplayPlugin plugin) {
+        luckPerms = plugin.getServer().getPluginManager().getPlugin("LuckPerms");
+        if (luckPerms == null) {
             System.out.println("displayer: LuckPerms is null, continuing without it");
-            return null;
-        }
-
-        // load the WorldGuardHandler class ONLY if worldguard exists
-        try {
-            luckPermsExists = true;
-            return luckPermsPlugin;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
@@ -41,19 +28,14 @@ public class LuckPermsIntegration { // loads WorldGuardIntegration if worldguard
     public static boolean playerHasPerm(Player player, String perm) {
         if (luckPerms == null) return true;
 
-        try {
-            LuckPerms api = LuckPermsProvider.get();
-            User user = api.getUserManager().getUser(player.getUniqueId());
+        LuckPerms api = LuckPermsProvider.get();
+        User user = api.getUserManager().getUser(player.getUniqueId());
 
-            if (user != null) {
-                QueryOptions queryOptions = api.getContextManager().getQueryOptions(player);
-                return user.getCachedData().getPermissionData(queryOptions).checkPermission(perm).asBoolean();
-            }
-
-            return false;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return true;
+        if (user != null) {
+            QueryOptions queryOptions = api.getContextManager().getQueryOptions(player);
+            return user.getCachedData().getPermissionData(queryOptions).checkPermission(perm).asBoolean();
         }
+
+        return false;
     }
 }

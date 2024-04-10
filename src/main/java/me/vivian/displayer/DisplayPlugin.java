@@ -5,10 +5,7 @@ import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
 import me.vivian.displayer.display.VivDisplay;
-import me.vivian.displayerutils.GUIBuilder;
-import me.vivian.displayerutils.ItemBuilder;
-import me.vivian.displayerutils.NBTMagic;
-import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
+import me.vivian.displayerutils.*;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.event.Listener;
@@ -50,8 +47,9 @@ public final class DisplayPlugin extends JavaPlugin { // this should be final ye
         // init display handler
         DisplayHandler.init(this);
 
-        // init world guard integration
+        // init plugin integrations
         WorldGuardIntegrationWrapper.init(this);
+        LuckPermsIntegration.init(this);
 
         // yea
         ItemBuilder.init(this);
