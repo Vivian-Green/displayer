@@ -5,9 +5,8 @@
   - setDisplayHeight 
   - setDisplayWidth
   - setGlowColorOverride
-- handle case empty display- other plugins might make one
 
-</br></br>
+
 - display select wand
 - wand materials config?
 </br></br>
@@ -17,7 +16,6 @@
 - add heads to armor stand conversion
 - different translation offsets for how different items are held, not just sprites
 </br></br>
-- item frame (map) functionality
 - displaygroup prefabs (creative mode, maybe require items in inv in survival?)
 - displaygroup cut/paste
 - displaygroup tree GUI (only show 1 layer in gui-)
