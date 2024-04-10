@@ -42,7 +42,7 @@ public class AdvDisplayCommands {
 
         if (selectedVivDisplay.display instanceof ItemDisplay || selectedVivDisplay.display instanceof BlockDisplay) {
             player.sendMessage("Display Material: " + selectedVivDisplay.getMaterial());
-            player.sendMessage("Display Size: " + TMath.roundTo(selectedVivDisplay.display.getTransformation().getScale().x, 2));
+            player.sendMessage("Display Size: " + TMath.roundTo(selectedVivDisplay.display.getTransformation().getScale(), 2));
         }
 
         player.sendMessage("Display Position: X=" + displayLocation.getX() + " Y=" + displayLocation.getY() + " Z=" + displayLocation.getZ());
@@ -78,7 +78,7 @@ public class AdvDisplayCommands {
 
         Entity entity = Bukkit.getServer().getEntity(displayUUID);
         if (!(entity instanceof Display)) return;
-        VivDisplay selectedVivDisplay = new VivDisplay(null, (Display) entity);
+        VivDisplay selectedVivDisplay = new VivDisplay((Display) entity);
 
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
             CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));

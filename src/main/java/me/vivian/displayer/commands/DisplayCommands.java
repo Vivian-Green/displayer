@@ -29,11 +29,53 @@ public class DisplayCommands {
 
     static FileConfiguration config = Config.config;
     static double GUIYawOffsetTarget;
+    static int maxSearchRadius;
+    static boolean autoFocusDisplayOnGUI;
+
+    static String displayNearbyGuiTitle; // todo: refactor into map
+    static String displayClosestSuccessMsg;
+    static String cantEditDisplayHereErr;
+    static String displayEmptyHandErr;
+    static String noSelectedDisplayErr;
+    static String displayReplaceItemTextDisplayErr;
+    static String displayCreateHyperLinkErr;
+    static String displayGUIReplaceItemButtonDisplayNameErr;
+    static String advDisplayDestroyNoYesFlagErr;
+    static String advDisplayDestroyUsageErr;
+
+    static String displayGUIReplaceItemButtonDisplayName;
+    static String displayCreateHyperLink;
+    static String displayRenameUsageErr;
+    static String displayCreateTextNoTextErr;
+    static String displayCreateEmptyHandErr;
+
+
+
     private static DisplayPlugin plugin;
 
     public static void init(DisplayPlugin thisPlugin){
         plugin = thisPlugin;
-        GUIYawOffsetTarget = Config.config.getInt("GUIYawOffsetTarget");
+        GUIYawOffsetTarget = config.getInt("GUIYawOffsetTarget");
+        maxSearchRadius = config.getInt("maxSearchRadius");
+        autoFocusDisplayOnGUI = config.getBoolean("autoFocusDisplayOnGUI");
+
+        displayNearbyGuiTitle = Texts.getText("displayNearbyGUITitle");
+        displayClosestSuccessMsg = Texts.messages.get("displayClosestSuccess");
+
+        cantEditDisplayHereErr = Texts.getError("cantEditDisplayHere");
+        displayEmptyHandErr = Texts.getError("displayEmptyHand");
+        noSelectedDisplayErr = Texts.getError("noSelectedDisplay");
+        displayReplaceItemTextDisplayErr = Texts.getError("displayReplaceItemTextDisplay");
+        displayGUIReplaceItemButtonDisplayNameErr = Texts.getText("displayGUIReplaceItemButtonDisplayName");
+        displayCreateHyperLinkErr = Texts.getText("displayCreateHyperLink");
+        advDisplayDestroyNoYesFlagErr = Texts.getError("advDisplayDestroyNoYesFlag");
+        advDisplayDestroyUsageErr = Texts.getError("advDisplayDestroyUsage");
+
+        displayGUIReplaceItemButtonDisplayName = Texts.getText("displayGUIReplaceItemButtonDisplayName");
+        displayCreateHyperLink = Texts.getText("displayCreateHyperLink");
+        displayRenameUsageErr = Texts.getError("displayRenameUsage");
+        displayCreateTextNoTextErr = Texts.getError("displayCreateTextNoText");
+        displayCreateEmptyHandErr = Texts.getError("displayCreateEmptyHand");
     }
     /**
      * writes an awful, technical, /help message
@@ -89,33 +131,32 @@ public class DisplayCommands {
     static void handleDisplayDestroyCommand(Player player, String[] args) {
         Boolean yesFlag = args.length == 2 && Objects.equals(args[1], "-y");
         if (args.length < 2 || yesFlag) {
-            // just /display destroy
-            //      or /display destroy -y
+            // /display destroy or /display destroy -y
 
             VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
             if (selectedVivDisplay == null) return;
 
             if (selectedVivDisplay.isParent) {
-                if (!yesFlag) {
-                    String errMsg = Texts.getError("advDisplayDestroyNoYesFlag");
+                if (!yesFlag) { // tried to destroy parent without -y
+                    String errMsg = advDisplayDestroyNoYesFlagErr;
                     errMsg = errMsg.replace("$displayname", selectedVivDisplay.displayName);
                     CommandHandler.sendPlayerMsgIfMsg(player, errMsg);
                     return;
                 }
-
+                // destroy children
                 List<VivDisplay> queuedDisplays = DisplayGroupHandler.getAllDescendants(selectedVivDisplay);
                 for (VivDisplay vivDisplay : queuedDisplays) {
                     vivDisplay.destroy();
                 }
-                DisplayHandler.destroySelectedDisplay(player);
-            } else {
-                DisplayHandler.destroySelectedDisplay(player);
+                // is now not parent
             }
+            // destroy not parent
+            DisplayHandler.destroySelectedDisplay(player);
             return;
         }
 
         if (!args[1].equalsIgnoreCase("nearby")) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("advDisplayDestroyUsage"));
+            CommandHandler.sendPlayerMsgIfMsg(player, advDisplayDestroyUsageErr);
             return;
         }
 
@@ -132,29 +173,27 @@ public class DisplayCommands {
      */
     static void handleDisplayCreateCommand(Player player, String[] args) {
         if(WorldGuardIntegrationWrapper.worldGuardExists && !WorldGuardIntegrationWrapper.canEditDisplay(player)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, cantEditDisplayHereErr);
             return;
         }
 
         boolean isText = args.length >= 2 && args[1].equalsIgnoreCase("text");
         if (isText) {
             if (args.length < 3) {
-                CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayCreateTextNoText"));
+                CommandHandler.sendPlayerMsgIfMsg(player, displayCreateTextNoTextErr);
                 return;
             }
-
             DisplayHandler.createTextDisplay(player, args);
             return;
         }
 
-
         if (!ItemManipulation.isHeldItemValid(player)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayCreateEmptyHand"));
+            CommandHandler.sendPlayerMsgIfMsg(player, displayCreateEmptyHandErr);
             return;
         }
         boolean atSelected = args.length >= 3 && args[2].equalsIgnoreCase("atselected");
         if (atSelected && DisplayHandler.selectedVivDisplays.get(player.getUniqueId()) == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, noSelectedDisplayErr);
             return;
         }
 
@@ -180,13 +219,13 @@ public class DisplayCommands {
      */
     static void handleDisplayRenameCommand(Player player, String[] args) {
         if (args.length < 2) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayRenameUsage"));
+            CommandHandler.sendPlayerMsgIfMsg(player, displayRenameUsageErr);
             return;
         }
 
         VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, noSelectedDisplayErr);
             return;
         }
 
@@ -203,22 +242,22 @@ public class DisplayCommands {
      */
     static void handleDisplayReplaceItemCommand(Player player) {
         if (!ItemManipulation.isHeldItemValid(player)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayEmptyHand"));
+            CommandHandler.sendPlayerMsgIfMsg(player, displayEmptyHandErr);
             return;
         }
 
         VivDisplay selectedVivDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
+
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, noSelectedDisplayErr);
             return;
         }
         if (selectedVivDisplay instanceof TextDisplay) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayReplaceItemTextDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, displayReplaceItemTextDisplayErr);
             return;
         }
-
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, cantEditDisplayHereErr);
             return;
         }
 
@@ -241,13 +280,13 @@ public class DisplayCommands {
      *               - args[1]: (Optional) The radius  to search for displays. Defaults to 5
      */
     static void handleDisplayNearbyCommand(Player player, String[] args) {
-        double radius = CommandParsing.parseNumberFromArgs(args, 1, 1, 5, player, "Invalid radius specified.");
+        double radius = CommandParsing.parseNumberFromArgs(args, 1, 1, 5, player, "Invalid radius specified."); // todo: config this
 
         List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player.getLocation(), (int) radius, player);
 
         if (nearbyVivDisplays == null || nearbyVivDisplays.isEmpty()) return; // errs in func
 
-        Inventory inventory = GUIBuilder.displaySelectorGUIBuilder(nearbyVivDisplays, Texts.getText("displayNearbyGUITitle"), true);
+        Inventory inventory = GUIBuilder.displaySelectorGUIBuilder(nearbyVivDisplays, displayNearbyGuiTitle);
         player.openInventory(inventory);
     }
 
@@ -257,8 +296,7 @@ public class DisplayCommands {
      * @param player The player executing the command.
      */
     static void handleDisplayClosestCommand(Player player) {
-        int radius = config.getInt("maxSearchRadius");
-        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player.getLocation(), radius, player);
+        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(player.getLocation(), maxSearchRadius, player);
 
         if (nearbyVivDisplays.isEmpty()) return; // errs in func
 
@@ -266,12 +304,12 @@ public class DisplayCommands {
 
         if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, closestVivDisplay)) {
             // return on closest display can't be edited
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
+            CommandHandler.sendPlayerMsgIfMsg(player, cantEditDisplayHereErr);
             return;
         }
 
         DisplayHandler.selectedVivDisplays.put(player.getUniqueId(), closestVivDisplay);
-        CommandHandler.sendPlayerMsgIfMsg(player, Texts.messages.get("displayClosestSuccess"));
+        CommandHandler.sendPlayerMsgIfMsg(player, displayClosestSuccessMsg);
         player.performCommand("display locate");
     }
 
@@ -283,9 +321,9 @@ public class DisplayCommands {
     static void handleDisplayGUICommand(Player player) {
         VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
-            // todo: 'try "/display create"'
-            //       'or "/display nearby"' hyperlinks? also, config that-
+            CommandHandler.sendPlayerMsgIfMsg(player, noSelectedDisplayErr);
+
+            MiscUtils.sendHyperlink(displayCreateHyperLink, "/display create", player);
             return;
         }
 
@@ -294,7 +332,7 @@ public class DisplayCommands {
             ItemStack itemStack = selectedDisplay.getItemStack();
             itemStack.setAmount(1);
             ItemMeta itemMeta = itemStack.getItemMeta();
-            String name = Texts.getText("displayGUIReplaceItemButtonDisplayName");
+            String name = displayGUIReplaceItemButtonDisplayName;
             if (name.isEmpty()) {
                 name = "displayGUIReplaceItemButtonDisplayName";
             }
@@ -304,7 +342,7 @@ public class DisplayCommands {
             inventory.setItem(53, itemStack);
         }
 
-        if(Config.config.getBoolean("autoFocusDisplayOnGUI")) {
+        if(autoFocusDisplayOnGUI) {
             // Get yaw difference
             Vector lookVector = player.getLocation().getDirection();
             Vector toDisplayVector = selectedDisplay.display.getLocation().subtract(player.getLocation()).toVector();
@@ -347,7 +385,7 @@ public class DisplayCommands {
     public static void handleDisplayLocateCommand(Player player) {
         VivDisplay selectedDisplay = DisplayHandler.selectedVivDisplays.get(player.getUniqueId());
         if (selectedDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, noSelectedDisplayErr);
             return;
         }
 

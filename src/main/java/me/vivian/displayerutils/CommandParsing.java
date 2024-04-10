@@ -3,6 +3,7 @@ package me.vivian.displayerutils;
 import me.vivian.displayer.commands.CommandHandler;
 import me.vivian.displayer.config.Texts;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.Map;
 
@@ -85,19 +86,12 @@ public class CommandParsing {
         return new float[] {yawOffset, pitchOffset, rollOffset};
     }
 
-    public static float[] parsePositionOffsets(String[] args, Player player) {
-        float x, y, z;
-
+    public static Vector parseVectorArgs(String[] args, int startArgi) {
         try {
-            x = (float) Double.parseDouble(args[1]);
-            y = (float) Double.parseDouble(args[2]);
-            z = (float) Double.parseDouble(args[3]);
+            return new Vector(Double.parseDouble(args[startArgi]), Double.parseDouble(args[startArgi+1]), Double.parseDouble(args[startArgi+2]));
         } catch (NumberFormatException e) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("parseInvalidPosition"));
             return null;
         }
-
-        return new float[] {x, y, z};
     }
 
     public static byte parseByteFromArg(String opacityArg) {

@@ -31,13 +31,13 @@ public class Texts {
 
     public static String getText(String key) {
         String nativeStr = tCfg.getString(key);
-        if (nativeStr == null) {
-            String defaultStr = dtCfg.getString(key);
-            if (defaultStr == null) return "[text not found for key " + key + "]";
-            return "[en " + key + "] " + defaultStr;
-        }
+        if (nativeStr != null) return nativeStr;
+        nativeStr = messages.get(key);
+        if (nativeStr != null) return nativeStr;
 
-        return nativeStr;
+        String defaultStr = dtCfg.getString(key); // todo: check default messages too
+        if (defaultStr == null) return "[text not found for key " + key + "]";
+        return "[en " + key + "] " + defaultStr;
     }
 
     public static List<String> getTexts(String key) {
@@ -84,7 +84,7 @@ public class Texts {
         }
     }
 
-    public static Map<String, String> loadMessages(String section, FileConfiguration fCfg) {
+    public static Map<String, String> loadMessagesFromFCfg(String section, FileConfiguration fCfg) {
         Map<String, Object> messagesAsObjects = fCfg.getConfigurationSection(section).getValues(false);
         Map<String, String> messages = new HashMap<>();
 
@@ -103,10 +103,10 @@ public class Texts {
     }
 
     public static Map<String, String> loadMessages(String section) {
-        Map<String, String> nativeMessages = loadMessages(section, tCfg);
+        Map<String, String> nativeMessages = loadMessagesFromFCfg(section, tCfg);
         if (Objects.equals(Config.defaultTextsFileName, Config.textsFileName)) return nativeMessages; // using en, return it
 
-        Map<String, String> defaultMessages = loadMessages(section, dtCfg); // using another lang, merge it with en, return that
+        Map<String, String> defaultMessages = loadMessagesFromFCfg(section, dtCfg); // using another lang, merge it with en, return that
         for (Map.Entry<String, String> entry : defaultMessages.entrySet()) {
             nativeMessages.putIfAbsent(entry.getKey(), Config.defaultTextsFileName + "." + entry.getKey() + ": " + entry.getValue());
         }

@@ -1,12 +1,11 @@
 package me.vivian.displayer;
 
-import me.vivian.displayer.commands.AutoFill;
-import me.vivian.displayer.commands.CommandHandler;
-import me.vivian.displayer.commands.TextDisplayCommands;
-import me.vivian.displayer.commands.DisplayCommands;
+import me.vivian.displayer.commands.*;
 import me.vivian.displayer.config.Config;
 import me.vivian.displayer.config.Texts;
 import me.vivian.displayer.display.DisplayHandler;
+import me.vivian.displayer.display.VivDisplay;
+import me.vivian.displayerutils.GUIBuilder;
 import me.vivian.displayerutils.ItemBuilder;
 import me.vivian.displayerutils.NBTMagic;
 import me.vivian.displayerutils.WorldGuardIntegrationWrapper;
@@ -59,11 +58,16 @@ public final class DisplayPlugin extends JavaPlugin { // this should be final ye
 
         // yea
         DisplayCommands.init(this);
+        DisplayGroupCommands.init();
         TextDisplayCommands.init();
 
+        VivDisplay.initStatic(this);
 
         // yea
         NBTMagic.init(this);
+
+        // yea
+        GUIBuilder.init();
     }
 
     public void registerCommand(CommandExecutor commandExecutor, TabCompleter subCommandExecutor, String commandName) {

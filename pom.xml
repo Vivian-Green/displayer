@@ -6,7 +6,7 @@
 
     <groupId>me.vivian</groupId>
     <artifactId>displayer</artifactId>
-    <version>1.7.2-dev</version>
+    <version>1.8.0-dev</version>
     <packaging>jar</packaging>
 
     <name>displayer</name>
@@ -76,6 +76,14 @@
     </repositories>
 
     <dependencies>
+
+        <dependency>
+            <groupId>net.luckperms</groupId>
+            <artifactId>api</artifactId>
+            <version>5.4</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>

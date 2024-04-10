@@ -9,7 +9,7 @@ errors:
   cantEditDisplayHere: 'You can''t edit displays here!'
   displayEmptyHand: 'You need to hold an item first!'
   displaySizeTooSmall: 'Size is too small! Smallest size: $minsize' # accepts $minsize placeholder
-  hierarchyIsNull: 'hierarchy is null'
+  hierarchyIsNull: 'selected display has no children!'
   invalidColor: 'invalid color format! proper format is <r> <g> <b> [a] eg "1 0 0.5" or "255 0 128 192"'
 
   displayUsage: 'Usage: /display create | nearby [radius] | destroy [nearby] [maxCount] [radius] | gui | help'
@@ -51,6 +51,8 @@ errors:
   textDisplaySetOpacityNoOpacity: 'you need to provide an opacity!'
   textDisplaySetOpacityLowOpacity: 'opacity value too small! min value: $minopacity'
 
+  replaceItemTextDisplay: 'You can''t give an item to a text display! Try /display create'
+
 messages:
   displayClosestSuccess: 'Closest Display selected.'
 
@@ -60,6 +62,7 @@ messages:
   displayGroupShowSuccess: '' # unnecessary text on gui button
 
   displayCreateText: 'creating a text display with the text: '
+  displayCreateHyperLink: 'click to create a display with your held item'
 
 displayGUITitle: 'display GUI'
 displayNearbyGUITitle: 'nearby displays'

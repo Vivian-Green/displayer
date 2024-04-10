@@ -1,9 +1,6 @@
 # display todos:
 - active display highlighting? glowing effect?
 - textdisplay filtering
-- display locate command
-- luckperms integration
-- item frame (map) functionality
 - text display functionality
   - setDisplayHeight 
   - setDisplayWidth
@@ -15,13 +12,12 @@
 - wand materials config?
 </br></br>
 - /displaygroup setparent gui
-- ensure no parent time travel alabama ouroborosing - checking for it currently
-- display unselect command OR auto-unselect after time
 </br></br></br></br>
 - move armor stand conversion to command or tool instead of on interact
 - add heads to armor stand conversion
 - different translation offsets for how different items are held, not just sprites
 </br></br>
+- item frame (map) functionality
 - displaygroup prefabs (creative mode, maybe require items in inv in survival?)
 - displaygroup cut/paste
 - displaygroup tree GUI (only show 1 layer in gui-)

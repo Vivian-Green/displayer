@@ -11,11 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 public class GUIBuilder {
@@ -23,6 +19,12 @@ public class GUIBuilder {
     static Material rotButtonMaterial = Material.LIME_CONCRETE;
     static Material sizeButtonMaterial = Material.LIGHT_BLUE_CONCRETE;
     static Material backButtonMaterial = Material.REDSTONE_BLOCK;
+
+    static Inventory baseStandardDisplayGUIInventory = null;
+
+    public static void init() {
+        baseStandardDisplayGUIInventory = createButtonsAndToolsPrefab();
+    }
 
     // Creates an ItemStack in the (inventory) with the specified (material) and (displayName) at the given (x, y) coordinates.
     public static void createButtonAtXY(Inventory inventory, Material material, String displayName, int x, int y) {
@@ -37,19 +39,24 @@ public class GUIBuilder {
         createButtonAtXY(inventory, material, "-" + displayName, x, y + 1);
     }
 
-    public static void createButtonsAndTools(Inventory inventory, VivDisplay vivDisplay) {
+    public static void createVectorPanel(Inventory inventory, Material material, List<String> names, int topLeftX, int topLeftY) {
+        if (names.size() != 3) {
+          System.out.println("created vector panel with invalid number of names??");
+          return;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            createPlusMinusButtonsAtXY(inventory, material, names.get(i), topLeftX+i, topLeftY);
+        }
+
+    }
+
+    public static Inventory createButtonsAndToolsPrefab() { // runs once & is then copied-
+        Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayGUITitle"));
         // buttons
-        createPlusMinusButtonsAtXY(inventory, posButtonMaterial, "x", 0, 1); // pos
-        createPlusMinusButtonsAtXY(inventory, posButtonMaterial, "y", 1, 1);
-        createPlusMinusButtonsAtXY(inventory, posButtonMaterial, "z", 2, 1);
-
-        createPlusMinusButtonsAtXY(inventory, rotButtonMaterial, "yaw", 3, 1); // rot
-        createPlusMinusButtonsAtXY(inventory, rotButtonMaterial, "pitch", 4, 1);
-        createPlusMinusButtonsAtXY(inventory, rotButtonMaterial, "roll", 5, 1);
-
-        createPlusMinusButtonsAtXY(inventory, sizeButtonMaterial, "size x", 6, 1); // size
-        createPlusMinusButtonsAtXY(inventory, sizeButtonMaterial, "size y", 7, 1);
-        createPlusMinusButtonsAtXY(inventory, sizeButtonMaterial, "size z", 8, 1);
+        createVectorPanel(inventory, posButtonMaterial, List.of("x", "y", "z"), 0, 1);
+        createVectorPanel(inventory, rotButtonMaterial, List.of("yaw", "pitch", "roll"), 3, 1);
+        createVectorPanel(inventory, sizeButtonMaterial, List.of("size x", "size y", "size z"), 6, 1);
 
         // tool displays
         createButtonAtXY(inventory, Material.LEAD, Texts.getText("displayGUIMovePanelDisplayName"), 2, 3);
@@ -66,82 +73,18 @@ public class GUIBuilder {
         createButtonAtXY(inventory, backButtonMaterial, Texts.getText("displayGUIBackButtonDisplayName"), 0, 0);
         createButtonAtXY(inventory, Material.BOOK, Texts.getText("displayGUIGroupButtonDisplayName"), 0, 3);
 
-        createButtonAtXY(inventory, Material.PAPER,"details: ", 6,  5);
-        ItemStack detailsButton = ItemManipulation.itemWithName(new ItemStack(Material.PAPER), "details: ");
-        ItemMeta detailsButtonMeta = detailsButton.getItemMeta();
-        assert detailsButtonMeta != null;
-
-        ArrayList<String> details = new ArrayList<>();
-
-        details.add("name: " + vivDisplay.displayName);
-        details.add("type: " + vivDisplay.display.getType());
-
-        int alignState = -1;
-
-        if (vivDisplay.display instanceof TextDisplay){
-            TextDisplay textDisplay = (TextDisplay) vivDisplay.display;
-
-            String alignmentStr = "| | | |";
-            switch (textDisplay.getAlignment()){
-                case LEFT:
-                    alignmentStr = "|<| | |";
-                    alignState = -1;
-                    break;
-                case CENTER:
-                    alignmentStr = "| |=| |";
-                    alignState = 0;
-                    break;
-                case RIGHT:
-                    alignmentStr = "| | |>|";
-                    alignState = 1;
-                    break;
-            }
-
-            String[] texts = textDisplay.getText().split("\n");
-            String[] rawTexts = texts;
-            int longestLen = 0;
-            for (int i = 0; i < rawTexts.length; i++) {
-                rawTexts[i] = rawTexts[i].replaceAll("§.", "");
-                if (rawTexts[i].length() > longestLen) longestLen = rawTexts[i].length();
-            }
-            for (String line : texts) {
-                String paddedText = padTextToLength(line, longestLen, alignState);
-
-                details.add(paddedText);
-            }
-            //details.addAll(Arrays.asList(texts));
-
-            details.add("text properties: align: " + alignmentStr);
-            details.add("    background color: " + textDisplay.getBackgroundColor());
-            details.add("    opacity: " + textDisplay.getTextOpacity());
-
-        } else if (vivDisplay instanceof ItemDisplay || vivDisplay instanceof BlockDisplay) {
-            // leave here in case details need to be added for these in the future
-        }
-        // todo: lore text as config with placeholders
-
-        detailsButtonMeta.setLore(details);
-        detailsButton.setItemMeta(detailsButtonMeta);
-
         createButtonAtXY(inventory, Material.WRITABLE_BOOK, Texts.getText("displayGUIRenameButtonDisplayName"), 7, 5);
         ItemManipulation.setInventoryItemXY(inventory, ItemBuilder.makeGUIBook(), 0, 5);
 
-        ItemManipulation.setInventoryItemXY(inventory, detailsButton, 6, 5);
+        return inventory;
     }
 
-    private static String padTextToLength(String text, int maxLen, int alignState) {
-        int halfLength = (maxLen - text.length()) / 2;
-        StringBuilder halfPaddingBuilder = new StringBuilder(halfLength);
-        for (int j = 0; j < halfLength; j++) {
-            halfPaddingBuilder.append("_");
-        }
-        String halfPadding = halfPaddingBuilder.toString();
-        String paddingIfCenterOrFull = alignState == 0 ? halfPadding : halfPadding + halfPadding;
-        String left = alignState == -1 ? "" : paddingIfCenterOrFull;
-        String right = alignState == 1 ? "" : paddingIfCenterOrFull;
-        return left + text + right;
+    public static Inventory createButtonsAndTools(VivDisplay vivDisplay) {
+        if (baseStandardDisplayGUIInventory == null) baseStandardDisplayGUIInventory = createButtonsAndToolsPrefab();
+        Inventory inventory = baseStandardDisplayGUIInventory;
+        ItemManipulation.setInventoryItemXY(inventory, ItemBuilder.createDetailsButton(vivDisplay), 6, 5);
+        return inventory;
     }
-
 
     public static Inventory displayGUIBuilder(Player player) {
         System.out.println("displayGUIBuilder called");
@@ -158,16 +101,10 @@ public class GUIBuilder {
     }
 
     public static Inventory standardDisplayGUIBuilder(VivDisplay vivDisplay) {
-        Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayGUITitle"));
-        createButtonsAndTools(inventory, vivDisplay);
-        return inventory;
+        return createButtonsAndTools(vivDisplay);
     }
 
-    public static Inventory textDisplayGUIBuilder(VivDisplay vivDisplay) {
-        TextDisplay textDisplay = (TextDisplay) vivDisplay.display;
-        Inventory inventory = Bukkit.createInventory(null, 54, Texts.getText("displayGUITitle"));
-        createButtonsAndTools(inventory, vivDisplay);
-
+    public static void buildTextAlignmentSelector(Inventory inventory, TextDisplay textDisplay) {
         ItemStack off = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemStack on = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
 
@@ -185,33 +122,32 @@ public class GUIBuilder {
             ItemStack pane = (textDisplay.getAlignment() == alignment) ? on : off;
             ItemManipulation.setInventoryItemXY(inventory, pane, i, 5);
         }
+    }
 
+    public static Inventory textDisplayGUIBuilder(VivDisplay vivDisplay) {
+        TextDisplay textDisplay = (TextDisplay) vivDisplay.display;
+        Inventory inventory = createButtonsAndTools(vivDisplay);
+
+        buildTextAlignmentSelector(inventory, textDisplay);
         return inventory;
     }
 
 
-    public static Inventory displaySelectorGUIBuilder(List<VivDisplay> vivDisplays, String title, boolean isNearby) {
+    public static Inventory displaySelectorGUIBuilder(List<VivDisplay> vivDisplays, String title) {
         Inventory inventory = Bukkit.createInventory(null, 54, title);
 
         int maxDisplaysToShow = 36;
         int specialCount = 0;
 
-        //vivDisplays.sort(Comparator.comparing(VivDisplay::getItemName));
-
         for (int i = 0; i < maxDisplaysToShow && i < vivDisplays.size(); i++) {
-            //System.out.println("b");
             VivDisplay vivDisplay = vivDisplays.get(i);
             ItemStack button = ItemBuilder.buildDisplaySelectButton(vivDisplay);
 
-            System.out.println(button.getItemMeta().getDisplayName());
-
             if (vivDisplay.isParent) { // add parented displays at end, otherwise at begin
-                //System.out.println("p");
-                inventory.setItem(36 + specialCount, button); // left to right starting at second row
+                inventory.setItem(36 + specialCount, button); // left to right starting at fifth row
                 specialCount++;
             } else {
-                //System.out.println("!p");
-                inventory.setItem(i - specialCount, button); // left to right starting at fourth row
+                inventory.setItem(i - specialCount, button); // left to right starting at first row
             }
         }
 

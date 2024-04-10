@@ -32,8 +32,6 @@ import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
 
-// todo: EventListeners should exist and shouldn't be taped to plugin-
-
 /**
  * Handles startup and events relevant to displays/display GUIs.
  */
@@ -42,6 +40,10 @@ public final class EventListeners implements Listener {
     public EventListeners() {}
 
     Plugin plugin;
+
+    boolean doDisplayGroupRotation;
+    boolean doArmorStandConversion;
+
     double positionScale = 0.01;
     double rotationScale = 1;
     double sizeScale = 0.01;
@@ -52,6 +54,13 @@ public final class EventListeners implements Listener {
     String displayGUITitle;
     String displayNearbyGUITitle;
     String displayGroupShowGUITitle;
+
+
+    String displayGUIReplaceItemButtonDisplayName;
+
+    String invalidBlockDisplayItemErr;
+
+
     ArrayList<String> guiTitles = new ArrayList<>();
 
     Vector2d switchPosition = new Vector2d(0, 5);
@@ -61,9 +70,13 @@ public final class EventListeners implements Listener {
     public EventListeners(DisplayPlugin thisPlugin) {
         plugin = thisPlugin;
 
+        doDisplayGroupRotation = Config.config.getBoolean("doDisplayGroupRotation");
+        doArmorStandConversion = Config.config.getBoolean("doArmorStandConversion");
+
         displayGUITitle = Texts.getText("displayGUITitle").toLowerCase();
         displayNearbyGUITitle = Texts.getText("displayNearbyGUITitle").toLowerCase();
         displayGroupShowGUITitle = Texts.getText("displayGroupShowGUITitle").toLowerCase();
+        displayGUIReplaceItemButtonDisplayName = Texts.getText("displayGUIReplaceItemButtonDisplayName");
 
         guiTitles.addAll(List.of(new String[]{displayGUITitle, displayNearbyGUITitle, displayGroupShowGUITitle}));
 
@@ -73,6 +86,8 @@ public final class EventListeners implements Listener {
         brightnessScale = (float) Config.config.getDouble("brightnessScale");
         multiplierFastSpeed = (float) Config.config.getDouble("multiplierFastSpeed");
         multiplierSlowSpeed = (float) Config.config.getDouble("multiplierSlowSpeed");
+
+        invalidBlockDisplayItemErr = Texts.getError("invalidBlockDisplayItem");
     }
 
     public void onDisplayGUIClick(InventoryClickEvent event){
@@ -84,17 +99,13 @@ public final class EventListeners implements Listener {
         System.out.println(selectedVivDisplay.getClass());
 
         if (selectedVivDisplay.display instanceof ItemDisplay || selectedVivDisplay.display instanceof BlockDisplay) {
-            System.out.println("standard display gui click");
+            //System.out.println("standard display gui click");
             onStandardDisplayGUIClick(event, selectedVivDisplay);
         } else if (selectedVivDisplay.display instanceof TextDisplay){
-            System.out.println("text display gui click");
+            //System.out.println("text display gui click");
             onTextDisplayGUIClick(event, selectedVivDisplay);
         } else {
             System.out.println("invalid display on gui click?");
-            event.setCancelled(true); // don't let the players take the gui items just bc they're in a weird state (michigan :(  )
-            player.closeInventory(); // close the inventory
-            player.sendMessage("FUCK!"); // todo: debug, remove
-            // todo: write err for this, warn player, do not yell "FUCK!" at them
         }
     }
 
@@ -105,24 +116,24 @@ public final class EventListeners implements Listener {
         Player player = (Player) event.getWhoClicked();
         switch (slot) {
             case 0:
+                event.setCancelled(true);
                 System.out.println("close button click!");
                 player.closeInventory();
                 player.performCommand("display nearby");
-                event.setCancelled(true);
                 return true;
             case 27:
+                event.setCancelled(true);
                 System.out.println("displaygroup button click!");
                 player.closeInventory();
                 player.performCommand("displaygroup show");
-                event.setCancelled(true);
                 return true;
             case 52:
+                event.setCancelled(true);
                 System.out.println("rename button click!");
                 player.closeInventory();
                 String command = "/display rename ";
                 String json = String.format("{\"text\":\"Click to rename this display\",\"color\":\"green\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"%s\"}}", command);
                 player.performCommand("tellraw " + player.getName() + " " + json);
-                event.setCancelled(true);
                 return true;
         }
         // Regular click: 1x
@@ -169,7 +180,7 @@ public final class EventListeners implements Listener {
                         BlockData blockData = material.createBlockData(); // just a test
                     } catch (Exception IllegalArgumentException){
                         // failed to create a BlockData
-                        String errStr = Texts.getError("invalidBlockDisplayItem").replace("$itemName", cursorItem.getType().name());
+                        String errStr = invalidBlockDisplayItemErr.replace("$itemName", cursorItem.getType().name());
                         CommandHandler.sendPlayerMsgIfMsg(player, errStr);
                         return;
                     }
@@ -178,7 +189,7 @@ public final class EventListeners implements Listener {
                 // change item slot in gui
                 ItemStack newItemStack = cursorItem.clone();
                 ItemMeta itemMeta = newItemStack.getItemMeta();
-                itemMeta.setDisplayName(Texts.getText("displayGUIReplaceItemButtonDisplayName"));
+                itemMeta.setDisplayName(displayGUIReplaceItemButtonDisplayName);
                 newItemStack.setAmount(1);
                 newItemStack.setItemMeta(itemMeta);
                 inventory.setItem(slot, newItemStack);
@@ -238,7 +249,7 @@ public final class EventListeners implements Listener {
         int column = slot2i.x - startSlot.x;
         int row = slot2i.y - startSlot.y;
 
-        if (column >= 0 && column < 3 && row >= 0 && row < 2) {
+        if (TMath.intIsClamped(column, 0, 2) && TMath.intIsClamped(row, 0, 1)) {
             if (row == 1) {
                 multiplier *= -1; // Adjust multiplier for second row
             }
@@ -378,7 +389,7 @@ public final class EventListeners implements Listener {
             deltaYaw *= 0.1F;
         }
 
-        if (selectedVivDisplay.isParentDisplay() && Config.config.getBoolean("doDisplayGroupRotation")) {
+        if (selectedVivDisplay.isParentDisplay() && doDisplayGroupRotation) {
             if (heldItemMaterial == Material.LEAD){
                 //System.out.println("-deltaYaw: " + -deltaYaw);
                 //DisplayGroupHandler.rotateHierarchy(selectedVivDisplay, new Vector3d(0, 0, -deltaYaw));
@@ -429,10 +440,8 @@ public final class EventListeners implements Listener {
 
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
-        if (event.getRightClicked() instanceof ArmorStand) {
-            if (Config.config.getBoolean("doArmorStandConversion")) {
-                ArmorStandClickHandler.onInteractWithArmorStand(event);
-            }
+        if (doArmorStandConversion && event.getRightClicked() instanceof ArmorStand) {
+            ArmorStandClickHandler.onInteractWithArmorStand(event);
         }
     }
 }

@@ -9,6 +9,7 @@ import me.vivian.displayer.config.Texts;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
@@ -25,14 +26,41 @@ public class DisplayHandler {
     private static DisplayPlugin plugin;
     public static int playerStaleTime; // seconds
     public static int playerCleanupFrequency; // seconds
+    static int maxSearchRadius;
+
+    static String invalidBlockErr;
+    static String displayCreateTextNoTextErr;
+    static String displayCreateTextErr;
+    static String cantEditDisplayHereErr;
+    static String noSelectedDisplayErr;
+    static String displayNearbyNotFoundErr;
 
     public static void init(DisplayPlugin thisPlugin){
         plugin = thisPlugin;
         playerStaleTime = Config.config.getInt("playerStaleTime");
         playerCleanupFrequency = Config.config.getInt("playerCleanupFrequency");
+        maxSearchRadius = Config.config.getInt("maxSearchRadius");
+
+        invalidBlockErr = Texts.getError("invalidBlock");
+        displayCreateTextNoTextErr = Texts.getError("displayCreateTextNoText");
+        displayCreateTextErr = Texts.getText("displayCreateText");
+        cantEditDisplayHereErr = Texts.getError("cantEditDisplayHere");
+        noSelectedDisplayErr = Texts.getError("noSelectedDisplay");
+        displayNearbyNotFoundErr = Texts.getError("displayNearbyNotFound");
 
         int periodTicks = 20 * playerCleanupFrequency;
         plugin.getServer().getScheduler().runTaskTimer(plugin, DisplayHandler::cleanupStalePlayers, 0, periodTicks);
+    }
+
+    public static VivDisplay getVivDisplayByUUID(World world, String uniqueId) {
+        for (Entity entity : world.getEntities()) {
+            if (entity.getUniqueId().toString().equals(uniqueId)) {
+                if (entity instanceof ItemDisplay || entity instanceof BlockDisplay || entity instanceof TextDisplay) {
+                    return new VivDisplay((Display) entity);
+                }
+            }
+        }
+        return null;
     }
 
     public static void cleanupStalePlayers() {
@@ -69,25 +97,22 @@ public class DisplayHandler {
     public static void  removePlayerVivDisplays(UUID playerUUID){
         selectedVivDisplays.remove(playerUUID);
         lastUpdateTimes.remove(playerUUID);
-        return;
     }
-
-
 
     public static void createBlockDisplay(Player player, String[] args) {
         if (!player.getInventory().getItemInMainHand().getType().isBlock()) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("invalidBlock"));
+            CommandHandler.sendPlayerMsgIfMsg(player, invalidBlockErr);
             return;
         }
         BlockData blockData = player.getInventory().getItemInMainHand().getType().createBlockData();
-        VivDisplay vivDisplay = new VivDisplay(plugin, player.getWorld(), player.getEyeLocation(), EntityType.BLOCK_DISPLAY, blockData);
+        VivDisplay vivDisplay = new VivDisplay(player.getWorld(), player.getEyeLocation(), EntityType.BLOCK_DISPLAY, blockData);
         updateDisplay(player, vivDisplay, args);
     }
 
     public static void createItemDisplay(Player player, String[] args) {
         ItemStack displayItem = player.getInventory().getItemInMainHand().clone();
         displayItem.setAmount(1); // forgor this lmao
-        VivDisplay vivDisplay = new VivDisplay(plugin, player.getWorld(), player.getEyeLocation(), EntityType.ITEM_DISPLAY, displayItem);
+        VivDisplay vivDisplay = new VivDisplay(player.getWorld(), player.getEyeLocation(), EntityType.ITEM_DISPLAY, displayItem);
         updateDisplay(player, vivDisplay, args);
     }
 
@@ -95,13 +120,13 @@ public class DisplayHandler {
         String text = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
 
         if (text.isEmpty()) { // case text is only whitespace, which is trimmed
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayCreateTextNoText"));
+            CommandHandler.sendPlayerMsgIfMsg(player, displayCreateTextNoTextErr);
             return;
         }
 
-        CommandHandler.sendPlayerMsgIfMsg(player, Texts.messages.get("displayCreateText") + text);
+        CommandHandler.sendPlayerMsgIfMsg(player, displayCreateTextErr + text);
 
-        VivDisplay vivDisplay = new VivDisplay(plugin, player.getWorld(), player.getEyeLocation(), EntityType.TEXT_DISPLAY, text);
+        VivDisplay vivDisplay = new VivDisplay(player.getWorld(), player.getEyeLocation(), EntityType.TEXT_DISPLAY, text);
 
         ((TextDisplay) (vivDisplay.display)).setSeeThrough(false);
 
@@ -126,7 +151,7 @@ public class DisplayHandler {
         // todo: MAX RADIUS
         int maxCount = (int) CommandParsing.parseNumberFromArgs(args, 2, 0, 1, player, "Invalid max count"); // default max count to 1
         double radius = CommandParsing.parseNumberFromArgs(args, 3, 0.0, 5.0, player, "Invalid radius"); // default radius to 5
-
+        radius = Math.min(radius, maxSearchRadius);
         if (maxCount < 1 || radius < 0.01) return; // Invalid max count or radius, error message already sent in parsing functions
 
         List<VivDisplay> nearbyVivDisplays = getNearbyVivDisplays(player.getLocation(), (int) radius, player);
@@ -136,7 +161,7 @@ public class DisplayHandler {
         int destroyedCount = 0;
         for (VivDisplay vivDisplay: nearbyVivDisplays) {
             if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, vivDisplay)) {
-                CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
+                CommandHandler.sendPlayerMsgIfMsg(player, cantEditDisplayHereErr);
                 continue;
             }
 
@@ -151,44 +176,46 @@ public class DisplayHandler {
 
     // Gets Displays near a (player) within in a given (radius)
     public static List<Display> getNearbyDisplays(Location location, double radius) {
-        // todo: MAX RADIUS
+        radius = Math.min(radius, maxSearchRadius);
+
         double maxTaxicabDistance = Math.sqrt(3) * radius; // maximum taxicab distance
 
         List<Display> allDisplays = (List<Display>) location.getWorld().getEntitiesByClass(Display.class);
         List<Display> nearbyDisplays = new ArrayList<>();
-        for (Display display: allDisplays) {
-            Location displayLocation = display.getLocation();
 
-            Vector3d delta = location.toVector().subtract(displayLocation.toVector()).toVector3d();
-            double totalDistance = delta.x + delta.y + delta.z;
+        Vector searchPos = location.toVector();
+        Vector zeroVec = new Vector(0, 0, 0);
+        for (Display display: allDisplays) {
+            Vector delta = searchPos.subtract(display.getLocation().toVector());
+            double taxicab = delta.getX() + delta.getY() + delta.getZ();
 
             // do pythagorean after passing taxicab
-            if (totalDistance <= maxTaxicabDistance && location.distance(displayLocation) <= radius) {
+            if (taxicab <= maxTaxicabDistance && delta.distance(zeroVec) <= radius) {
                 nearbyDisplays.add(display);
             }
         }
+
+        nearbyDisplays.sort(Comparator.comparingDouble(display -> display.getLocation().toVector().distance(searchPos)));
         return nearbyDisplays;
     }
 
     // Gets VivDisplay objects near the (player) within a given (radius), sorted by distance
     public static List<VivDisplay> getNearbyVivDisplays(Location location, int radius, Player player) {
-        radius = Math.min(radius, Config.config.getInt("maxSearchRadius")); // todo: warn?
+        radius = Math.min(radius, maxSearchRadius);
 
         List<Display> nearbyDisplays = getNearbyDisplays(location, radius);
-
         if (nearbyDisplays.isEmpty()) {
             if (player == null) return null;
 
-            if (!Texts.getError("displayNearbyNotFound").isEmpty()){
-                CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("displayNearbyNotFound").replace("$radius", ""+radius));
+            if (!displayNearbyNotFoundErr.isEmpty()){
+                CommandHandler.sendPlayerMsgIfMsg(player, displayNearbyNotFoundErr.replace("$radius", ""+radius));
             }
             return null;
         }
 
-        nearbyDisplays.sort(Comparator.comparingDouble(display -> display.getLocation().distance(location)));
         List<VivDisplay> nearbyVivDisplays = new ArrayList<>();
         for (Display display: nearbyDisplays) {
-            nearbyVivDisplays.add(new VivDisplay(plugin, display));
+            nearbyVivDisplays.add(new VivDisplay(display));
         }
 
         return nearbyVivDisplays;
@@ -197,10 +224,10 @@ public class DisplayHandler {
     public static void destroySelectedDisplay(Player player) {
         VivDisplay selectedVivDisplay = selectedVivDisplays.get(player.getUniqueId());
         if (selectedVivDisplay == null) {
-            CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("noSelectedDisplay"));
+            CommandHandler.sendPlayerMsgIfMsg(player, noSelectedDisplayErr);
         } else {
             if(!WorldGuardIntegrationWrapper.canEditThisDisplay(player, selectedVivDisplay)) {
-                CommandHandler.sendPlayerMsgIfMsg(player, Texts.getError("cantEditDisplayHere"));
+                CommandHandler.sendPlayerMsgIfMsg(player, cantEditDisplayHereErr);
                 return;
             }
 
@@ -216,7 +243,7 @@ public class DisplayHandler {
      * @return The found Display object, or null if no display with the given name is found.
      */
     public static Display getDisplayByName(Player player, String displayName) {
-        List<Display> nearbyDisplays = getNearbyDisplays(player.getLocation(), Config.config.getInt("maxSearchRadius"));
+        List<Display> nearbyDisplays = getNearbyDisplays(player.getLocation(), maxSearchRadius);
 
         // Find the first display with the specified "VivDisplayName" NBT tag equal to displayName
         for (Display display: nearbyDisplays) {
@@ -227,28 +254,5 @@ public class DisplayHandler {
         }
 
         return null; // No display found with the given name
-    }
-
-    /**
-     * Retrieves an ItemStack from a (display).
-     *
-     * @param display The Display to get the ItemStack from.
-     * @return The ItemStack representing the Display, or null if unsupported.
-     */
-    public static ItemStack getItemStackFromDisplay(Display display) {
-        // todo: consider switch statement when adding TextDisplay
-        if (display instanceof ItemDisplay) {
-            // If ItemDisplay, return its ItemStack directly
-            ItemDisplay itemDisplay = (ItemDisplay) display;
-            return itemDisplay.getItemStack();
-        } else if (display instanceof BlockDisplay) {
-            // If BlockDisplay, create an ItemStack based on the block material
-            BlockDisplay blockDisplay = (BlockDisplay) display;
-            Material material = blockDisplay.getBlock().getMaterial();
-            return new ItemStack(material, 1);
-        } else {
-            System.out.println("getItemStackFromDisplay(): Unsupported display type");
-            return null;
-        }
     }
 }

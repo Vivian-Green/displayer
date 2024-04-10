@@ -5,9 +5,10 @@ textsDefaultPath: 'texts_en.yml'
 worldguardFlag: 'BUILD'
 
 autoFocusDisplayOnGUI: true # whether to turn the player's camera for /display gui
-GUIYawOffsetTarget: 50 # degrees
+GUIYawOffsetTarget: 40 # degrees
 
-
+lpPermsList: # perms to skip taking player items on creating a display
+  - 'minecraft.command.setblock'
 
 # base scales for transforms
 positionScale: 0.01

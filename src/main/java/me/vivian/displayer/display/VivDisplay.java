@@ -32,27 +32,39 @@ import java.util.UUID;
  * of display information.
  */
 public class VivDisplay{
-    public Display display;
     public static Plugin plugin = null;
+    static String replaceItemTextDisplayErr;
+    static String renameSuccessErr;
+    static String renameFailedErr;
+
+
+
+
+    public Display display;
     public String displayName;
     public String parentUUID;
     public boolean isChild;
     public boolean isParent;
 
-    public VivDisplay(Plugin thisPlugin, Display thisDisplay) {
+    public VivDisplay(Display thisDisplay) {
         display = thisDisplay;
-        init(thisPlugin);
+        init();
     }
 
-    public VivDisplay(Plugin thisPlugin, World world, Location location, EntityType entityType, Object displayData) {
+    public VivDisplay(World world, Location location, EntityType entityType, Object displayData) {
         display = createDisplay(world, location, entityType, displayData);
-        init(thisPlugin);
+        init();
     }
 
-    public void init(Plugin thisPlugin){
-        if (plugin == null) {
-            plugin = thisPlugin;
-        }
+    public static void initStatic(Plugin thisPlugin) {
+        plugin = thisPlugin;
+
+        replaceItemTextDisplayErr = Texts.getError("replaceItemTextDisplay");
+        renameSuccessErr = Texts.getError("renameSuccess");
+        renameFailedErr = Texts.getError("renameFailed");
+    }
+
+    public void init() {
         // todo: try catch these?
         //      Cannot invoke "java.lang.Boolean.booleanValue()" because the return value of "me.vivian.displayerutils.NBTMagic.getNBT(org.bukkit.entity.Entity, String, java.lang.Class)" is null
         //      default values: "", "",
@@ -112,19 +124,19 @@ public class VivDisplay{
      *
      * @param player              The player performing the display destruction.
      */
-    public void destroy(Player player) { // todo: handle case player is null
+    public void destroy(Player player) {
         Map<UUID, VivDisplay> selectedVivDisplays = DisplayHandler.selectedVivDisplays;
 
         if (display!= null) {
             try {
                 if (display instanceof BlockDisplay || display instanceof ItemDisplay) {
-                    display.getWorld().dropItemNaturally(display.getLocation(), DisplayHandler.getItemStackFromDisplay(display));
+                    display.getWorld().dropItemNaturally(display.getLocation(), getItemStack());
                 }
             } catch (Exception e) {
-                System.out.println("Failed to drop item on display destruction: " + e.getMessage());
+                System.out.println("Failed to drop item on display destruction: " + e.getMessage()); // should not happen?
             }
             if (player != null) {
-                selectedVivDisplays.remove(player);
+                selectedVivDisplays.remove(player.getUniqueId());
             }
         } else {
             /* this REALLY should not be an accessible path
@@ -144,7 +156,19 @@ public class VivDisplay{
     }
 
     public ItemStack getItemStack() {
-        return DisplayHandler.getItemStackFromDisplay(display);
+        if (display instanceof ItemDisplay) {
+            // If ItemDisplay, return its ItemStack directly
+            ItemDisplay itemDisplay = (ItemDisplay) display;
+            return itemDisplay.getItemStack();
+        } else if (display instanceof BlockDisplay) {
+            // If BlockDisplay, create an ItemStack based on the block material
+            BlockDisplay blockDisplay = (BlockDisplay) display;
+            Material material = blockDisplay.getBlock().getMaterial();
+            return new ItemStack(material, 1);
+        } else {
+            System.out.println("display getItemStack(): Unsupported display type");
+            return null;
+        }
     }
     public Material getMaterial() {
         if (getItemStack() == null) return null;
@@ -152,8 +176,8 @@ public class VivDisplay{
     }
 
     public void replaceItem(ItemStack newItem){
-        if (display instanceof TextDisplay) { // todo: warn
-            System.out.println("Tried to replace a TextDisplay's item... glwt?");
+        if (display instanceof TextDisplay) {
+            System.out.println(replaceItemTextDisplayErr);
             return;
         }
 
@@ -177,7 +201,7 @@ public class VivDisplay{
      * Renames this VivDisplay.
      *
      * @param newName The new name to set for the display.
-     * @return True if the rename operation was successful, false otherwise.
+     * @return error/success string
      */
     public String rename(String newName) {
         try {
@@ -185,10 +209,10 @@ public class VivDisplay{
             String oldName = displayName;
             displayName = newName;
 
-            return Texts.getError("renameSuccess").replace("$newname", newName).replace("$oldname", oldName);
+            return renameSuccessErr.replace("$newname", newName).replace("$oldname", oldName);
         } catch (Exception e) {
             System.out.println("renameDisplay(): Failed to rename display. Error: " + e.getMessage());
-            return Texts.getError("renameFailed");
+            return renameFailedErr;
         }
     }
 
@@ -196,11 +220,11 @@ public class VivDisplay{
      * Sets the parent of this VivDisplay.
      *
      * @param parentDisplay The parent display to set.
-     * @return True if the operation was successful, false otherwise.
+     * @return error string
      */
-    public String  setParent(Display parentDisplay) {
+    public String setParent(Display parentDisplay) {
         if (parentDisplay == null) {
-            return("Parent display not found");
+            return("Parent display not found"); // todo: config this
         }
 
         // Get the UUID of the parent display
@@ -225,6 +249,8 @@ public class VivDisplay{
         if (!isChild || parentUUIDStr == null || parentUUIDStr.isEmpty()) {
             return "The display is not a child display and does not have a parent.";
         }
+        VivDisplay parentVivDisplay = DisplayHandler.getVivDisplayByUUID(display.getWorld(), parentUUID);
+        // todo: handle null here? ^
 
         parentUUID = "";
         isChild = false;
@@ -232,6 +258,8 @@ public class VivDisplay{
         // Clear the parent-related NBT tags
         NBTMagic.setNBT(display, "VivDisplayParentUUID", "");
         NBTMagic.setNBT(display, "VivDisplayIsChild", false);
+
+        NBTMagic.setNBT(parentVivDisplay.display, "vivDisplayIsParent", false);
 
         // todo: Update the IsParent property of the parent display and handle other related tasks.
 

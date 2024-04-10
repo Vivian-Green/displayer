@@ -1,6 +1,7 @@
 package me.vivian.displayer.display;
 
 import me.vivian.displayer.config.Config;
+import me.vivian.displayer.config.Texts;
 import me.vivian.displayerutils.TMath;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,18 +21,34 @@ import static me.vivian.displayer.display.VivDisplay.plugin;
 public class DisplayGroupHandler {
     static FileConfiguration config = Config.config;
 
+
+    static int maxSearchDepth;
+    static int maxSearchRadius;
+    static Boolean doDisplayGroupRotation;
+
+    static String noSelectedDisplayErr;
+    static String hierarchyIsNullErr;
+    public static void init() {
+        maxSearchDepth = config.getInt("maxSearchDepth");
+        maxSearchRadius = config.getInt("maxSearchRadius");
+        doDisplayGroupRotation = Config.config.getBoolean("doDisplayGroupRotation");
+
+        noSelectedDisplayErr = Texts.getError("noSelectedDisplay");
+        hierarchyIsNullErr = Texts.getError("hierarchyIsNull");
+    }
+
     // Function to translate all displays in a hierarchy
     public static void translateHierarchy(VivDisplay vivDisplay, Vector3d translation) {
         // Get all displays in the hierarchy
         if (vivDisplay == null) {
-            System.out.println("translateHierarchy: vivDisplay is null");
+            System.out.println(noSelectedDisplayErr);
             return;
         }
         System.out.println(vivDisplay.displayName);
 
         List<VivDisplay> hierarchy = getAllDescendants(vivDisplay);
         if (hierarchy == null) {
-            System.out.println("translateHierarchy: hierarchy is null"); // todo: warn
+            System.out.println(hierarchyIsNullErr);
             return;
         }
 
@@ -45,14 +62,14 @@ public class DisplayGroupHandler {
     public static void resizeHierarchy(VivDisplay vivDisplay, float size) {
         // Get all displays in the hierarchy
         if (vivDisplay == null) {
-            System.out.println("resizeHierarchy: vivDisplay is null");
+            System.out.println(noSelectedDisplayErr);
             return;
         }
         System.out.println(vivDisplay.displayName);
 
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
         if (hierarchy == null) {
-            System.out.println("resizeHierarchy: hierarchy is null"); // todo: warn
+            System.out.println(hierarchyIsNullErr);
             return;
         }
 
@@ -120,12 +137,12 @@ public class DisplayGroupHandler {
     private static List<VivDisplay> getAllDescendants(VivDisplay parentVivDisplay, int depth) {
         List<VivDisplay> descendants = new ArrayList<>();
         descendants.add(parentVivDisplay);
-        if (depth >= config.getInt("maxSearchDepth")) return descendants; // too far along in tree
+        if (depth >= maxSearchDepth) return descendants; // too far along in tree
         if (!parentVivDisplay.isParent) return descendants; // no use getting nearby displays when this isn't a parent
 
         String parentUUID = parentVivDisplay.display.getUniqueId().toString();
 
-        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(parentVivDisplay.display.getLocation(), config.getInt("maxSearchRadius"), null);
+        List<VivDisplay> nearbyVivDisplays = DisplayHandler.getNearbyVivDisplays(parentVivDisplay.display.getLocation(), maxSearchRadius, null);
         if (nearbyVivDisplays == null) return null;
 
         for (VivDisplay vivDisplay: nearbyVivDisplays) {
@@ -183,8 +200,8 @@ public class DisplayGroupHandler {
 
         ArrayList<String> parentChainUUIDs = new ArrayList<>();
 
-        int depthLeft = config.getInt("maxSearchDepth");
-        List<Display> nearbyDisplays = DisplayHandler.getNearbyDisplays(vivDisplay.display.getLocation(), config.getInt("maxSearchRadius"));
+        int depthLeft = maxSearchDepth;
+        //List<Display> nearbyDisplays = DisplayHandler.getNearbyDisplays(vivDisplay.display.getLocation(), config.getInt("maxSearchRadius"));
 
         while (depthLeft > 0 && vivDisplay.parentUUID != null && !vivDisplay.parentUUID.isEmpty()) {
             // you have a dad somewhere
@@ -195,7 +212,7 @@ public class DisplayGroupHandler {
 
             // you didn't make your dad, and he is real!
             parentChainUUIDs.add(vivDisplay.parentUUID);
-            vivDisplay = new VivDisplay(plugin, (Display) entity); // but now you are your dad... maybe his dad has the milk?
+            vivDisplay = new VivDisplay((Display) entity); // but now you are your dad... maybe his dad has the milk?
 
             depthLeft--;
         }
@@ -206,11 +223,13 @@ public class DisplayGroupHandler {
 
 
     public static VivDisplay copyVivDisplay(VivDisplay original) {
-        System.out.println("this shouldn't be running yet! copyVivDisplay untested!");
-        if (true) return null;
+        if (true) {
+            System.out.println("this shouldn't be running yet! copyVivDisplay untested! Exiting early");
+            return null;
+        }
 
         // Create a new VivDisplay with the same properties as the original
-        VivDisplay copy = new VivDisplay(plugin, (Display) original.display.copy()); // todo: .copy() probably doesn't work on its own-
+        VivDisplay copy = new VivDisplay((Display) original.display.copy()); // todo: .copy() probably doesn't work on its own-
         copy.displayName = original.displayName;
         copy.isChild = original.isChild;
         copy.isParent = original.isParentDisplay();
@@ -223,7 +242,7 @@ public class DisplayGroupHandler {
     }
 
     public static void rotateVivDisplayAroundPoint(VivDisplay vivDisplay, Location point, double rotationRadians) {
-        if (!Config.config.getBoolean("doDisplayGroupRotation")) return;
+        if (!doDisplayGroupRotation) return;
         System.out.println("rotationDegrees: " + rotationRadians);
 
         Transformation oldTransform = vivDisplay.display.getTransformation();
@@ -321,30 +340,24 @@ public class DisplayGroupHandler {
 
     // Function to rotate all displays in a hierarchy
     public static void rotateHierarchy(VivDisplay vivDisplay, double rotation) {
-        if (!Config.config.getBoolean("doDisplayGroupRotation")) return;
+        if (!doDisplayGroupRotation) return;
 
         // mise en place
         if (vivDisplay == null) {
-            System.out.println("rotateHierarchy: vivDisplay is null");
+            System.out.println(noSelectedDisplayErr);
+            return;
         } else {
-            System.out.println(vivDisplay.displayName);
-            System.out.println("rotateHierarchy rot: " + rotation);
+            //System.out.println(vivDisplay.getItemName());
+            //System.out.println("rotateHierarchy rot: " + rotation);
         }
 
         List<VivDisplay> hierarchy = getAllDisplaysInHierarchy(vivDisplay);
         if (hierarchy == null) {
-            System.out.println("rotateHierarchy: hierarchy is null"); // todo: warn
+            System.out.println(hierarchyIsNullErr);
             return;
         }
 
-        VivDisplay highestVivDisplay = getHighestVivDisplay(vivDisplay);
-        if (highestVivDisplay == null) {
-            System.out.println("rotateHierarchy: highestVivDisplay is null"); // todo: warn
-            return;
-        }
-
-        Location rotationCenter = highestVivDisplay.display.getLocation();
-        Vector rotationCenterPos = rotationCenter.toVector();
+        Location rotationCenter = vivDisplay.display.getLocation();
 
         for (VivDisplay vivDisplayToRotate: hierarchy) {
             rotateVivDisplayAroundPoint(vivDisplayToRotate, rotationCenter, Math.toRadians(rotation));

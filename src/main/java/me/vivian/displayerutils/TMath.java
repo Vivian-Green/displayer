@@ -94,6 +94,27 @@ public class TMath {
         return Math.round(num * mult) / mult;
     }
 
+    public static Vector roundTo(Vector num, int places) {
+        return new Vector(roundTo(num.getX(), places), roundTo(num.getY(), places), roundTo(num.getZ(), places));
+    }
+
+    public static Vector3d roundTo(Vector3d num, int places) {
+        return new Vector3d(roundTo(num.x, places), roundTo(num.y, places), roundTo(num.z, places));
+    }
+
+    public static Vector3f roundTo(Vector3f num, int places) {
+        return new Vector3f(roundTo(num.x, places), roundTo(num.y, places), roundTo(num.z, places));
+    }
+
+    public static boolean vecIsClamped(Vector vec, double min, double max) {
+        return Math.min(Math.min(vec.getX(), vec.getY()), vec.getZ()) >= min && Math.max(Math.max(vec.getX(), vec.getY()), vec.getZ()) <= max;
+    }
+
+    public static boolean intIsClamped(int thisInt, int min, int max) {
+        return thisInt >= min && thisInt <= max;
+    }
+
+
     // rounds a (location)'s position to (places)
     public static Location locationRoundedTo(Location location, int places) {
         double x = roundTo((float) location.getX(), places);
